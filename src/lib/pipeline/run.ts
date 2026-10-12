@@ -6,7 +6,8 @@
 import { getBlocks, listCompanies, listInvestors, saveBlock } from "@/lib/config/store";
 import { geminiConfigured, geminiStats } from "@/lib/gemini";
 import { SearchBudget } from "@/lib/search";
-import { addDays, istDay, weekStartIST } from "@/lib/time";
+import { addDays, istDay } from "@/lib/time";
+import { targetWeek } from "./target-week";
 import { buildActions } from "@/lib/actions/build";
 import { collect } from "./collect";
 import { analyseDigest, ensureTemplateDigests, prepareDigest, storeDigest, type PreparedDigest } from "./digest";
@@ -29,11 +30,6 @@ export interface RunSummary {
   week: string;
   partial: boolean;
   digestSource: string | null;
-}
-
-/** The week the digest describes: the one that just ended on Monday morning, otherwise the week so far. */
-export function targetWeek(now = new Date()): string {
-  return weekStartIST(new Date(now.getTime() - 86_400_000));
 }
 
 export async function runPipeline(opts: RunOptions): Promise<RunSummary> {

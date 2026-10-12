@@ -13,11 +13,13 @@ import { formatWeekRange } from "@/lib/time";
 
 export function TopBar({
   weeks,
+  defaultWeek,
   week,
   onWeekChange,
   refresh,
 }: {
   weeks?: { week: string }[];
+  defaultWeek?: string | null;
   week?: string | null;
   onWeekChange?: (w: string) => void;
   refresh?: ReturnType<typeof useRefresh>;
@@ -52,7 +54,7 @@ export function TopBar({
             ariaLabel="Choose a week"
             value={week ?? weeks[0].week}
             onChange={(v) => onWeekChange?.(v)}
-            options={weeks.map((w, i) => ({ value: w.week, label: `${formatWeekRange(w.week)}${i === 0 ? " (latest)" : ""}` }))}
+            options={weeks.map((w, i) => ({ value: w.week, label: `${formatWeekRange(w.week)}${w.week === defaultWeek ? " (latest digest)" : i === 0 ? " (in progress)" : ""}` }))}
           />
         </div>
       ) : null}

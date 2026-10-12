@@ -93,3 +93,12 @@ describe("same round under two names", () => {
     expect(dedupeDeals([a, b])).toHaveLength(2);
   });
 });
+
+describe("joinAmountTexts", () => {
+  it("keeps one wording per distinct amount", async () => {
+    const { joinAmountTexts } = await import("./dedupe");
+    expect(joinAmountTexts(["$1.3 Mn", "$1.3 million / $1.3 Mn"])).toBe("$1.3 Mn");
+    expect(joinAmountTexts(["$2 million", "$3 million"])).toBe("$2 million / $3 million");
+    expect(joinAmountTexts([null, "Undisclosed", "undisclosed"])).toBe("Undisclosed");
+  });
+});

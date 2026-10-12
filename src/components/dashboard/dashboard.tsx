@@ -33,6 +33,7 @@ export function Dashboard() {
   const header = (
     <TopBar
       weeks={data?.weeks}
+      defaultWeek={data?.defaultWeek}
       week={data?.week}
       onWeekChange={(w) => router.replace(`/?week=${w}`)}
       refresh={refresh}

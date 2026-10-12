@@ -6,6 +6,7 @@ import { getBlocks } from "@/lib/config/store";
 import { getState } from "@/lib/pipeline/runs";
 import { listDigestWeeks } from "@/lib/pipeline/digest";
 import { addDays, isValidDay } from "@/lib/time";
+import { targetWeek } from "@/lib/pipeline/target-week";
 import type { DealRowView, DigestView, QualityView } from "@/lib/view-types";
 import type { AdjacentGroup } from "@/lib/pipeline/adjacency";
 import type { WeekCompute } from "@/lib/pipeline/compute";
@@ -91,7 +92,8 @@ export async function loadQuality(week: string | null, dealsFound: number, undis
 export async function loadDigestView(requestedWeek: string | null): Promise<DigestView> {
   const blocks = await getBlocks();
   const weeks = await listDigestWeeks();
-  const week = requestedWeek && isValidDay(requestedWeek) ? requestedWeek : (weeks[0]?.week ?? null);
+  const defaultWeek = weeks.find((w) => w.week === targetWeek())?.week ?? weeks[0]?.week ?? null;
+  const week = requestedWeek && isValidDay(requestedWeek) ? requestedWeek : defaultWeek;
   const [row] = week ? await db.select().from(digests).where(eq(digests.weekStart, week)).limit(1) : [];
   const patterns = row?.patterns as DigestView["digest"] extends infer D ? (D extends { patterns: infer P } ? P : never) : never;
   const dealRows = week && row ? await loadDealsForWeek(week, patterns?.computed?.newInvestors ?? [], patterns?.adjacency ?? []) : week ? await loadDealsForWeek(week, [], []) : [];
@@ -99,6 +101,7 @@ export async function loadDigestView(requestedWeek: string | null): Promise<Dige
   return {
     weeks: weeks.map((w) => ({ ...w, emailedAt: w.emailedAt ? w.emailedAt.toISOString() : null })),
     week,
+    defaultWeek,
     digest: row
       ? {
           kpis: row.kpis as NonNullable<DigestView["digest"]>["kpis"],

@@ -138,3 +138,24 @@ describe("computeWeek", () => {
     expect(r2.kpis.topSector).toBe("Fintech");
   });
 });
+
+describe("quality rules found on real data", () => {
+  const hist = ["2026-09-07", "2026-09-14", "2026-09-21", "2026-09-28"].flatMap((w) => [deal({ weekStart: w }), deal({ weekStart: w })]);
+  it("a near-miss match (needs review) is not counted as a watchlist hit", () => {
+    const deals = [...hist, deal({ weekStart: W, matchTag: "Portfolio", needsReview: true }), deal({ weekStart: W, matchTag: "Portfolio", needsReview: false })];
+    const r = computeWeek({ week: W, deals, sectors, settings, mandate, watchInvestors: [] });
+    expect(r.kpis.watchlistHits).toBe(1);
+    expect(r.kpis.needsReview).toBe(1);
+  });
+  it("placeholder investor names are not named new investors", () => {
+    const deals = [...hist, deal({ weekStart: W, investors: [{ name: "Existing investors", role: "participant" }, { name: "Angel investors", role: "participant" }, { name: "Real Capital", role: "lead" }] })];
+    const r = computeWeek({ week: W, deals, sectors, settings, mandate, watchInvestors: [] });
+    expect(r.newInvestors.map((n) => n.investor)).toEqual(["Real Capital"]);
+  });
+  it("new investors are only reported for the target (focus) sectors", () => {
+    const other = ["2026-09-07", "2026-09-14", "2026-09-21", "2026-09-28"].flatMap((w) => [deal({ weekStart: w, sector: "Other" }), deal({ weekStart: w, sector: "Other" })]);
+    const deals = [...other, deal({ weekStart: W, sector: "Other", investors: [{ name: "Fresh Fund", role: "lead" }] })];
+    const r = computeWeek({ week: W, deals, sectors, settings, mandate, watchInvestors: [] });
+    expect(r.newInvestors).toHaveLength(0);
+  });
+});

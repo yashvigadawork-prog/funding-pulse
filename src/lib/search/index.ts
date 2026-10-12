@@ -13,6 +13,13 @@ import { PROVIDERS, type SearchOpts, type SearchResult } from "./providers";
 
 export type { SearchOpts, SearchResult } from "./providers";
 
+const SOCIAL = /(^|\.)(instagram|facebook|youtube|youtu|x|twitter|tiktok|pinterest|reddit|t)\.(com|be|co)$/i;
+
+/** Social media posts are not news sources. (LinkedIn searches name their domain, so they are left alone.) */
+export function dropSocial(results: SearchResult[], opts: SearchOpts): SearchResult[] {
+  return opts.includeDomains?.length ? results : results.filter((r) => !SOCIAL.test(domainOf(r.url)));
+}
+
 export class SearchBudget {
   used = 0;
   providerCounts: Record<string, number> = {};
@@ -51,7 +58,7 @@ export async function search(
   const [hit] = await db.select().from(searchCache).where(eq(searchCache.queryHash, hash)).limit(1);
   if (hit && Date.now() - hit.fetchedAt.getTime() < ttlMs) {
     if (ctx.budget) ctx.budget.cacheHits++;
-    return { results: hit.results as SearchResult[], provider: hit.provider, cached: true, errors: [] };
+    return { results: dropSocial(hit.results as SearchResult[], opts), provider: hit.provider, cached: true, errors: [] };
   }
   if (ctx.budget?.exhausted) return { results: [], provider: null, cached: false, errors: [], skippedForBudget: true };
 
@@ -71,6 +78,7 @@ export async function search(
         const want = opts.includeDomains.map((d) => d.toLowerCase());
         results = results.filter((r) => want.some((d) => domainOf(r.url) === d || domainOf(r.url).endsWith(`.${d}`)));
       }
+      results = dropSocial(results, opts);
       const seen = new Set<string>();
       results = results.filter((r) => (seen.has(r.url) ? false : (seen.add(r.url), true)));
       await db

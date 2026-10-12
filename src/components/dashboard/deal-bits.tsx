@@ -6,7 +6,11 @@ import { hostOf } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { DealRowView } from "@/lib/view-types";
 
-export function SourceLinks({ sources, className }: { sources: { url: string; outlet: string | null }[]; className?: string }) {
+export function SourceLinks({ sources: all, className, max }: { sources: { url: string; outlet: string | null }[]; className?: string; max?: number }) {
+  // The same outlet often appears several times; show each outlet once on cards (the full list is in the drawer).
+  const dedup = max ? all.filter((s, i, a) => a.findIndex((x) => (x.outlet ?? x.url) === (s.outlet ?? s.url)) === i) : all;
+  const sources = max ? dedup.slice(0, max) : dedup;
+  const hidden = max ? all.length - sources.length : 0;
   if (!sources.length) return <span className="text-xs text-muted-foreground">No source link</span>;
   return (
     <ul className={cn("flex flex-wrap gap-1.5", className)}>
@@ -24,6 +28,7 @@ export function SourceLinks({ sources, className }: { sources: { url: string; ou
           </a>
         </li>
       ))}
+      {hidden > 0 ? <li className="self-center text-xs text-muted-foreground">+{hidden} more in the details</li> : null}
     </ul>
   );
 }

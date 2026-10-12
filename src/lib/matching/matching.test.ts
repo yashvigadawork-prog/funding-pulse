@@ -24,6 +24,7 @@ describe("normalizeName", () => {
     expect(normalizeName("Zomint Pvt. Ltd.")).toBe("zomint");
     expect(normalizeName("Acme Private Limited")).toBe("acme");
     expect(normalizeName("Sarvam.AI")).toBe("sarvam ai");
+    expect(normalizeName("The Dough Therapy")).toBe("dough therapy");
   });
 });
 
@@ -100,6 +101,11 @@ describe("matchCompany", () => {
     const r = matchCompany({ name: "Zomint Technologies" }, candidates, opts);
     expect(r.company?.id).toBe("zomint");
     expect(r.needsReview).toBe(false);
+  });
+
+  it("a shared leading 'The' does not make different names look alike", () => {
+    const r = matchCompany({ name: "The Dough Therapy" }, [c("twt", "The Whole Truth", "Portfolio")], opts);
+    expect(r.company).toBeNull();
   });
 
   it("does not match unrelated names", () => {

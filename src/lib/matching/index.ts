@@ -55,10 +55,9 @@ export function normalizeName(input: string): string {
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
-  return cleaned
-    .split(/\s+/)
-    .filter((t) => t && !LEGAL_SUFFIXES.has(t))
-    .join(" ");
+  const tokens = cleaned.split(/\s+/).filter((t) => t && !LEGAL_SUFFIXES.has(t));
+  if (tokens.length > 1 && tokens[0] === "the") tokens.shift();
+  return tokens.join(" ");
 }
 
 function escapeRegex(s: string) {

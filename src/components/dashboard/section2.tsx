@@ -57,7 +57,7 @@ function Highlights({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: De
                   </span>
                 </div>
                 <p className="mt-1 text-sm">{h.why}</p>
-                <SourceLinks sources={h.sources} className="mt-2" />
+                <SourceLinks sources={h.sources} className="mt-2" max={4} />
               </div>
             </li>
           );
@@ -165,11 +165,12 @@ function Patterns({ view }: { view: DigestView }) {
         <Panel id="pattern-new_investors" title="Has a new investor started moving in our target sectors?" summary={a.new_investors.summary} chart={<NewInvestorChart entries={c.newInvestors} />} block={a.new_investors}>
           {c.newInvestors.length ? (
             <ul className="mt-2 grid gap-1 text-xs">
-              {c.newInvestors.map((n) => (
+              {c.newInvestors.slice(0, 10).map((n) => (
                 <li key={`${n.sector}-${n.investor}`}>
                   <span className="font-medium">{n.investor}</span> <span className="text-muted-foreground">in {n.sector}{n.onWatchlist ? " · investor of interest" : ""}</span>
                 </li>
               ))}
+              {c.newInvestors.length > 10 ? <li className="text-muted-foreground">+{c.newInvestors.length - 10} more (investors of interest are listed first)</li> : null}
             </ul>
           ) : null}
           <p className="mt-2 text-xs text-muted-foreground">&ldquo;New&rdquo; means new in our records for that sector, not new to the market.{c.sectorsWithoutHistory.length ? ` Not enough history to check: ${c.sectorsWithoutHistory.join(", ")}.` : ""}</p>

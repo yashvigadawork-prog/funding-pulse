@@ -2460,7 +2460,7 @@
         "outlet": "PR Newswire",
         "kind": "newswire",
         "site": "prnewswire.com",
-        "feed_url": null,
+        "feed_url": "https://www.prnewswire.com/apac/rss/news-releases-list.rss",
         "note": ""
       },
       {

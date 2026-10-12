@@ -3,6 +3,7 @@
  * with every source link kept. If outlets disagree on the amount we keep the range and lower confidence.
  */
 import { normalizeName } from "@/lib/matching";
+import { parseAmountText } from "@/lib/money";
 import { daysBetween } from "@/lib/time";
 
 export type Confidence = "high" | "medium" | "low";
@@ -26,6 +27,22 @@ export interface DealLike {
 }
 
 export const DEDUPE_WINDOW_DAYS = 14;
+
+/** Keeps the original wording, but only once for each distinct amount ("$1.3 Mn" and "$1.3 million" are the same). */
+export function joinAmountTexts(texts: (string | null)[]): string | null {
+  const out: string[] = [];
+  const seenValues = new Set<string>();
+  for (const part of texts.flatMap((t) => (t ?? "").split(" / "))) {
+    const t = part.trim();
+    if (!t) continue;
+    const parsed = parseAmountText(t);
+    const key = parsed ? `${parsed.currency}:${parsed.base}` : `text:${t.toLowerCase()}`;
+    if (seenValues.has(key)) continue;
+    seenValues.add(key);
+    out.push(t);
+  }
+  return out.length ? out.join(" / ") : null;
+}
 const AMOUNT_TOLERANCE = 0.05;
 
 const stageCompatible = (a: string, b: string) => a === b || a === "Unknown" || b === "Unknown";
@@ -89,8 +106,7 @@ export function mergeTwo(a: DealLike, b: DealLike): DealLike {
       max = null;
     }
   }
-  const texts = Array.from(new Set([a.amountText, b.amountText].filter((t): t is string => !!t && t.trim() !== "")));
-  const amountText = texts.length ? texts.join(" / ") : null;
+  const amountText = joinAmountTexts([a.amountText, b.amountText]);
 
   const investors = new Map<string, { name: string; role: "lead" | "participant" }>();
   for (const i of [...a.investors, ...b.investors]) {

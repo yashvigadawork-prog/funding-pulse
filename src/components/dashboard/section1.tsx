@@ -23,7 +23,7 @@ export function Section1({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (
   const d = view.digest!;
   const focusIds = new Set(d.patterns.computed.focusDealIds);
   const focus = view.deals.filter((x) => focusIds.has(x.id)).slice(0, 6);
-  const direct = view.deals.filter((x) => x.matchTag);
+  const direct = view.deals.filter((x) => x.matchTag && !x.needsReview);
   const adjacency = d.patterns.adjacency ?? [];
   const byKey: Record<string, React.ReactNode> = {
     capital: <CapitalChart capital={d.patterns.computed.capital} compact />,
@@ -112,7 +112,7 @@ export function Section1({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (
                         </span>
                       </span>
                     </button>
-                    <SourceLinks sources={x.sources} className="mt-2" />
+                    <SourceLinks sources={x.sources} className="mt-2" max={4} />
                   </li>
                 ))}
               </ul>

@@ -45,6 +45,8 @@ export interface QualityView {
 export interface DigestView {
   weeks: { week: string; deals: number; source: string; emailedAt: string | null }[];
   week: string | null;
+  /** The week the latest digest describes. Weeks after it are still in progress. */
+  defaultWeek: string | null;
   digest: {
     kpis: Record<string, number | string | null> & {
       deals: number;

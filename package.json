@@ -16,7 +16,8 @@
     "check:names": "tsx scripts/check-names.ts",
     "check:secrets": "tsx scripts/check-secrets.ts",
     "record:tests": "tsx scripts/record-tests.ts",
-    "gen:components-map": "tsx scripts/gen-components-map.ts"
+    "gen:components-map": "tsx scripts/gen-components-map.ts",
+    "pipeline:run": "tsx scripts/run-pipeline.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

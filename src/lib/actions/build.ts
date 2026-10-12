@@ -34,7 +34,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
     picks.push(p);
   };
   const focusViews = prep.views
-    .filter((v) => prep.compute.focusDealIds.includes(v.id) && v.matchTag !== "Portfolio")
+    .filter((v) => prep.compute.focusDealIds.includes(v.id) && (v.needsReview || v.matchTag !== "Portfolio"))
     .sort((a, b) => (ranked.get(a.id) ?? 99) - (ranked.get(b.id) ?? 99));
   const fromView = (v: (typeof prep.views)[number], why: string): Pick => ({
     company: v.companyName,
@@ -134,7 +134,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
     return null;
   };
   const followUps = new Map<string, FollowUp>();
-  for (const v of prep.views.filter((x) => x.matchTag === "Portfolio" && x.companyId)) {
+  for (const v of prep.views.filter((x) => x.matchTag === "Portfolio" && !x.needsReview && x.companyId)) {
     const co = byId.get(v.companyId!);
     if (!co) continue;
     const st = pickStakeholder("named");

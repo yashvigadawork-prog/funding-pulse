@@ -1,5 +1,5 @@
 /** Building a week's digest: compute (code) -> analyse (Gemini or template) -> store. */
-import { asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, dealInvestors, dealSources, deals, digests, investors, investorsOfInterest } from "@/db/schema";
 import { and, gte, lte } from "drizzle-orm";
@@ -98,7 +98,7 @@ export async function loadAdjacencyDeals(from: string, to: string): Promise<Adja
   return rows.map((r) => ({
     id: r.id,
     companyName: r.companyName,
-    matchTag: (r.matchTag as AdjacencyDeal["matchTag"]) ?? null,
+    matchTag: r.needsReview ? null : ((r.matchTag as AdjacencyDeal["matchTag"]) ?? null),
     sector: r.sector ?? "Other",
     stage: r.stage,
     amountText: r.amountText,
@@ -251,12 +251,12 @@ export async function storeDigest(prep: PreparedDigest, analysis: Analysis, high
 export async function ensureTemplateDigests(blocks: ConfigBlocks, opts: { skipWeek?: string } = {}): Promise<number> {
   const weeks = await db.selectDistinct({ w: deals.weekStart }).from(deals);
   const existing = new Map((await db.select({ w: digests.weekStart, a: digests.analysis, k: digests.kpis }).from(digests)).map((d) => [d.w, d]));
-  const counts = new Map((await db.select({ w: deals.weekStart, n: sql<number>`count(*)::int` }).from(deals).groupBy(deals.weekStart)).map((r) => [r.w, r.n]));
   let n = 0;
   for (const { w } of weeks) {
     if (!w || w === opts.skipWeek) continue;
     const have = existing.get(w);
-    const stale = have && (have.a as Analysis).source === "template" && (have.k as { deals?: number }).deals !== counts.get(w);
+    // Template digests are cheap, so they are always rebuilt from the latest deals and match results.
+    const stale = have && (have.a as Analysis).source === "template";
     if (have && !stale) continue;
     const prep = await prepareDigest(w, blocks);
     const { analysis, highlights } = await analyseDigest(prep, false);

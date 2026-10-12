@@ -77,6 +77,11 @@ export interface WeekCompute {
 
 export type TrendSettings = Pick<DigestSettings, "baseline_weeks" | "acceleration_ratio" | "slowing_ratio" | "min_baseline_deals" | "min_extra_deals">;
 
+/** "Existing investors", "angel investors", "undisclosed" and similar are not named investors. */
+export function isPlaceholderInvestor(name: string): boolean {
+  return /^(an? |the |some |several |other |existing |undisclosed |unnamed |various |multiple |family offices?|angel investors?|angels?\b|investors?\b|hnis?\b|individual|institutional|strategic)/i.test(name.trim()) || /^(others?|undisclosed|n\/a|na)$/i.test(name.trim());
+}
+
 export function isFocusDeal(d: Pick<ComputeDeal, "sector" | "stage" | "matchTag">, mandate: Mandate): boolean {
   if (!mandate.focus_sectors.includes(d.sector)) return false;
   const stage = mandate.stages.find((s) => s.name === d.stage);
@@ -167,6 +172,7 @@ export function computeWeek(p: {
   const sectorsWithoutHistory: string[] = [];
   const newMap = new Map<string, NewInvestorEntry>();
   for (const d of thisWeek) {
+    if (!mandate.focus_sectors.includes(d.sector)) continue; // "target verticals" only
     if ((historyCount.get(d.sector) ?? 0) < settings.min_baseline_deals) {
       if (d.investors.length && !sectorsWithoutHistory.includes(d.sector)) sectorsWithoutHistory.push(d.sector);
       continue;
@@ -174,7 +180,7 @@ export function computeWeek(p: {
     const known = seenBefore.get(d.sector) ?? new Set<string>();
     for (const i of d.investors) {
       const n = normalizeName(i.name);
-      if (!n || known.has(n)) continue;
+      if (!n || known.has(n) || isPlaceholderInvestor(i.name)) continue;
       const key = `${d.sector}::${n}`;
       const e = newMap.get(key) ?? { investor: i.name, sector: d.sector, dealIds: [], onWatchlist: watch.has(n) };
       if (!e.dealIds.includes(d.id)) e.dealIds.push(d.id);
@@ -184,9 +190,11 @@ export function computeWeek(p: {
   const newInvestors = [...newMap.values()].sort((a, b) => Number(b.onWatchlist) - Number(a.onWatchlist) || a.sector.localeCompare(b.sector) || a.investor.localeCompare(b.investor));
 
   // ---- the rest
-  const focusDealIds = thisWeek.filter((d) => isFocusDeal(d, mandate)).map((d) => d.id);
+  // A near-miss name (needs review) is not treated as a confirmed watchlist company.
+  const confirmed = (d: ComputeDeal) => (d.needsReview ? null : d.matchTag);
+  const focusDealIds = thisWeek.filter((d) => isFocusDeal({ sector: d.sector, stage: d.stage, matchTag: confirmed(d) }, mandate)).map((d) => d.id);
   const watchlistHits = thisWeek
-    .filter((d): d is ComputeDeal & { matchTag: "Portfolio" | "On Radar" } => d.matchTag !== null)
+    .filter((d): d is ComputeDeal & { matchTag: "Portfolio" | "On Radar" } => confirmed(d) !== null)
     .map((d) => ({ dealId: d.id, tag: d.matchTag, companyName: d.companyName }));
   const disclosedUsd = thisWeek.reduce((a, d) => a + (d.amountUsd ?? 0), 0);
   const disclosedInr = thisWeek.reduce((a, d) => a + (d.amountInr ?? 0), 0);
