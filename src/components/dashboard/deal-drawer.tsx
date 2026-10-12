@@ -1,6 +1,7 @@
 "use client";
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { stageLabel } from "@/lib/format";
 import { CompanyLogo, SectorDot, TagBadge } from "@/components/common/ui-bits";
 import { formatDay } from "@/lib/time";
 import { Amount, confidenceLabel, SourceLinks } from "./deal-bits";
@@ -36,7 +37,18 @@ export function DealDrawer({ deal, onClose }: { deal: DealRowView | null; onClos
               </div>
             </SheetHeader>
             <dl className="overflow-y-auto px-4 pb-6">
-              <Row label="Stage">{deal.stage ?? "Unknown"}</Row>
+              <Row label="Stage">
+                {stageLabel(deal.stage)}
+                {deal.stage && deal.stage !== "Unknown" ? (
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {deal.stageStatedBy.length
+                      ? `Stated by ${deal.stageStatedBy.map((s) => `${s.outlet ?? "a source"} as “${s.said}”`).join("; ")}. Sources that do not say are not counted.`
+                      : "From the stored record."}
+                  </span>
+                ) : (
+                  <span className="mt-0.5 block text-xs text-muted-foreground">None of the sources states the round. It is never guessed.</span>
+                )}
+              </Row>
               <Row label="Amount">
                 <Amount deal={deal} />
               </Row>

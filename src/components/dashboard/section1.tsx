@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowDown } from "lucide-react";
+import { stageLabel } from "@/lib/format";
 import { CompanyLogo, SectorDot, TagBadge } from "@/components/common/ui-bits";
 import { EmptyState } from "@/components/common/states";
 import { describeGroup } from "@/lib/pipeline/adjacency";
@@ -55,7 +56,7 @@ export function Section1({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (
                     </span>
                     <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <SectorDot sector={x.sector} />
-                      {x.sector} · {x.stage ?? "Unknown"}
+                      {x.sector} · {stageLabel(x.stage)}
                     </span>
                   </span>
                   <span className="shrink-0 text-right text-sm">
@@ -108,7 +109,7 @@ export function Section1({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (
                         </span>
                         <span className="block text-xs text-muted-foreground">{x.matchReason}</span>
                         <span className="mt-0.5 block text-xs">
-                          {x.stage ?? "Unknown"} · <Amount deal={x} withText={false} />
+                          {stageLabel(x.stage)} · <Amount deal={x} withText={false} />
                         </span>
                       </span>
                     </button>
@@ -133,7 +134,7 @@ export function Section1({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (
                           <span className="font-medium">{it.companyName}</span>
                           <span className="text-muted-foreground">
                             {" "}
-                            · {it.stage ?? "Unknown"} · {it.amountText ?? "Undisclosed"} · {it.announcedOn}
+                            · {stageLabel(it.stage)} · {it.amountText ?? "Undisclosed"} · {it.announcedOn}
                           </span>
                           <span className="block text-muted-foreground">Shared: {it.sharedTerms.join(", ")}</span>
                           <SourceLinks sources={it.sources} className="mt-1" />

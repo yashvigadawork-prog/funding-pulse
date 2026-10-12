@@ -1,9 +1,11 @@
 /** Section 3: founder outreach, portfolio follow-up and the LP brief, built from a prepared digest. */
 import { eq } from "drizzle-orm";
+import { stageLabel } from "@/lib/format";
 import { db } from "@/db";
 import { founderLeads } from "@/db/schema";
 import { getBlocks, listCompanies, listStakeholders } from "@/lib/config/store";
 import { normalizeName } from "@/lib/matching";
+import { scrubDeep } from "@/lib/forbidden";
 import { formatInr, formatUsd } from "@/lib/money";
 import type { PreparedDigest } from "@/lib/pipeline/digest";
 import { SearchBudget } from "@/lib/search";
@@ -51,7 +53,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
     sources: v.sources.map((s) => ({ url: s.url, outlet: s.outlet })),
     founders: v.founders,
   });
-  for (const v of focusViews.slice(0, 3)) add(fromView(v, `Focus deal: ${v.stage ?? "Unknown"} in ${v.sector}`));
+  for (const v of focusViews.slice(0, 3)) add(fromView(v, `Focus deal: ${stageLabel(v.stage)} in ${v.sector}`));
   const priorityRank: Record<string, number> = { high: 0, medium: 1, low: 2 };
   const radar = companies.filter((c) => c.tag === "On Radar").sort((a, b) => (priorityRank[a.priority ?? "low"] ?? 3) - (priorityRank[b.priority ?? "low"] ?? 3));
   for (const c of radar) {
@@ -75,7 +77,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
       founders: [],
     });
   }
-  for (const v of focusViews.slice(3)) add(fromView(v, `Focus deal: ${v.stage ?? "Unknown"} in ${v.sector}`));
+  for (const v of focusViews.slice(3)) add(fromView(v, `Focus deal: ${stageLabel(v.stage)} in ${v.sector}`));
 
   const budget = new SearchBudget(Math.min(10, Math.max(0, settings.max_search_queries_per_run)));
   const none = { founder: null, founderSource: null, linkedinUrl: null, linkedinSource: null, email: null, emailSource: null };
@@ -143,7 +145,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
       company: co.name,
       domain: co.domain,
       reason: "named",
-      headline: `${co.name} was named in the news: ${v.stage ?? "Unknown"}, ${v.amountText ?? "amount undisclosed"}`,
+      headline: `${co.name} was named in the news: ${stageLabel(v.stage)}, ${v.amountText ?? "amount undisclosed"}`,
       stakeholder: st ? { name: st.name, role: st.role, email: st.email, type: st.type, demo: st.demo } : null,
       draft: portfolioFollowUpDraft({ kind: "named", company: co.name, recipientName: st?.name ?? null, named: [{ stage: v.stage, amountText: v.amountText, sourceUrl: v.sources[0]?.url ?? null }], adjacent: [], windowDays: settings.adjacency_window_days }, sender),
       sources: v.sources.map((s) => ({ url: s.url, outlet: s.outlet })),
@@ -198,10 +200,10 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
     },
     sender,
   );
-  return {
+  return scrubDeep({
     founderOutreach: outreach,
     portfolioFollowUp,
     lpBrief: { draft: lp, keyPoints: top.map((t) => ({ text: `${t.company}: ${t.why}`, url: t.sourceUrl })), reportPath: `/report/${prep.week}` },
     generatedAt: new Date().toISOString(),
-  };
+  });
 }

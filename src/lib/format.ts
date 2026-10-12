@@ -20,3 +20,8 @@ export function hostOf(url: string): string {
     return url;
   }
 }
+
+/** How a stage is shown. A stage is never guessed: if no source states one, we say so. */
+export function stageLabel(stage: string | null | undefined): string {
+  return !stage || stage === "Unknown" ? "Stage not reported" : stage;
+}

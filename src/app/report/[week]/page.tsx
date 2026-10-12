@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { stageLabel } from "@/lib/format";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -70,7 +71,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
           <ul className="grid gap-2">
             {view.deals.filter((x) => c.focusDealIds.includes(x.id)).slice(0, 8).map((x) => (
               <li key={x.id} className="print-avoid-break rounded-lg border p-3 text-sm">
-                <span className="font-medium">{x.companyName}</span> {x.matchTag ? `(${x.matchTag})` : ""} · {x.sector} · {x.stage ?? "Unknown"} · <Amount deal={x} withText={false} />
+                <span className="font-medium">{x.companyName}</span> {x.matchTag ? `(${x.matchTag})` : ""} · {x.sector} · {stageLabel(x.stage)} · <Amount deal={x} withText={false} />
                 <SourceLinks sources={x.sources} className="mt-1" />
               </li>
             ))}
@@ -92,7 +93,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
                 <ul className="mt-1 grid gap-1 pl-4">
                   {g.items.map((i) => (
                     <li key={i.dealId}>
-                      {i.companyName} · {i.stage ?? "Unknown"} · {i.amountText ?? "Undisclosed"} · {i.announcedOn}
+                      {i.companyName} · {stageLabel(i.stage)} · {i.amountText ?? "Undisclosed"} · {i.announcedOn}
                       <SourceLinks sources={i.sources} className="mt-0.5" />
                     </li>
                   ))}
@@ -144,7 +145,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
                   {h.rank}. {h.companyName} {h.matchTag ? `(${h.matchTag})` : ""}
                 </p>
                 <p className="text-muted-foreground">
-                  {h.sector} · {h.stage ?? "Unknown"} · {h.amountUsd !== null ? `${formatInr(h.amountInr)} (${formatUsd(h.amountUsd)})` : "Undisclosed"}
+                  {h.sector} · {stageLabel(h.stage)} · {h.amountUsd !== null ? `${formatInr(h.amountInr)} (${formatUsd(h.amountUsd)})` : "Undisclosed"}
                 </p>
                 <p>{h.why}</p>
                 <SourceLinks sources={h.sources} className="mt-1" />
@@ -171,7 +172,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
                 <tr key={x.id} className="print-avoid-break border-b align-top">
                   <td className="py-1 pr-2 font-medium">{x.companyName}</td>
                   <td className="pr-2">{x.sector}</td>
-                  <td className="pr-2">{x.stage ?? "Unknown"}</td>
+                  <td className="pr-2">{stageLabel(x.stage)}</td>
                   <td className="pr-2">{x.amountText ?? "Undisclosed"}</td>
                   <td>
                     <SourceLinks sources={x.sources} />

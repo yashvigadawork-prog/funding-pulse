@@ -6,6 +6,7 @@ import { and, gte, lte } from "drizzle-orm";
 import type { ConfigBlocks } from "@/lib/config/store";
 import { normalizeName } from "@/lib/matching";
 import { addDays, istDay } from "@/lib/time";
+import { containsForbidden } from "@/lib/forbidden";
 import { listCompanies } from "@/lib/config/store";
 import { computeAdjacency, type AdjacencyDeal, type AdjacentGroup, adjacencyWindow } from "./adjacency";
 import { geminiAnalyse, selectCandidates, templateAnalysis, type Analysis, type AnalysisInput, type DealView, type Highlight } from "./analyse";
@@ -22,6 +23,7 @@ export async function loadComputeDeals(): Promise<ComputeDeal[]> {
   const byDeal = new Map<number, { name: string; role: "lead" | "participant" }[]>();
   for (const i of inv) {
     const arr = byDeal.get(i.dealId) ?? [];
+    if (containsForbidden(i.name)) continue;
     arr.push({ name: i.name, role: i.role === "lead" ? "lead" : "participant" });
     byDeal.set(i.dealId, arr);
   }

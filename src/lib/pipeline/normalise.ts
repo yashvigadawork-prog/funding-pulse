@@ -39,7 +39,7 @@ export function normaliseStage(raw: string | null | undefined, stages: string[])
   else if (/pre ?series ?a/.test(t)) out = "Pre-Series A";
   else if (/pre ?seed/.test(t)) out = "Pre-seed";
   else if (/series ?a\b|series ?a\d|series ?a\+/.test(t)) out = "Series A";
-  else if (/series ?[b-z]\b|series ?[b-z]\d|series ?[b-z]\+|growth|pre ?ipo|late stage/.test(t)) out = "Series B+";
+  else if (/series ?[b-z]\b|series ?[b-z]\d|series ?[b-z]\+/.test(t)) out = "Series B+";
   else if (/\bseed\b/.test(t)) out = "Seed";
   if (out && stages.includes(out)) return out;
   // An exact configured name still works (for custom stage lists).

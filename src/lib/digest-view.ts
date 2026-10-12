@@ -11,6 +11,8 @@ import type { DealRowView, DigestView, QualityView } from "@/lib/view-types";
 import type { AdjacentGroup } from "@/lib/pipeline/adjacency";
 import type { WeekCompute } from "@/lib/pipeline/compute";
 import { normalizeName } from "@/lib/matching";
+import { containsForbidden, scrubDeep } from "@/lib/forbidden";
+import { statedStageWords } from "@/lib/stage-words";
 
 export async function loadDealsForWeek(week: string, newInvestors: WeekCompute["newInvestors"], adjacency: AdjacentGroup[]): Promise<DealRowView[]> {
   const rows = await db.select().from(deals).where(eq(deals.weekStart, week));
@@ -23,11 +25,15 @@ export async function loadDealsForWeek(week: string, newInvestors: WeekCompute["
       .innerJoin(investors, eq(investors.id, dealInvestors.investorId))
       .where(inArray(dealInvestors.dealId, ids)),
     db
-      .select({ dealId: dealSources.dealId, url: articles.url, outlet: articles.outlet, title: articles.title })
+      .select({ dealId: dealSources.dealId, articleId: articles.id, url: articles.url, outlet: articles.outlet, title: articles.title, extracted: articles.extracted })
       .from(dealSources)
       .innerJoin(articles, eq(articles.id, dealSources.articleId))
       .where(inArray(dealSources.dealId, ids)),
   ]);
+  // Only articles that claim a stage are read in full, to quote the outlet's own words.
+  const claimIds = src.filter((s) => ((s.extracted as { stage?: string | null }[] | null) ?? []).some((e) => e.stage)).map((s) => s.articleId);
+  const stageText = new Map<number, string>();
+  if (claimIds.length) for (const t of await db.select({ id: articles.id, text: articles.text }).from(articles).where(inArray(articles.id, [...new Set(claimIds)]))) stageText.set(t.id, t.text ?? "");
   const newKey = new Set(newInvestors.flatMap((n) => n.dealIds.map((id) => `${id}::${normalizeName(n.investor)}`)));
   return rows
     .map((r) => ({
@@ -48,9 +54,21 @@ export async function loadDealsForWeek(week: string, newInvestors: WeekCompute["
       announcedOn: r.announcedOn,
       confidence: r.confidence,
       summary: r.summary,
+      stageStatedBy: src
+        .filter((s) => s.dealId === r.id)
+        .flatMap((s) => {
+          const claims = ((s.extracted as { company_name?: string; stage?: string | null }[] | null) ?? []).filter(
+            (e) => e.stage && e.company_name && normalizeName(e.company_name) === normalizeName(r.companyName),
+          );
+          if (!claims.length) return [];
+          // Quote the outlet's own words from its text; fall back to what was extracted.
+          const said = statedStageWords(stageText.get(s.articleId) ?? "", r.companyName) ?? String(claims[0].stage);
+          return [{ outlet: s.outlet, said }];
+        })
+        .filter((x, i, a) => a.findIndex((y) => y.outlet === x.outlet && y.said === x.said) === i),
       founders: (r.founders as DealRowView["founders"] | null) ?? [],
       investors: inv
-        .filter((i) => i.dealId === r.id)
+        .filter((i) => i.dealId === r.id && !containsForbidden(i.name))
         .map((i) => ({ name: i.name, role: (i.role === "lead" ? "lead" : "participant") as "lead" | "participant", newInSector: newKey.has(`${r.id}::${normalizeName(i.name)}`) }))
         .sort((a, b) => Number(b.role === "lead") - Number(a.role === "lead")),
       sources: src.filter((s) => s.dealId === r.id && !s.url.startsWith("paste:")).map((s) => ({ url: s.url, outlet: s.outlet, title: s.title })),
@@ -89,7 +107,12 @@ export async function loadQuality(week: string | null, dealsFound: number, undis
   };
 }
 
+/** Everything the page, the report and the emails show passes through here once. */
 export async function loadDigestView(requestedWeek: string | null): Promise<DigestView> {
+  return scrubDeep(await loadDigestViewRaw(requestedWeek));
+}
+
+async function loadDigestViewRaw(requestedWeek: string | null): Promise<DigestView> {
   const blocks = await getBlocks();
   const weeks = await listDigestWeeks();
   const defaultWeek = weeks.find((w) => w.week === targetWeek())?.week ?? weeks[0]?.week ?? null;

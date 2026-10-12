@@ -3,6 +3,7 @@
  * structured JSON output, a global request limiter and retry with exponential backoff.
  */
 import type { ZodType } from "zod";
+import { scrubText } from "@/lib/forbidden";
 
 export const GEMINI_DEFAULT_MODEL = "gemini-3.8-flash";
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
@@ -231,5 +232,5 @@ export function truncate(text: string, max: number): string {
 
 /** Strips characters that could close one of our tags inside untrusted text. */
 export function escapeForTag(text: string): string {
-  return text.replace(/<\/?\s*(article|source|user_question)[^>]*>/gi, " ");
+  return scrubText(text).replace(/<\/?\s*(article|source|user_question)[^>]*>/gi, " ");
 }

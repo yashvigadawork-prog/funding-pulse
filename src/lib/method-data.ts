@@ -3,6 +3,7 @@ import { and, count, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, dealSources, deals, digests, matchAudit, runs } from "@/db/schema";
 import { getState, latestRun } from "@/lib/pipeline/runs";
+import { scrubDeep } from "@/lib/forbidden";
 import type { Analysis } from "@/lib/pipeline/analyse";
 import type { WeekCompute } from "@/lib/pipeline/compute";
 
@@ -31,6 +32,10 @@ async function firstSource(dealId: number): Promise<{ url: string; outlet: strin
 }
 
 export async function loadEdgeCases(): Promise<EdgeCase[]> {
+  return scrubDeep(await loadEdgeCasesRaw());
+}
+
+async function loadEdgeCasesRaw(): Promise<EdgeCase[]> {
   const out: EdgeCase[] = [];
   const safe = async <T,>(fn: () => Promise<T>): Promise<T | null> => {
     try {

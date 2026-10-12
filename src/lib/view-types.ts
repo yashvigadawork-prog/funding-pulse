@@ -23,6 +23,8 @@ export interface DealRowView {
   announcedOn: string | null;
   confidence: string;
   summary: string | null;
+  /** Which outlets actually state the stage, and the words they used. Empty when no source states one. */
+  stageStatedBy: { outlet: string | null; said: string }[];
   founders: { name: string; role?: string | null }[];
   investors: { name: string; role: "lead" | "participant"; newInSector: boolean }[];
   sources: { url: string; outlet: string | null; title: string | null }[];

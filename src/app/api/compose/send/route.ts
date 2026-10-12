@@ -2,6 +2,7 @@ import { z } from "zod";
 import { handle, HttpError, readJson } from "@/lib/api";
 import { sendEmail } from "@/lib/email/send";
 import { clientId } from "@/lib/rate-limit";
+import { scrubText } from "@/lib/forbidden";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -16,7 +17,7 @@ const body = z.object({
 
 export const POST = handle(async (req: Request) => {
   const b = body.parse(await readJson(req));
-  const r = await sendEmail({ to: b.to, subject: b.subject, text: b.text, type: b.type, callerId: clientId(req) });
+  const r = await sendEmail({ to: b.to, subject: scrubText(b.subject), text: scrubText(b.text), type: b.type, callerId: clientId(req) });
   if (!r.ok) throw new HttpError(422, r.message, { status: r.status });
   return Response.json(r);
 });

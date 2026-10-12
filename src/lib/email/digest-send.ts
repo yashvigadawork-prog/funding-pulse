@@ -1,4 +1,5 @@
 import "server-only";
+import { stageLabel } from "@/lib/format";
 import { and, eq, isNull } from "drizzle-orm";
 import { render } from "@react-email/render";
 import React from "react";
@@ -11,6 +12,7 @@ import type { Analysis } from "@/lib/pipeline/analyse";
 import type { StoredHighlight } from "@/lib/pipeline/digest";
 import { formatWeekRange } from "@/lib/time";
 import { appUrl } from "@/lib/url";
+import { scrubDeep } from "@/lib/forbidden";
 import { sendEmail } from "./send";
 import { DigestEmail, type DigestEmailProps } from "./templates";
 
@@ -39,7 +41,7 @@ export async function buildDigestEmail(week: string): Promise<{ props: DigestEma
     highlights: hl.map((h) => ({
       rank: h.rank,
       company: h.companyName,
-      detail: `${h.sector} · ${h.stage ?? "Unknown"} · ${h.amountUsd !== null ? `${formatInr(h.amountInr)} (${formatUsd(h.amountUsd)})` : "Undisclosed"}${h.matchTag ? ` · ${h.matchTag}` : ""}`,
+      detail: `${h.sector} · ${stageLabel(h.stage)} · ${h.amountUsd !== null ? `${formatInr(h.amountInr)} (${formatUsd(h.amountUsd)})` : "Undisclosed"}${h.matchTag ? ` · ${h.matchTag}` : ""}`,
       why: h.why,
       url: h.sources[0]?.url ?? null,
       outlet: h.sources[0]?.outlet ?? null,
@@ -47,7 +49,7 @@ export async function buildDigestEmail(week: string): Promise<{ props: DigestEma
     dashboardUrl: `${appUrl()}/?week=${week}`,
     note: analysis.source === "template" && analysis.reason === "ai_unavailable" ? "Written from a template because the AI service was unavailable. The numbers are unaffected." : undefined,
   };
-  const el = React.createElement(DigestEmail, props);
+  const el = React.createElement(DigestEmail, scrubDeep(props));
   return { props, html: await render(el), text: await render(el, { plainText: true }), subject: `Funding Pulse: ${formatWeekRange(week)}` };
 }
 

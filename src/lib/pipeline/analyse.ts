@@ -8,6 +8,7 @@
 import { z } from "zod";
 import { geminiJson, escapeForTag, UNTRUSTED_NOTICE, truncate, geminiModel } from "@/lib/gemini";
 import { formatInr, formatUsd } from "@/lib/money";
+import { scrubDeep } from "@/lib/forbidden";
 import { isFocusDeal, type ComputeDeal, type WeekCompute } from "./compute";
 import type { Mandate } from "@/lib/config/schema";
 
@@ -245,7 +246,7 @@ export function buildAnalysisPayload(input: AnalysisInput) {
 
 export async function geminiAnalyse(input: AnalysisInput): Promise<{ analysis: Analysis; highlights: Highlight[] }> {
   const payload = buildAnalysisPayload(input);
-  const dataJson = JSON.stringify(payload.data);
+  const dataJson = JSON.stringify(scrubDeep(payload.data));
   const system = [
     "You are an analyst writing a short weekly note on Indian startup funding for a venture scout.",
     UNTRUSTED_NOTICE,

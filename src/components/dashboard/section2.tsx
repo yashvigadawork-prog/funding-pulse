@@ -8,7 +8,7 @@ import { Banner, EmptyState } from "@/components/common/states";
 import { CompanyLogo, NativeSelect, SectorDot, TagBadge } from "@/components/common/ui-bits";
 import { useConfig } from "@/lib/client/api";
 import { formatInr, formatUsd } from "@/lib/money";
-import { plural } from "@/lib/format";
+import { plural, stageLabel } from "@/lib/format";
 import { Amount, SourceLinks } from "./deal-bits";
 import { CapitalChart, MomentumChart, NewInvestorChart } from "./charts";
 import type { AnalysisBlock } from "@/lib/pipeline/analyse";
@@ -53,7 +53,7 @@ function Highlights({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: De
                   </button>
                   {h.matchTag ? <TagBadge tag={h.matchTag} /> : null}
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <SectorDot sector={h.sector} /> {h.sector} · {h.stage ?? "Unknown"} · {h.amountUsd !== null ? `${formatInr(h.amountInr)} (${formatUsd(h.amountUsd)})` : "Undisclosed"}
+                    <SectorDot sector={h.sector} /> {h.sector} · {stageLabel(h.stage)} · {h.amountUsd !== null ? `${formatInr(h.amountInr)} (${formatUsd(h.amountUsd)})` : "Undisclosed"}
                   </span>
                 </div>
                 <p className="mt-1 text-sm">{h.why}</p>
@@ -205,7 +205,7 @@ function DealRows({ deals, onOpenDeal }: { deals: DealRowView[]; onOpenDeal: (d:
               {d.needsReview ? <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[0.68rem] text-warning">review</span> : null}
               {d.adjacentTo.length ? <span className="rounded bg-accent px-1.5 py-0.5 text-[0.68rem] text-accent-foreground">adjacent</span> : null}
             </span>
-            <span className="col-start-2 text-xs text-muted-foreground md:col-start-auto md:text-sm">{d.stage ?? "Unknown"}</span>
+            <span className="col-start-2 text-xs text-muted-foreground md:col-start-auto md:text-sm">{stageLabel(d.stage)}</span>
             <span className="col-start-2 text-sm md:col-start-auto">
               <Amount deal={d} withText={false} />
             </span>
@@ -253,7 +253,7 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
           <Input aria-label="Search company or investor" placeholder="Search company or investor" className="pl-8" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <NativeSelect ariaLabel="Filter by sector" value={sector} onChange={setSector} options={[{ value: "all", label: "All sectors" }, ...sectors.map((s) => ({ value: s, label: s }))]} />
-        <NativeSelect ariaLabel="Filter by stage" value={stage} onChange={setStage} options={[{ value: "all", label: "All stages" }, ...stages.map((s) => ({ value: s, label: s }))]} />
+        <NativeSelect ariaLabel="Filter by stage" value={stage} onChange={setStage} options={[{ value: "all", label: "All stages" }, ...stages.map((s) => ({ value: s, label: stageLabel(s) }))]} />
         <NativeSelect
           ariaLabel="Filter by watchlist"
           value={tag}

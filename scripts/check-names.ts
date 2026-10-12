@@ -1,9 +1,8 @@
 import { execSync } from "node:child_process";
 import { readText, repoFiles } from "./files";
 
-// The forbidden words are assembled from fragments so this file never contains them.
-const forbidden = [["rain", "matter"].join(""), ["zero", "dha"].join("")];
-const re = new RegExp(forbidden.join("|"), "i");
+// The one shared list (built from fragments so no file contains the words).
+import { FORBIDDEN_RE as re } from "../src/lib/forbidden";
 
 const hits: string[] = [];
 for (const f of repoFiles()) {

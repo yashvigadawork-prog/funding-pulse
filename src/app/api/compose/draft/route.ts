@@ -3,6 +3,7 @@ import { handle, readJson } from "@/lib/api";
 import { getBlocks } from "@/lib/config/store";
 import { escapeForTag, geminiConfigured, geminiJson, UNTRUSTED_NOTICE } from "@/lib/gemini";
 import { limitAi } from "@/lib/limits";
+import { scrubDeep } from "@/lib/forbidden";
 import { numbersAreGrounded } from "@/lib/pipeline/analyse";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export const POST = handle(async (req: Request) => {
     const nums = numbersAreGrounded(out.body, b.body);
     if (lostOrNewUrl || !nums.ok || (b.kind === "linkedin" && out.body.length > 300))
       return Response.json({ ok: false, message: "The AI version changed facts or links, so it was not used. Your draft is unchanged." });
-    return Response.json({ ok: true, subject: out.subject || b.subject, body: out.body });
+    return Response.json(scrubDeep({ ok: true, subject: out.subject || b.subject, body: out.body }));
   } catch {
     return Response.json({ ok: false, message: "AI drafting is unavailable right now. Your draft is unchanged." });
   }

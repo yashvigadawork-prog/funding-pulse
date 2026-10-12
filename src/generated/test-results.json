@@ -1,8 +1,8 @@
 {
-  "recordedAt": "2026-10-12T12:09:12.419Z",
-  "commit": "aae57cd",
-  "total": 137,
-  "passed": 137,
+  "recordedAt": "2026-10-12T12:46:43.673Z",
+  "commit": "a163378",
+  "total": 145,
+  "passed": 145,
   "failed": 0,
   "files": [
     {
@@ -27,6 +27,12 @@
       "file": "src/lib/email/rules.test.ts",
       "total": 7,
       "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/forbidden.test.ts",
+      "total": 4,
+      "passed": 4,
       "failed": 0
     },
     {
@@ -85,8 +91,14 @@
     },
     {
       "file": "src/lib/pipeline/normalise.test.ts",
-      "total": 21,
-      "passed": 21,
+      "total": 23,
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/stage-words.test.ts",
+      "total": 2,
+      "passed": 2,
       "failed": 0
     }
   ]
