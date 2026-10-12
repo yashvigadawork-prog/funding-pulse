@@ -13,7 +13,7 @@ Sources feed Collect. Collect passes articles to Extract, which uses Gemini to p
 | Component | Purpose | Inputs | Outputs | External service | Free-tier limit |
 | --- | --- | --- | --- | --- | --- |
 | Source collector | Finds feeds, reads new funding articles, fetches article text | Outlet list (editable), look-back days | Articles table | Public news sites (RSS and web pages) | None. Requests are polite, with timeouts and size caps |
-| Search chain | One search function that tries providers in order and caches results for 24 hours | Query, options | Title, link, snippet, date | Tavily, Exa, Google Programmable Search, Serper, Gemini grounding | Tavily about 1,000 credits a month; Google 100 queries a day; others vary, check each provider |
+| Search chain | One search function that tries providers in order and caches results for 24 hours | Query, options | Title, link, snippet, date | Tavily, Exa, Serper, Gemini grounding | Tavily about 1,000 credits a month; the others vary, check each provider |
 | Extractor | Turns article text into structured deals (company, stage, amount as written, investors) | Article text, sector and stage lists | Raw deals stored on each article | Gemini Flash (gemini-3.8-flash) | Free tier is small and shared per project; batch size is configurable |
 | Normaliser | Maps sectors by whole-word keywords, stages to the list, amounts to USD and INR with the configured rate | Raw deals, taxonomy, USD to INR rate | Clean deals | None (code) | None |
 | Deduplicator | Merges the same company, round and near dates across outlets; keeps every link and any amount range | Clean deals, stored deals | Unique deals with sources | None (code) | None |

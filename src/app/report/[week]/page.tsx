@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PrintTrigger } from "@/components/report-bits";
-import { CapitalChart, MomentumChart, NewInvestorChart, StaticChartsContext } from "@/components/dashboard/charts";
+import { CapitalChart, MomentumChart, NewInvestorChart, StaticCharts } from "@/components/dashboard/charts";
 import { Amount, SourceLinks } from "@/components/dashboard/deal-bits";
 import { loadDigestView } from "@/lib/digest-view";
 import { describeGroup } from "@/lib/pipeline/adjacency";
@@ -31,7 +31,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
   const direct = view.deals.filter((x) => x.matchTag);
   const actions = d.actions as { portfolioFollowUp?: { company: string; headline: string }[]; lpBrief?: { keyPoints: { text: string; url: string | null }[] } };
   return (
-    <StaticChartsContext.Provider value>
+    <StaticCharts>
       <div className="mx-auto max-w-4xl px-4 py-6 text-[15px] print-links">
         <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-2">
           <Link href={`/?week=${week}`} className="text-sm text-primary underline underline-offset-2">
@@ -214,6 +214,6 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
           <p className="mt-6 text-xs text-muted-foreground">Every claim links to its source. Amounts that were not disclosed are never guessed or added up. Rates use the configured USD to INR rate.</p>
         </section>
       </div>
-    </StaticChartsContext.Provider>
+    </StaticCharts>
   );
 }

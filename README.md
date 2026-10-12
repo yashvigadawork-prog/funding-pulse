@@ -100,7 +100,7 @@ All of them are listed, without values, in `.env.example`. Real values live only
 | --- | --- |
 | `DATABASE_URL` | Neon pooled connection string |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | Gemini key and model name (default `gemini-3.8-flash`) |
-| `TAVILY_API_KEY`, `EXA_API_KEY`, `GOOGLE_PSE_API_KEY`, `GOOGLE_PSE_CX`, `SERPER_API_KEY` | Search providers, tried in this order. Any with a missing key is skipped; Gemini with Google Search is the last resort |
+| `TAVILY_API_KEY`, `EXA_API_KEY`, `SERPER_API_KEY` | Search providers, tried in this order. Any with a missing key is skipped; Gemini with Google Search is the last resort |
 | `RESEND_API_KEY`, `RESEND_FROM` | Email sending |
 | `CRON_SECRET` | Protects the scheduled digest endpoint and the backfill endpoint |
 | `APP_URL` | Public address, used for links in emails and drafts |

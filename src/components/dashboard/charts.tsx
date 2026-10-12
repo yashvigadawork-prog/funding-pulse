@@ -13,7 +13,12 @@ export const shortSector = (s: string) =>
 const DRAW_MS = 600;
 
 /** The print report switches chart animation off so charts are complete when the page is printed. */
-export const StaticChartsContext = createContext(false);
+const StaticChartsContext = createContext(false);
+
+/** Wrap the report in this so every chart draws fully at once (no animation) before printing. */
+export function StaticCharts({ children }: { children: React.ReactNode }) {
+  return <StaticChartsContext.Provider value>{children}</StaticChartsContext.Provider>;
+}
 function useAnimate() {
   const reduced = usePrefersReducedMotion();
   const isStatic = useContext(StaticChartsContext);

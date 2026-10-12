@@ -2501,15 +2501,6 @@
     },
     {
       "order": 3,
-      "provider": "google_programmable_search",
-      "env": [
-        "GOOGLE_PSE_API_KEY",
-        "GOOGLE_PSE_CX"
-      ],
-      "free_tier_note": "100 queries a day"
-    },
-    {
-      "order": 4,
       "provider": "serper",
       "env": [
         "SERPER_API_KEY"
@@ -2517,7 +2508,7 @@
       "free_tier_note": "One-time signup credits"
     },
     {
-      "order": 5,
+      "order": 4,
       "provider": "gemini_grounding",
       "env": [
         "GEMINI_API_KEY"
