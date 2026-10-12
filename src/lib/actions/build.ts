@@ -6,13 +6,13 @@ import { founderLeads } from "@/db/schema";
 import { getBlocks, listCompanies, listStakeholders } from "@/lib/config/store";
 import { normalizeName } from "@/lib/matching";
 import { scrubDeep } from "@/lib/forbidden";
-import { amountLabel, formatInr, formatUsd } from "@/lib/money";
+import { amountLabel } from "@/lib/money";
 import type { PreparedDigest } from "@/lib/pipeline/digest";
 import { SearchBudget } from "@/lib/search";
-import { formatWeekRange } from "@/lib/time";
+import { formatWeekStart } from "@/lib/time";
 import { appUrl } from "@/lib/url";
 import { findContact } from "./contacts";
-import { founderEmailDraft, linkedinNoteDraft, lpBriefDraft, portfolioFollowUpDraft } from "./drafts";
+import { founderEmailDraft, linkedinNoteDraft, lpBriefDraft, lpBullets, portfolioFollowUpDraft } from "./drafts";
 import type { ActionsBlock, FollowUp, FounderLead } from "./types";
 
 const OUTREACH_COUNT = 5;
@@ -26,7 +26,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
   const ranked = new Map(prep.candidates.map((c) => [c.dealId, c.rank]));
 
   /* ---- founder outreach: five companies from focus deals and On Radar ---- */
-  type Pick = { company: string; companyId: string | null; domain: string | null; tag: "Portfolio" | "On Radar" | null; why: string; dealId: number | null; stage: string | null; amountText: string | null; sector: string | null; summary: string | null; sourceUrl: string | null; sources: { url: string; outlet: string | null }[]; founders: { name: string; role?: string | null }[] };
+  type Pick = { company: string; companyId: string | null; domain: string | null; tag: "Portfolio" | "On Radar" | null; why: string; dealId: number | null; stage: string | null; amountText: string | null; amountUsd: number | null; amountInr: number | null; sector: string | null; summary: string | null; sourceUrl: string | null; sources: { url: string; outlet: string | null }[]; founders: { name: string; role?: string | null }[] };
   const picks: Pick[] = [];
   const seen = new Set<string>();
   const add = (p: Pick) => {
@@ -47,6 +47,8 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
     dealId: v.id,
     stage: v.stage,
     amountText: v.amountText,
+    amountUsd: v.amountUsd,
+    amountInr: v.amountInr,
     sector: v.sector,
     summary: v.summary,
     sourceUrl: v.sources[0]?.url ?? null,
@@ -70,6 +72,8 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
       dealId: null,
       stage: c.stage_last_seen ?? null,
       amountText: c.last_round_text ?? null,
+      amountUsd: null,
+      amountInr: null,
       sector: c.sector,
       summary: c.description ?? null,
       sourceUrl: c.evidence_url ?? null,
@@ -91,7 +95,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
       knownFounder: known,
       ctx: { chain: blocks.search_chain, settings, budget, linkedinEnabled: blocks.sources.linkedin_via_search.enabled },
     }).catch(() => none);
-    const facts = { company: p.company, founder: c.founder, stage: p.stage, amountText: p.amountText, sector: p.sector, summary: p.summary, sourceUrl: p.sourceUrl };
+    const facts = { company: p.company, founder: c.founder, stage: p.stage, amountText: p.amountText, amountUsd: p.amountUsd, amountInr: p.amountInr, sector: p.sector, summary: p.summary, sourceUrl: p.sourceUrl, outlet: p.sources[0]?.outlet ?? null };
     return {
       company: p.company,
       companyId: p.companyId,
@@ -147,7 +151,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
       reason: "named",
       headline: `${co.name} was named in the news: ${stageLabel(v.stage)}, ${v.amountUsd !== null ? amountLabel(v) : "amount undisclosed"}`,
       stakeholder: st ? { name: st.name, role: st.role, email: st.email, type: st.type, demo: st.demo } : null,
-      draft: portfolioFollowUpDraft({ kind: "named", company: co.name, recipientName: st?.name ?? null, named: [{ stage: v.stage, amountText: v.amountText, sourceUrl: v.sources[0]?.url ?? null }], adjacent: [], windowDays: settings.adjacency_window_days }, sender),
+      draft: portfolioFollowUpDraft({ kind: "named", company: co.name, recipientName: st?.name ?? null, named: [{ stage: v.stage, amountText: v.amountText, amountUsd: v.amountUsd, amountInr: v.amountInr, sourceUrl: v.sources[0]?.url ?? null }], adjacent: [], windowDays: settings.adjacency_window_days }, sender),
       sources: v.sources.map((s) => ({ url: s.url, outlet: s.outlet })),
     });
   }
@@ -169,7 +173,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
           company: g.portfolioName,
           recipientName: st?.name ?? null,
           named: [],
-          adjacent: g.items.map((i) => ({ company: i.companyName, stage: i.stage, amountText: i.amountText, sharedTerms: i.sharedTerms, sourceUrl: i.sources[0]?.url ?? null })),
+          adjacent: g.items.map((i) => ({ company: i.companyName, stage: i.stage, amountText: i.amountText, amountUsd: i.amountUsd, amountInr: i.amountInr, sharedTerms: i.sharedTerms, sourceUrl: i.sources[0]?.url ?? null })),
           windowDays: g.windowDays,
         },
         sender,
@@ -186,16 +190,18 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
     const v = prep.views.find((x) => x.id === c.dealId);
     return v ? [{ company: v.companyName, stage: v.stage, amountText: v.amountText, sourceUrl: v.sources[0]?.url ?? null, why: c.why }] : [];
   });
-  const adjacentLines = prep.adjacency.slice(0, 3).map((g) => `${g.portfolioName}: ${g.items.map((i) => i.companyName).join(", ")} raised nearby${g.items[0]?.sources[0] ? ` (${g.items[0].sources[0].url})` : ""}`);
+  const { bullets, leadSectors } = lpBullets(prep.compute.capital, prep.compute.trends);
+  const near = prep.adjacency.find((g) => g.cluster) ?? prep.adjacency[0];
+  const lpPerson = stakeholders.find((x) => x.type === "LP" && !x.demo) ?? null;
   const lp = lpBriefDraft(
     {
       fundName: blocks.fund_profile.name,
-      weekLabel: formatWeekRange(prep.week),
+      weekStartLabel: formatWeekStart(prep.week),
+      recipientName: lpPerson?.name ?? null,
       deals: k.deals,
-      disclosedText: k.disclosedUsd > 0 ? `${formatInr(k.disclosedInr)} (${formatUsd(k.disclosedUsd)}), undisclosed amounts not counted` : "none disclosed",
-      topSector: k.topSector,
-      highlights: top,
-      adjacentLines,
+      bullets,
+      leadSectors,
+      nearby: near ? { companies: near.companies, sector: near.sector, windowDays: near.windowDays, portfolioName: near.portfolioName } : null,
       reportUrl,
     },
     sender,

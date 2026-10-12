@@ -59,6 +59,11 @@ export function formatWeekRange(weekStart: string): string {
   return `${f(s, false)} – ${f(e, true)}`;
 }
 
+/** "5 Oct": the first day of the week, for email subjects. */
+export function formatWeekStart(weekStart: string): string {
+  return new Date(`${weekStart}T00:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" });
+}
+
 export function formatDateTimeIST(d: Date | string | null | undefined): string {
   if (!d) return "never";
   const date = typeof d === "string" ? new Date(d) : d;

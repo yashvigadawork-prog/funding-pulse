@@ -38,6 +38,7 @@ export async function buildDigestEmail(week: string): Promise<{ props: DigestEma
     orgDescriptor: `${blocks.fund_profile.type}, ${blocks.fund_profile.location}`,
     weekLabel: formatWeekRange(week),
     kpiLine: kpiLine(k),
+    weekLine: analysis.weekLine,
     highlights: hl.map((h) => ({
       rank: h.rank,
       company: h.companyName,

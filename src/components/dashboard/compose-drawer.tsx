@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, Send, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Copy, Loader2, Send, Sparkles } from "lucide-react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Banner } from "@/components/common/states";
 import { ConfirmDialog, Field } from "@/components/common/ui-bits";
 import { api, ApiError, fetcher, useConfig } from "@/lib/client/api";
+import { streamText } from "@/lib/client/stream";
 import { timeAgo } from "@/lib/format";
 
 export interface ComposeSection {
@@ -72,7 +73,9 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
   const [confirm, setConfirm] = useState(false);
   const [sending, setSending] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
-  const [improving, setImproving] = useState(false);
+  const [busy, setBusy] = useState<"improve" | "warmer" | "shorter" | null>(null);
+  const stop = useRef<() => void>(() => {});
+  useEffect(() => () => stop.current(), []);
   const log = useSWR<LogRow[]>("/api/compose/log", fetcher, { revalidateOnFocus: false });
 
   const rebuild = (next: Record<string, boolean>) => {
@@ -89,21 +92,29 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
     }
   }
 
-  async function improve() {
-    setImproving(true);
+  /** One AI call: polish, warmer or shorter. The new text types itself in; the facts are checked on the server. */
+  async function rewrite(mode: "improve" | "warmer" | "shorter") {
+    setBusy(mode);
+    stop.current();
     try {
-      const r = await api.post<{ ok: boolean; message?: string; subject?: string; body?: string }>("/api/compose/draft", { subject, body: text, kind: isLinkedIn ? "linkedin" : "email" });
+      const r = await api.post<{ ok: boolean; message?: string; subject?: string; body?: string }>("/api/compose/draft", { subject, body: text, kind: isLinkedIn ? "linkedin" : "email", mode });
       if (r.ok && r.body) {
-        setText(r.body);
         if (r.subject) setSubject(r.subject);
         setEdited(true);
-        toast.success("Draft polished. Please read it before sending.");
+        stop.current = streamText(r.body, setText, () => toast.success(mode === "warmer" ? "Rewritten warmer. Please read it before sending." : mode === "shorter" ? "Shortened. Please read it before sending." : "Draft polished. Please read it before sending."));
       } else toast.info(r.message ?? "No change made.");
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : "Could not reach the drafting service.");
     } finally {
-      setImproving(false);
+      setBusy(null);
     }
+  }
+
+  /** Picking a named person from the address book swaps a generic "Hi," for their first name. */
+  function pickRecipient(v: string) {
+    setTo(v);
+    const person = cfg?.stakeholders.find((s) => s.email.toLowerCase() === v.trim().toLowerCase());
+    if (person && !person.demo && !edited && /^Hi( there)?,/.test(text)) setText((t) => t.replace(/^Hi( there)?,/, `Hi ${person.name.split(/\s+/)[0]},`));
   }
 
   async function send() {
@@ -152,7 +163,7 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
             <Field label="To" hint="Pick someone from the address book or type an address.">
               {(id) => (
                 <>
-                  <Input id={id} type="email" list="address-book" value={to} onChange={(e) => setTo(e.target.value)} placeholder="name@company.com" />
+                  <Input id={id} type="email" list="address-book" value={to} onChange={(e) => pickRecipient(e.target.value)} placeholder="name@company.com" />
                   <datalist id="address-book">
                     {cfg?.stakeholders.map((s) => (
                       <option key={s.id} value={s.email}>
@@ -184,8 +195,14 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
               <Send data-icon="inline-start" /> Send…
             </Button>
           )}
-          <Button variant="outline" onClick={improve} disabled={improving}>
-            <Sparkles data-icon="inline-start" /> {improving ? "Polishing…" : "Improve with AI"}
+          <Button variant="outline" onClick={() => rewrite("warmer")} disabled={!!busy}>
+            {busy === "warmer" ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Sparkles data-icon="inline-start" />} Rewrite warmer
+          </Button>
+          <Button variant="outline" onClick={() => rewrite("shorter")} disabled={!!busy}>
+            {busy === "shorter" ? <Loader2 className="animate-spin" data-icon="inline-start" /> : null} Shorter
+          </Button>
+          <Button variant="outline" onClick={() => rewrite("improve")} disabled={!!busy}>
+            {busy === "improve" ? <Loader2 className="animate-spin" data-icon="inline-start" /> : null} Improve with AI
           </Button>
           <Button variant="ghost" onClick={onClose}>
             Close

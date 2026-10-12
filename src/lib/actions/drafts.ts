@@ -3,24 +3,52 @@
  * A missing value is left out of the sentence rather than guessed.
  */
 import type { SenderProfile } from "@/lib/config/schema";
+import { amountSpoken, formatUsd } from "@/lib/money";
+import type { SectorCapital, SectorTrend } from "@/lib/pipeline/compute";
 import type { Draft } from "./types";
+
+/**
+ * Voice for every email: first person, written as the sender, warm and brief. No internal labels (Portfolio / On Radar),
+ * no raw links in the body (the LP note ends with one "full brief" link) and every number comes from computed data.
+ */
 
 export interface RoundFacts {
   company: string;
   founder: string | null;
   stage: string | null;
   amountText: string | null;
+  amountUsd?: number | null;
+  amountInr?: number | null;
   sector: string | null;
   summary: string | null;
   sourceUrl: string | null;
+  /** Where the news ran, for example "Entrackr". Named in words instead of pasting a link. */
+  outlet?: string | null;
 }
 
-const signature = (s: SenderProfile) => `${s.name}\n${[s.title, s.organisation].filter(Boolean).join(", ")}`;
 const known = (v: string | null | undefined) => (v && v.toLowerCase() !== "unknown" && v.trim() ? v.trim() : null);
+const firstName = (n: string | null | undefined) => (n && n.trim() ? n.trim().split(/\s+/)[0] : null);
+const sentence = (t: string) => (/[.!?]$/.test(t.trim()) ? t.trim() : `${t.trim()}.`);
+
+const signature = (s: SenderProfile) => `Warm regards,\n${s.name}\n${[s.title, s.organisation].filter(Boolean).join(", ")}`;
+
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const numberWord = (n: number) => (Number.isInteger(n) && n >= 0 && n <= 10 ? NUMBER_WORDS[n] : String(n));
+const SECTOR_WORDS: Record<string, string> = { "Health & wellness": "health", "Climate & sustainability": "climate", "Media, deeptech & education": "deeptech" };
+export const sectorWord = (s: string | null | undefined) => (s ? (SECTOR_WORDS[s] ?? s.toLowerCase()) : "");
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
+/** "$2 million", "$1.5 million (about ₹12 crore)" from the computed amount; the reported text only when no number exists. */
+function amountPhrase(f: { amountText: string | null; amountUsd?: number | null; amountInr?: number | null }): string | null {
+  const spoken = amountSpoken({ amountUsd: f.amountUsd ?? null, amountInr: f.amountInr ?? null });
+  if (spoken) return spoken;
+  const t = known(f.amountText);
+  return t && !/undisclosed|not disclosed|n\/a/i.test(t) && !/^\d*$/.test(t) ? t : null;
+}
 
 function roundPhrase(f: RoundFacts): string {
   const stage = known(f.stage);
-  const amount = known(f.amountText) && !/undisclosed/i.test(f.amountText ?? "") ? f.amountText!.trim() : null;
+  const amount = amountPhrase(f);
   if (amount && stage) return `raised ${amount} in a ${stage} round`;
   if (amount) return `raised ${amount}`;
   if (stage) return `announced a ${stage} round`;
@@ -28,86 +56,119 @@ function roundPhrase(f: RoundFacts): string {
 }
 
 export function founderEmailDraft(f: RoundFacts, sender: SenderProfile): Draft {
-  const greet = f.founder ? `Hi ${f.founder.split(/\s+/)[0]},` : `Hi ${f.company} team,`;
+  const who = firstName(f.founder);
+  const stage = known(f.stage);
+  const amount = amountPhrase(f);
+  const congrats = amount && stage ? `Congratulations on ${f.company}'s ${stage} round of ${amount}.` : amount ? `Congratulations on ${f.company} raising ${amount}.` : stage ? `Congratulations on ${f.company}'s ${stage} round.` : `Congratulations on the news from ${f.company}.`;
+  const outlet = known(f.outlet);
   const lines = [
-    greet,
+    who ? `Hi ${who},` : `Hi ${f.company} team,`,
     "",
-    sender.intro_line,
+    [
+      congrats + (outlet ? ` I read about it in ${outlet}.` : ""),
+      sender.intro_line.replace(/^I'm a venture scout/, `I'm ${sender.name}, a venture scout`),
+      known(f.summary) ? `What caught my attention: ${sentence(f.summary!)}` : "",
+      `${f.sector && known(f.sector) ? `${cap(sectorWord(f.sector))} is a space we follow closely, and ` : ""}${f.company} is the kind of early-stage Indian team we like to meet.`,
+      "Would you be open to a 20-minute call in the next couple of weeks?",
+    ]
+      .filter(Boolean)
+      .join(" "),
     "",
-    `I came across the news that ${f.company} ${roundPhrase(f)}${f.sourceUrl ? ` (${f.sourceUrl})` : ""}.${known(f.summary) ? ` ${f.summary!.trim()}` : ""} Congratulations.`,
-    "",
-    `I would love to learn more about what you are building. Would you be open to a short call in the next couple of weeks?`,
-    "",
-    "Best,",
     signature(sender),
   ];
-  return { subject: `Congratulations on the news, ${f.company}`, body: lines.join("\n") };
+  return { subject: stage ? `Congratulations on ${f.company}'s ${stage} round` : `Congratulations, ${f.company}`, body: lines.join("\n") };
 }
 
 export function linkedinNoteDraft(f: RoundFacts, sender: SenderProfile): string {
-  const greet = f.founder ? `Hi ${f.founder.split(/\s+/)[0]}` : "Hi";
-  return `${greet}, saw the news about ${f.company}. I'm ${sender.name}, ${[sender.title, sender.organisation].filter(Boolean).join(" at ")}. Would love to learn more about what you're building.`.slice(0, 300);
+  const greet = f.founder ? `Hi ${firstName(f.founder)}` : "Hi";
+  return `${greet}, congratulations on the news about ${f.company}. I'm ${sender.name}, ${[sender.title, sender.organisation].filter(Boolean).join(" at ")}. Would love to learn more about what you're building.`.slice(0, 300);
 }
 
 export interface FollowUpFacts {
   kind: "named" | "adjacent" | "cluster";
   company: string;
   recipientName: string | null;
-  named: { stage: string | null; amountText: string | null; sourceUrl: string | null }[];
-  adjacent: { company: string; stage: string | null; amountText: string | null; sharedTerms: string[]; sourceUrl: string | null }[];
+  named: { stage: string | null; amountText: string | null; amountUsd?: number | null; amountInr?: number | null; sourceUrl: string | null }[];
+  adjacent: { company: string; stage: string | null; amountText: string | null; amountUsd?: number | null; amountInr?: number | null; sharedTerms: string[]; sourceUrl: string | null }[];
   windowDays: number;
 }
 
+const list = (xs: string[]) => (xs.length <= 1 ? (xs[0] ?? "") : xs.length === 2 ? `${xs[0]} and ${xs[1]}` : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+
 export function portfolioFollowUpDraft(f: FollowUpFacts, sender: SenderProfile): Draft {
-  const hi = f.recipientName ? `Hi ${f.recipientName.split(/\s+/)[0]},` : "Hi,";
+  const hi = firstName(f.recipientName) ? `Hi ${firstName(f.recipientName)},` : "Hi,";
   const lines: string[] = [hi, ""];
   if (f.kind === "named") {
     const n = f.named[0];
-    lines.push(`${f.company} was in the news this week: it ${roundPhrase({ company: f.company, founder: null, stage: n?.stage ?? null, amountText: n?.amountText ?? null, sector: null, summary: null, sourceUrl: null })}.${n?.sourceUrl ? ` Source: ${n.sourceUrl}` : ""}`);
-    lines.push("", "Worth a quick check-in to see how we can help.");
+    const round = roundPhrase({ company: f.company, founder: null, stage: n?.stage ?? null, amountText: n?.amountText ?? null, amountUsd: n?.amountUsd, amountInr: n?.amountInr, sector: null, summary: null, sourceUrl: null });
+    lines.push(`I saw the news that ${f.company} ${round}. Congratulations.`, "", "How are things going on your side, and is there anything we can help with, like an intro or a conversation?");
   } else {
+    const names = [...new Set(f.adjacent.map((a) => a.company))];
+    const bits = f.adjacent
+      .map((a) => [known(a.stage), amountPhrase(a)].filter(Boolean).join(", "))
+      .filter(Boolean);
     lines.push(
-      f.kind === "cluster"
-        ? `${f.adjacent.length === 1 ? "A company" : `${new Set(f.adjacent.map((a) => a.company)).size} companies`} in the same space as ${f.company} raised within ${f.windowDays} days:`
-        : `A company in the same space as ${f.company} raised recently:`,
+      names.length > 1
+        ? `${cap(numberWord(names.length))} companies working close to ${f.company} raised within ${numberWord(f.windowDays)} days of each other: ${list(names)}.`
+        : `${names[0]}, which works close to ${f.company}, raised recently${bits[0] ? ` (${bits[0]})` : ""}.`,
+      "",
+      `I thought you would want to know. How are you thinking about it, and would an intro or a conversation help?`,
     );
-    for (const a of f.adjacent) {
-      const bits = [known(a.stage), known(a.amountText) && !/undisclosed/i.test(a.amountText ?? "") ? a.amountText : null].filter(Boolean).join(", ");
-      lines.push(`- ${a.company}${bits ? ` (${bits})` : ""}${a.sharedTerms.length ? `, shares: ${a.sharedTerms.join(", ")}` : ""}${a.sourceUrl ? `. ${a.sourceUrl}` : ""}`);
-    }
-    lines.push("", `Might be useful context for ${f.company}. Happy to talk it through.`);
   }
-  lines.push("", "Best,", signature(sender));
-  return { subject: f.kind === "named" ? `${f.company} in the news` : `Activity near ${f.company}`, body: lines.join("\n") };
+  lines.push("", signature(sender));
+  return { subject: f.kind === "named" ? `Congratulations, ${f.company}` : `Something close to ${f.company}`, body: lines.join("\n") };
 }
 
 export interface LpFacts {
   fundName: string;
-  weekLabel: string;
+  /** Start of the week as a short label, for example "5 Oct". */
+  weekStartLabel: string;
+  recipientName: string | null;
   deals: number;
-  disclosedText: string;
-  topSector: string | null;
-  highlights: { company: string; stage: string | null; amountText: string | null; sourceUrl: string | null; why: string }[];
-  adjacentLines: string[];
+  /** Up to three bullets, already worded from computed numbers (see lpBullets). */
+  bullets: string[];
+  /** The sectors that led on disclosed capital, used in the subject. */
+  leadSectors: string[];
+  /** The nearest portfolio cluster: how many companies, which sector, within how many days, next to which company. */
+  nearby: { companies: number; sector: string; windowDays: number; portfolioName: string } | null;
   reportUrl: string;
 }
 
+const times = (r: number) => `roughly ${numberWord(Math.round(r))} times a usual week`;
+
+/** At most three plain bullets, each built only from computed figures. */
+export function lpBullets(capital: SectorCapital[], trends: SectorTrend[]): { bullets: string[]; leadSectors: string[] } {
+  const byCapital = capital.filter((c) => c.disclosedUsd > 0).sort((a, b) => b.disclosedUsd - a.disclosedUsd);
+  const bullets: string[] = [];
+  const lead = byCapital[0];
+  if (lead) {
+    const ratio = lead.baselineAvgUsd > 0 ? lead.disclosedUsd / lead.baselineAvgUsd : null;
+    bullets.push(`${cap(sectorWord(lead.sector))} led the week: ${formatUsd(lead.disclosedUsd)} disclosed across ${lead.deals} round${lead.deals === 1 ? "" : "s"}${ratio !== null && ratio >= 2 ? `, ${times(ratio)}` : ""}.`);
+  }
+  const second = byCapital[1];
+  if (second) bullets.push(`${cap(sectorWord(second.sector))} followed with ${formatUsd(second.disclosedUsd)} across ${second.deals} round${second.deals === 1 ? "" : "s"}.`);
+  const busy = trends.filter((t) => t.status === "accelerating" && t.sector !== lead?.sector && t.sector !== second?.sector).sort((a, b) => b.extra - a.extra)[0];
+  if (busy) {
+    const usual = Math.round(busy.baselineAvg);
+    bullets.push(`${cap(sectorWord(busy.sector))} is busy again: ${busy.thisWeek} round${busy.thisWeek === 1 ? "" : "s"} against ${usual >= 1 ? `a usual ${usual}` : "almost none in a usual week"}.`);
+  }
+  return { bullets: bullets.slice(0, 3), leadSectors: byCapital.slice(0, 2).map((c) => sectorWord(c.sector)) };
+}
+
 export function lpBriefDraft(f: LpFacts, sender: SenderProfile): Draft {
-  const lines = [
-    "Hi,",
-    "",
-    `Here is the Funding Pulse brief for ${f.weekLabel}.`,
-    "",
-    `${f.deals} deal${f.deals === 1 ? "" : "s"} tracked. Disclosed capital: ${f.disclosedText}.${f.topSector ? ` Most active sector: ${f.topSector}.` : ""}`,
-    "",
-    "Key points:",
-    ...f.highlights.map((h) => `- ${h.company}${[known(h.stage), known(h.amountText) && !/undisclosed/i.test(h.amountText ?? "") ? h.amountText : null].filter(Boolean).length ? ` (${[known(h.stage), known(h.amountText) && !/undisclosed/i.test(h.amountText ?? "") ? h.amountText : null].filter(Boolean).join(", ")})` : ""}: ${h.why}${h.sourceUrl ? ` ${h.sourceUrl}` : ""}`),
-    ...(f.adjacentLines.length ? ["", "Near our portfolio:", ...f.adjacentLines.map((l) => `- ${l}`)] : []),
-    "",
-    `Full report with sources: ${f.reportUrl}`,
-    "",
-    "Best,",
+  const headline = f.leadSectors.length >= 2 ? `${f.leadSectors[0]} and ${f.leadSectors[1]} pull in the big cheques` : f.leadSectors.length === 1 ? `${f.leadSectors[0]} leads the way` : "a quiet one";
+  const near = f.nearby;
+  const nearLine = near
+    ? `Closer to home, ${near.companies > 1 ? `${numberWord(near.companies)} ${sectorWord(near.sector)} companies raised within ${numberWord(near.windowDays)} days of each other` : `a ${sectorWord(near.sector)} company raised recently`}, right next to ${near.portfolioName}. I'll check in with the team this week and share what I hear.`
+    : "";
+  const parts = [
+    f.recipientName ? `Hi ${firstName(f.recipientName)},` : "Hi,",
+    "A quick read on last week, before your Monday gets busy.",
+    f.bullets.length ? `${f.bullets.length === 3 ? "Three things" : f.bullets.length === 2 ? "Two things" : "One thing"} stood out:\n${f.bullets.map((b) => `• ${b}`).join("\n")}` : `It was a quiet week: ${f.deals} round${f.deals === 1 ? "" : "s"} tracked, nothing that changes the picture.`,
+    nearLine,
+    `The full brief, with every source, is here: ${f.reportUrl}`,
+    "Happy to walk you through any of it on a call.",
     signature(sender),
-  ];
-  return { subject: `${f.fundName}: funding brief for ${f.weekLabel}`, body: lines.join("\n") };
+  ].filter(Boolean);
+  return { subject: `Week of ${f.weekStartLabel}: ${headline}`, body: parts.join("\n\n") };
 }

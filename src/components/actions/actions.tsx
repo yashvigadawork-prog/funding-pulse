@@ -171,7 +171,7 @@ function LpCard({ lp, onCompose }: { lp: NonNullable<ActionsBlock["lpBrief"]>; o
         subject,
         body,
         kind: "email",
-        instruction: kind === "warmer" ? "Make it warmer and more personal, still brief." : "Make it shorter: keep only the most important points.",
+        mode: kind,
       });
       if (r.ok && r.body) {
         if (r.subject) setSubject(r.subject);
