@@ -1,6 +1,6 @@
 "use client";
 
-import { Link2, Mail } from "lucide-react";
+import { ExternalLink, Link2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/common/states";
 import { CompanyLogo, TagBadge } from "@/components/common/ui-bits";
@@ -36,6 +36,12 @@ function Found({ label, value, href, source }: { label: string; value: string | 
   );
 }
 
+/** A plain LinkedIn search address. It opens in the person's own browser and login; the app never calls LinkedIn. */
+export function linkedinSearchUrl(lead: Pick<FounderLead, "founder" | "company">): string {
+  const keywords = lead.founder ? `${lead.founder} ${lead.company}` : `${lead.company} founder`;
+  return `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(keywords)}`;
+}
+
 function OutreachCard({ lead, onCompose }: { lead: FounderLead; onCompose: (r: ComposeRequest) => void }) {
   return (
     <li className="fp-fade-in rounded-xl border bg-card p-4">
@@ -63,6 +69,10 @@ function OutreachCard({ lead, onCompose }: { lead: FounderLead; onCompose: (r: C
         </Button>
         <Button size="sm" variant="outline" onClick={() => onCompose({ kind: "linkedin", title: `LinkedIn note for ${lead.founder ?? lead.company}`, to: "", subject: "", intro: "", outro: "", sections: [], body: lead.linkedinDraft })}>
           <Link2 data-icon="inline-start" /> LinkedIn note
+        </Button>
+        <Button size="sm" variant="outline" nativeButton={false} render={<a href={linkedinSearchUrl(lead)} target="_blank" rel="noopener noreferrer" />}>
+          <ExternalLink data-icon="inline-start" /> Check on LinkedIn
+          <span className="sr-only">(opens a LinkedIn search in a new tab)</span>
         </Button>
       </div>
     </li>
