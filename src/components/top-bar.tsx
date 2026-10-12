@@ -49,7 +49,7 @@ export function TopBar({
         </p>
       </div>
       {weeks && weeks.length ? (
-        <div className="w-44 sm:w-56">
+        <div className="w-44 sm:w-72">
           <NativeSelect
             ariaLabel="Choose a week"
             value={week ?? weeks[0].week}

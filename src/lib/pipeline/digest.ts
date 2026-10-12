@@ -160,13 +160,13 @@ export async function prepareDigest(week: string, blocks: ConfigBlocks): Promise
 }
 
 export async function analyseDigest(prep: PreparedDigest, useAi: boolean): Promise<{ analysis: Analysis; highlights: Highlight[] }> {
-  if (!prep.views.length) return { analysis: templateAnalysis(prep.input, "No deals this week."), highlights: [] };
+  if (!prep.views.length) return { analysis: templateAnalysis(prep.input, "No deals this week.", "history"), highlights: [] };
   if (useAi) {
     try {
       return await geminiAnalyse(prep.input);
     } catch (e) {
       const reason = e instanceof Error ? e.message : "failed";
-      return { analysis: templateAnalysis(prep.input, `Gemini analysis was unavailable (${reason.slice(0, 160)}). This text was written from the numbers by a fixed template.`), highlights: prep.candidates };
+      return { analysis: templateAnalysis(prep.input, `Gemini analysis was unavailable (${reason.slice(0, 160)}). This text was written from the numbers by a fixed template.`, "ai_unavailable"), highlights: prep.candidates };
     }
   }
   return { analysis: templateAnalysis(prep.input), highlights: prep.candidates };
@@ -214,7 +214,7 @@ export async function storeDigest(prep: PreparedDigest, analysis: Analysis, high
         reasons: h.reasons,
         companyName: v.companyName,
         companyId: v.companyId,
-        matchTag: v.matchTag,
+        matchTag: v.needsReview ? null : v.matchTag,
         sector: v.sector,
         stage: v.stage,
         amountText: v.amountText,

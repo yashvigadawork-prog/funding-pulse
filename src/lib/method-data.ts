@@ -107,12 +107,15 @@ export async function loadEdgeCases(): Promise<EdgeCase[]> {
     example: collect && collect.unreachable.length ? { text: `Last collection: ${collect.reachable} of ${collect.total} reachable. Could not reach: ${collect.unreachable.join(", ")}.` } : null,
   });
 
-  const analysis = latestDigest ? (latestDigest.analysis as Analysis) : null;
   out.push({
     id: "gemini",
     problem: "The AI service is unavailable or its answer fails the checks",
     behaviour: "A plain template is written from the computed numbers and a banner says so. The numbers are unaffected.",
-    example: analysis?.source === "template" ? { text: `Week of ${latestDigest!.weekStart}: ${analysis.note ?? "template analysis used"}` } : null,
+    example: await safe(async () => {
+      const rows = await db.select().from(digests).orderBy(desc(digests.weekStart));
+      const hit = rows.find((r) => (r.analysis as Analysis).reason === "ai_unavailable");
+      return hit ? { text: `Week of ${hit.weekStart}: ${(hit.analysis as Analysis).note ?? "template analysis used"}` } : null;
+    }),
   });
 
   const partial = await safe(async () => (await db.select().from(runs).where(eq(runs.status, "partial")).orderBy(desc(runs.id)).limit(1))[0]);

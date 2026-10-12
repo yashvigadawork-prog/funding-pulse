@@ -45,7 +45,7 @@ export async function buildDigestEmail(week: string): Promise<{ props: DigestEma
       outlet: h.sources[0]?.outlet ?? null,
     })),
     dashboardUrl: `${appUrl()}/?week=${week}`,
-    note: analysis.source === "template" ? "Written from a template because the AI service was unavailable. The numbers are unaffected." : undefined,
+    note: analysis.source === "template" && analysis.reason === "ai_unavailable" ? "Written from a template because the AI service was unavailable. The numbers are unaffected." : undefined,
   };
   const el = React.createElement(DigestEmail, props);
   return { props, html: await render(el), text: await render(el, { plainText: true }), subject: `Funding Pulse: ${formatWeekRange(week)}` };

@@ -24,3 +24,10 @@ One line each. These are choices made where the brief was silent or inconsistent
 - Compose "Improve with AI" rewrites a draft but is rejected if it adds or drops a number or a link.
 - Rate-limit counters store a short hash of the visitor's address, never the address itself.
 - Test results shown on the Method page are recorded by `npm run record:tests`, run before each push, and not computed during the build.
+- A near-miss company name (needs review) keeps its Portfolio or On Radar tag in the database, but it is not counted as a watchlist hit or a focus-deal exception until it is confirmed; it appears only in the Needs review list.
+- Social media posts (Instagram, Facebook, X, YouTube and similar) are never accepted as news sources. LinkedIn only appears through the LinkedIn search path.
+- "New investors" are counted only in the focus (target) sectors, and placeholder names such as "existing investors" or "angel investors" are ignored. With few weeks of history the count is high; it reflects "new in our records", not "new to the market".
+- Two names for one company (a brand and its parent) are merged only when the amount matches within 3%, they share a named investor, and the names share a distinctive word.
+- History weeks loaded from roundups get a plain template summary by design (no AI cost); the "AI service unavailable" banner appears only when the AI genuinely failed.
+- Gemini "thinking" is set to low by default (`GEMINI_THINKING_LEVEL`), because thinking tokens count against the output limit. An optional backup key (`GEMINI_API_KEY_BACKUP`) is used automatically if the main key is refused or its daily quota is used up.
+- Outlets that block automated readers or have no public feed (Moneycontrol, BW Disrupt, DealStreetAsia, VCCircle, PTI, Business Wire) stay "unreachable" and are reported honestly in the data quality strip.

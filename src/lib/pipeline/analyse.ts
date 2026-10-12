@@ -53,6 +53,8 @@ export interface Analysis {
   model: string | null;
   generatedAt: string;
   note?: string;
+  /** For template text: "history" (loaded from past data, no AI by design) or "ai_unavailable" (the AI failed or its answer was rejected). */
+  reason?: "history" | "ai_unavailable";
   capital: AnalysisBlock;
   momentum: AnalysisBlock;
   new_investors: AnalysisBlock;
@@ -75,7 +77,7 @@ export function scoreDeal(d: DealView, ctx: { mandate: Mandate; newInvestorDealI
     score += s;
     if (s) reasons.push(`Large disclosed round (${formatUsd(d.amountUsd)})`);
   }
-  if (d.matchTag) {
+  if (d.matchTag && !d.needsReview) {
     score += 3;
     reasons.push(`${d.matchTag} company`);
   }
@@ -326,7 +328,7 @@ function validateAnswer(a: GeminiAnswer, payload: ReturnType<typeof buildAnalysi
 
 /* ---------------- plain template fallback ---------------- */
 
-export function templateAnalysis(input: AnalysisInput, note?: string): Analysis {
+export function templateAnalysis(input: AnalysisInput, note?: string, reason: "history" | "ai_unavailable" = "history"): Analysis {
   const { compute, deals } = input;
   const srcFor = (ids: number[]): { url: string; outlet: string | null }[] => {
     const out: { url: string; outlet: string | null }[] = [];
@@ -380,7 +382,8 @@ export function templateAnalysis(input: AnalysisInput, note?: string): Analysis 
     source: "template",
     model: null,
     generatedAt: new Date().toISOString(),
-    note: note ?? "Written from the numbers by a fixed template.",
+    reason,
+    note: note ?? "Plain summary written from the numbers by a fixed template (no AI used for this week).",
     capital: { summary: capSummary, points: capPoints },
     momentum: { summary: momSummary, points: trendPoints },
     new_investors: { summary: niSummary, points: niPoints },

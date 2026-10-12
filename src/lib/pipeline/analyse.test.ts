@@ -69,6 +69,8 @@ describe("templateAnalysis", () => {
     const compute = computeWeek({ week: "2026-10-05", deals, sectors: ["Fintech"], settings, mandate, watchInvestors: [] });
     const a = templateAnalysis({ week: "2026-10-05", compute, deals, candidates: [], mandate });
     expect(a.source).toBe("template");
+    expect(a.reason).toBe("history");
+    expect(templateAnalysis({ week: "2026-10-05", compute, deals, candidates: [], mandate }, "x", "ai_unavailable").reason).toBe("ai_unavailable");
     expect(a.capital.summary).toContain("Fintech");
     expect(a.capital.points.every((p) => p.sources.length > 0)).toBe(true);
     expect(a.momentum.summary.length).toBeGreaterThan(0);

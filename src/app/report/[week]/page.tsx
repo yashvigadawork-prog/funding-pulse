@@ -65,7 +65,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
           <p className="text-sm text-muted-foreground">
             Data quality: {view.quality.sources ? `${view.quality.sources.reachable} of ${view.quality.sources.total} sources reachable` : "sources not checked"}; {view.quality.articlesRead} articles read this week; {view.quality.dealsFound} deals found after merging duplicates; {view.quality.undisclosed} with an undisclosed amount (never added up); {view.quality.needsReview} needing review. Generated {formatDateTimeIST(d.createdAt)}.
           </p>
-          {d.analysis.source === "template" ? <p className="text-sm text-muted-foreground">Written from a template because the AI service was unavailable. The numbers are unaffected.</p> : null}
+          {d.analysis.source === "template" ? <p className="text-sm text-muted-foreground">{d.analysis.reason === "ai_unavailable" ? "Written from a template because the AI service was unavailable. The numbers are unaffected." : "Plain summary written from the numbers for a week loaded from earlier data."}</p> : null}
           <h2 className="text-xl font-semibold">Focus deals and watchlist</h2>
           <ul className="grid gap-2">
             {view.deals.filter((x) => c.focusDealIds.includes(x.id)).slice(0, 8).map((x) => (

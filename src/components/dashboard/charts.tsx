@@ -71,7 +71,7 @@ export function CapitalChart({ capital, compact }: { capital: SectorCapital[]; c
 /** Deal counts this week against the baseline weekly average for each sector. */
 export function MomentumChart({ trends, compact }: { trends: SectorTrend[]; compact?: boolean }) {
   const animate = useAnimate();
-  const rows = trends.filter((t) => t.isFocus || t.thisWeek > 0 || t.baselineTotal > 0).map((t) => ({ label: shortSector(t.sector), sector: t.sector, now: t.thisWeek, avg: Math.round(t.baselineAvg * 10) / 10, status: t.status }));
+  const rows = trends.filter((t) => (compact ? t.isFocus : t.isFocus || t.thisWeek > 0 || t.baselineTotal > 0)).map((t) => ({ label: shortSector(t.sector), sector: t.sector, now: t.thisWeek, avg: Math.round(t.baselineAvg * 10) / 10, status: t.status }));
   const label = (s: string) => (s === "not_enough_history" ? "not enough history" : s);
   const summary = `Deals this week against the baseline average: ${rows.map((r) => `${r.sector} ${r.now} against ${r.avg} (${label(r.status)})`).join("; ")}.`;
   if (!rows.length) return <p className="py-6 text-center text-xs text-muted-foreground">No history yet.</p>;

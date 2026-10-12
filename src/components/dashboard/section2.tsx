@@ -119,9 +119,15 @@ function Patterns({ view }: { view: DigestView }) {
       <H hint="Each panel shows the computed numbers, then a short explanation. Reported means a source says it; Possible means it is an inference.">The three questions</H>
       {a.source === "template" ? (
         <div className="mb-3">
-          <Banner tone="info" title="Written from a template">
-            Written from a template because the AI service was unavailable. The numbers are unaffected.
-          </Banner>
+          {a.reason === "ai_unavailable" ? (
+            <Banner tone="warn" title="Written from a template">
+              Written from a template because the AI service was unavailable. The numbers are unaffected.
+            </Banner>
+          ) : (
+            <Banner tone="info" title="Plain summary for this week">
+              This week was loaded from earlier data, so the text is a plain summary written from the numbers. The latest digest has the full AI explanation.
+            </Banner>
+          )}
         </div>
       ) : null}
       <div className="grid gap-4 lg:grid-cols-3">
@@ -195,7 +201,7 @@ function DealRows({ deals, onOpenDeal }: { deals: DealRowView[]; onOpenDeal: (d:
             <CompanyLogo name={d.companyName} domain={d.domain} size={28} />
             <span className="flex min-w-0 flex-wrap items-center gap-1.5">
               <span className="truncate text-sm font-medium">{d.companyName}</span>
-              {d.matchTag ? <TagBadge tag={d.matchTag} /> : null}
+              {d.matchTag && !d.needsReview ? <TagBadge tag={d.matchTag} /> : null}
               {d.needsReview ? <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[0.68rem] text-warning">review</span> : null}
               {d.adjacentTo.length ? <span className="rounded bg-accent px-1.5 py-0.5 text-[0.68rem] text-accent-foreground">adjacent</span> : null}
             </span>
