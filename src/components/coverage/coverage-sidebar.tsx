@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, RotateCcw, Upload } from "lucide-react";
+import { Briefcase, Download, Landmark, Radar, RotateCcw, SlidersHorizontal, Target, Upload, Users } from "lucide-react";
+import { LayoutGroup, motion } from "motion/react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, ApiError } from "@/lib/client/api";
 import type { ConfigResponse } from "@/lib/client/types";
 import { ConfirmDialog } from "@/components/common/ui-bits";
@@ -12,39 +12,9 @@ import { CompanyList } from "./company-list";
 import { MandateTab } from "./mandate-tab";
 import { InvestorsList, StakeholdersList } from "./people-lists";
 import { SettingsForms } from "./settings-forms";
+import { cn } from "@/lib/utils";
 
 type Props = { config: ConfigResponse; onChanged: () => void };
-
-function MoreTab({ config, onChanged }: Props) {
-  const [section, setSection] = useState<"investors" | "stakeholders" | "settings">("investors");
-  const opts = [
-    { v: "investors", l: `Investors (${config.counts.investors})` },
-    { v: "stakeholders", l: `Contacts (${config.counts.stakeholders})` },
-    { v: "settings", l: "Settings" },
-  ] as const;
-  return (
-    <div className="grid gap-3">
-      <div role="tablist" aria-label="More" className="flex flex-wrap gap-1">
-        {opts.map((o) => (
-          <button
-            key={o.v}
-            role="tab"
-            aria-selected={section === o.v}
-            onClick={() => setSection(o.v)}
-            className={`rounded-md px-2.5 py-1 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-              section === o.v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {o.l}
-          </button>
-        ))}
-      </div>
-      {section === "investors" ? <InvestorsList config={config} onChanged={onChanged} /> : null}
-      {section === "stakeholders" ? <StakeholdersList config={config} onChanged={onChanged} /> : null}
-      {section === "settings" ? <SettingsForms config={config} onChanged={onChanged} /> : null}
-    </div>
-  );
-}
 
 function ConfigFooter({ onReplaced }: { onReplaced: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -88,15 +58,16 @@ function ConfigFooter({ onReplaced }: { onReplaced: () => void }) {
   }
 
   return (
-    <div className="grid gap-2 border-t px-4 py-3">
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" nativeButton={false} render={<a href="/api/config/export" download />}>
+    <div className="grid gap-1.5 border-t bg-muted/30 px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-1">
+        <span className="mr-auto text-xs font-medium text-muted-foreground">Backup</span>
+        <Button variant="ghost" size="xs" nativeButton={false} render={<a href="/api/config/export" download />}>
           <Download data-icon="inline-start" /> Export config
         </Button>
-        <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+        <Button variant="ghost" size="xs" onClick={() => fileRef.current?.click()}>
           <Upload data-icon="inline-start" /> Import config
         </Button>
-        <Button variant="outline" size="sm" onClick={() => setConfirmReset(true)}>
+        <Button variant="ghost" size="xs" className="text-destructive hover:text-destructive" onClick={() => setConfirmReset(true)}>
           <RotateCcw data-icon="inline-start" /> Reset to defaults
         </Button>
       </div>
@@ -120,38 +91,86 @@ function ConfigFooter({ onReplaced }: { onReplaced: () => void }) {
   );
 }
 
+type SectionId = "mandate" | "portfolio" | "radar" | "investors" | "contacts" | "settings";
+
+const SECTIONS: { id: SectionId; label: string; icon: typeof Target; blurb: string }[] = [
+  { id: "mandate", label: "Mandate", icon: Target, blurb: "What the family office invests in. This decides which deals count as a focus deal." },
+  { id: "portfolio", label: "Portfolio", icon: Briefcase, blurb: "Companies you already back. News about them, or something close to them, is flagged." },
+  { id: "radar", label: "On Radar", icon: Radar, blurb: "Companies you want to keep an eye on, with a priority." },
+  { id: "investors", label: "Investors", icon: Landmark, blurb: "Investors you watch. A deal they join is called out." },
+  { id: "contacts", label: "Contacts", icon: Users, blurb: "The address book used by the email drafts." },
+  { id: "settings", label: "Settings", icon: SlidersHorizontal, blurb: "Profiles, digest limits, news sources and sector keywords." },
+];
+
 export function CoverageContent({ config, onChanged }: Props) {
   // Bumping the epoch rebuilds every form from fresh data after an import or reset.
   const [epoch, setEpoch] = useState(0);
+  const [section, setSection] = useState<SectionId>("mandate");
+  const counts: Partial<Record<SectionId, number>> = { portfolio: config.counts.portfolio, radar: config.counts.on_radar, investors: config.counts.investors, contacts: config.counts.stakeholders };
+  const current = SECTIONS.find((x) => x.id === section)!;
   const refresh = () => onChanged();
+
+  const move = (e: React.KeyboardEvent, i: number) => {
+    const next = e.key === "ArrowDown" || e.key === "ArrowRight" ? i + 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? i - 1 : null;
+    if (next === null) return;
+    e.preventDefault();
+    const target = SECTIONS[(next + SECTIONS.length) % SECTIONS.length];
+    setSection(target.id);
+    requestAnimationFrame(() => document.getElementById(`cov-tab-${target.id}`)?.focus());
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="px-4 pt-4 pb-2">
-        <h2 className="text-base font-semibold tracking-tight">My Coverage</h2>
-        <p className="text-xs text-muted-foreground">What we match news against. Edits save to the database.</p>
+      <div className="px-5 pt-5 pb-3 pr-12">
+        <h2 className="display text-[1.75rem] leading-none">My Coverage</h2>
+        <p className="mt-1.5 text-sm text-muted-foreground">What Funding Pulse matches the news against. Every change is saved to the database.</p>
       </div>
-      <Tabs defaultValue="mandate" className="min-h-0 flex-1 gap-0">
-        <TabsList className="mx-4 h-auto flex-wrap justify-start">
-          <TabsTrigger value="mandate">Mandate</TabsTrigger>
-          <TabsTrigger value="portfolio">Portfolio ({config.counts.portfolio})</TabsTrigger>
-          <TabsTrigger value="radar">On Radar ({config.counts.on_radar})</TabsTrigger>
-          <TabsTrigger value="more">More</TabsTrigger>
-        </TabsList>
-        <div tabIndex={0} role="region" aria-label="My Coverage content" className="min-h-0 flex-1 overflow-y-auto px-4 py-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
-          <TabsContent value="mandate">
-            <MandateTab key={epoch} config={config} onChanged={refresh} />
-          </TabsContent>
-          <TabsContent value="portfolio">
-            <CompanyList tag="Portfolio" config={config} onChanged={refresh} />
-          </TabsContent>
-          <TabsContent value="radar">
-            <CompanyList tag="On Radar" config={config} onChanged={refresh} />
-          </TabsContent>
-          <TabsContent value="more">
-            <MoreTab key={epoch} config={config} onChanged={refresh} />
-          </TabsContent>
+      <div className="flex min-h-0 flex-1 flex-col border-t md:flex-row">
+        <LayoutGroup id="coverage-nav">
+          <nav aria-label="My Coverage sections" className="shrink-0 border-b bg-muted/30 md:w-44 md:border-r md:border-b-0">
+            <div role="tablist" aria-orientation="vertical" className="flex gap-1 overflow-x-auto p-2 md:flex-col md:overflow-visible md:p-3">
+              {SECTIONS.map((x, i) => {
+                const on = x.id === section;
+                return (
+                  <button
+                    key={x.id}
+                    id={`cov-tab-${x.id}`}
+                    role="tab"
+                    aria-selected={on}
+                    aria-controls="cov-panel"
+                    tabIndex={on ? 0 : -1}
+                    onClick={() => setSection(x.id)}
+                    onKeyDown={(e) => move(e, i)}
+                    className={cn("relative flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium whitespace-nowrap outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring", on ? "text-foreground" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    {on ? <motion.span layoutId="cov-pill" className="absolute inset-0 rounded-lg border bg-card shadow-sm" transition={{ type: "spring", stiffness: 500, damping: 40 }} /> : null}
+                    <x.icon className="relative size-4" aria-hidden />
+                    <span className="relative">{x.label}</span>
+                    {counts[x.id] !== undefined ? <span className="fig relative ml-auto rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">{counts[x.id]}</span> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+        </LayoutGroup>
+        <div id="cov-panel" role="tabpanel" aria-labelledby={`cov-tab-${section}`} tabIndex={0} className="min-h-0 flex-1 overflow-y-auto px-5 py-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
+          <div className="mb-4 flex items-start gap-3">
+            <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
+              <current.icon className="size-4.5" />
+            </span>
+            <div>
+              <h3 className="text-base font-semibold tracking-tight">{current.label}</h3>
+              <p className="text-sm text-muted-foreground">{current.blurb}</p>
+            </div>
+          </div>
+          {section === "mandate" ? <MandateTab key={epoch} config={config} onChanged={refresh} /> : null}
+          {section === "portfolio" ? <CompanyList tag="Portfolio" config={config} onChanged={refresh} /> : null}
+          {section === "radar" ? <CompanyList tag="On Radar" config={config} onChanged={refresh} /> : null}
+          {section === "investors" ? <InvestorsList config={config} onChanged={refresh} /> : null}
+          {section === "contacts" ? <StakeholdersList config={config} onChanged={refresh} /> : null}
+          {section === "settings" ? <SettingsForms key={epoch} config={config} onChanged={refresh} /> : null}
         </div>
-      </Tabs>
+      </div>
       <ConfigFooter
         onReplaced={() => {
           setEpoch((e) => e + 1);

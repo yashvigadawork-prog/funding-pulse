@@ -48,7 +48,7 @@ export function AppShell({ header, footer, children }: { header: React.ReactNode
         {footer}
       </div>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" showCloseButton className="w-[min(100vw,30rem)] gap-0 p-0 data-[side=right]:sm:max-w-[30rem]">
+        <SheetContent side="right" showCloseButton className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:w-[46rem] data-[side=right]:sm:max-w-[46rem]">
           <SheetHeader className="sr-only">
             <SheetTitle>My Coverage</SheetTitle>
             <SheetDescription>Mandate, Portfolio, On Radar and settings</SheetDescription>

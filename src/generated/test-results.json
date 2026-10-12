@@ -1,8 +1,8 @@
 {
-  "recordedAt": "2026-10-12T13:42:11.100Z",
-  "commit": "4907020",
-  "total": 164,
-  "passed": 164,
+  "recordedAt": "2026-10-12T14:04:14.058Z",
+  "commit": "d5697cd",
+  "total": 169,
+  "passed": 169,
   "failed": 0,
   "files": [
     {
@@ -21,6 +21,12 @@
       "file": "src/lib/actions/actions.test.ts",
       "total": 14,
       "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/actions/rewrite.test.ts",
+      "total": 5,
+      "passed": 5,
       "failed": 0
     },
     {

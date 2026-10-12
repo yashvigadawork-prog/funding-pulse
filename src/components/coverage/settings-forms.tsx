@@ -13,12 +13,12 @@ import { ChipsInput, Field, NativeSelect, SaveBar } from "@/components/common/ui
 
 function Section({ title, children, defaultOpen }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   return (
-    <details className="group rounded-lg border" open={defaultOpen}>
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+    <details className="group rounded-2xl border bg-card" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
         {title}
         <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden />
       </summary>
-      <div className="grid gap-4 border-t px-3 py-3">{children}</div>
+      <div className="grid gap-4 border-t px-4 py-4">{children}</div>
     </details>
   );
 }

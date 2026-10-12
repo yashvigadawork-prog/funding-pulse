@@ -39,13 +39,13 @@ Layout words used below:
 
 | # | Information or control | Where now | Where it goes | Status |
 |---|---|---|---|---|
-| B1 | Mandate tab: focus sectors, stages (in focus / follow-on only), ticket size min, max, note, other-sectors switch, Save + confirmation | Sidebar | My Coverage drawer, same tab | Kept, in: My Coverage drawer, same tab. Checked in the running app. |
-| B2 | Portfolio tab: count, search, sector filter, Add, row (logo, name, tag, sector), Edit drawer, Remove + confirmation, Show more | Sidebar | My Coverage drawer, same tab | Kept, in: My Coverage drawer, same tab. Checked in the running app. |
-| B3 | On Radar tab: same as Portfolio plus priority and the On Radar fields in the edit drawer | Sidebar | My Coverage drawer, same tab | Kept, in: My Coverage drawer, same tab. Checked in the running app. |
-| B4 | More > Investors (list, add, edit, remove) | Sidebar | My Coverage drawer | Kept, in: My Coverage drawer. Checked in the running app. |
-| B5 | More > Contacts (address book, type, "demo, no real sending" label, add, edit, remove) | Sidebar | My Coverage drawer | Kept, in: My Coverage drawer. Checked in the running app. |
-| B6 | More > Settings: family office profile, sender profile, digest settings and limits (recipients + every number), news sources (toggle + feed address + LinkedIn switch), sector keywords; save confirmations | Sidebar | My Coverage drawer | Kept, in: My Coverage drawer. Checked in the running app. |
-| B7 | Footer: Export config, Import config (with error text), Reset to defaults (with confirmation) | Sidebar footer | My Coverage drawer footer | Kept, in: My Coverage drawer footer. Checked in the running app. |
+| B1 | Mandate tab: focus sectors, stages (in focus / follow-on only), ticket size min, max, note, other-sectors switch, Save + confirmation | Sidebar | My Coverage drawer, same tab | Kept, redesigned: Mandate section in My Coverage with sector chips, a three-way choice per stage (Not used / In focus / Follow-on only), $ ticket fields and a save bar that shows unsaved changes. Checked. |
+| B2 | Portfolio tab: count, search, sector filter, Add, row (logo, name, tag, sector), Edit drawer, Remove + confirmation, Show more | Sidebar | My Coverage drawer, same tab | Kept, as the Portfolio section: search, sector filter and Add in one toolbar, card rows with edit and remove. Checked. |
+| B3 | On Radar tab: same as Portfolio plus priority and the On Radar fields in the edit drawer | Sidebar | My Coverage drawer, same tab | Kept, as the On Radar section, same layout as Portfolio. Checked. |
+| B4 | More > Investors (list, add, edit, remove) | Sidebar | My Coverage drawer | Kept, now its own Investors section (no hidden More menu). Checked. |
+| B5 | More > Contacts (address book, type, "demo, no real sending" label, add, edit, remove) | Sidebar | My Coverage drawer | Kept, now its own Contacts section. Checked. |
+| B6 | More > Settings: family office profile, sender profile, digest settings and limits (recipients + every number), news sources (toggle + feed address + LinkedIn switch), sector keywords; save confirmations | Sidebar | My Coverage drawer | Kept, now the Settings section with the same five groups as cards. Checked. |
+| B7 | Footer: Export config, Import config (with error text), Reset to defaults (with confirmation) | Sidebar footer | My Coverage drawer footer | Kept, as a quiet Backup row at the bottom of the panel (Export, Import, Reset with confirmation). Checked. |
 | B8 | Collapse / expand the sidebar | Sidebar | Not needed (it is a drawer); the drawer closes | Changed on purpose: it is a slide-over now, so there is nothing to collapse; it closes instead. Checked. |
 
 ## C. Data quality strip and KPI tiles

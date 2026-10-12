@@ -58,16 +58,8 @@ export function CompanyList({
 
   return (
     <div className="grid gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground" aria-live="polite">
-          {filtered.length === all.length ? `${all.length} companies` : `${filtered.length} of ${all.length} companies`}
-        </p>
-        <Button size="sm" onClick={() => setEditing({ company: null, nonce: Date.now() })}>
-          <Plus data-icon="inline-start" /> Add
-        </Button>
-      </div>
-      <div className="grid gap-2">
-        <div className="relative">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-[11rem] flex-1">
           <Search className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" aria-hidden />
           <Input
             aria-label={`Search ${tag} companies`}
@@ -82,6 +74,7 @@ export function CompanyList({
         </div>
         <NativeSelect
           ariaLabel="Filter by sector"
+          className="w-44"
           value={sector}
           onChange={(v) => {
             setSector(v);
@@ -89,12 +82,18 @@ export function CompanyList({
           }}
           options={[{ value: "all", label: "All sectors" }, ...sectors.map((s) => ({ value: s, label: s }))]}
         />
+        <Button size="sm" onClick={() => setEditing({ company: null, nonce: Date.now() })}>
+          <Plus data-icon="inline-start" /> Add
+        </Button>
       </div>
-      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1">
+      <p className="text-xs text-muted-foreground" aria-live="polite">
+        {filtered.length === all.length ? `${all.length} companies` : `${filtered.length} of ${all.length} companies`}
+      </p>
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
         {shown.map((c, i) => (
           <li
             key={c.id}
-            className="fp-fade-in group flex items-center gap-2 rounded-lg px-1.5 py-1.5 hover:bg-muted/70"
+            className="fp-fade-in group flex items-center gap-3 rounded-xl border bg-card px-3 py-2 transition-colors hover:border-ring/40"
             style={{ animationDelay: `${Math.min(i, 12) * 18}ms` }}
           >
             <CompanyLogo name={c.name} domain={c.domain} />

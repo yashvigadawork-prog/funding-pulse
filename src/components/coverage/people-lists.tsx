@@ -26,9 +26,9 @@ export function InvestorsList({ config, onChanged }: { config: ConfigResponse; o
           <Plus data-icon="inline-start" /> Add
         </Button>
       </div>
-      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
         {config.investors.map((i) => (
-          <li key={i.id} className="flex items-start gap-2 rounded-lg px-1.5 py-1.5 hover:bg-muted/70">
+          <li key={i.id} className="flex items-start gap-3 rounded-xl border bg-card px-3 py-2 transition-colors hover:border-ring/40">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">{i.name}</p>
               {i.note ? <p className="text-xs text-muted-foreground">{i.note}</p> : null}
@@ -128,9 +128,9 @@ export function StakeholdersList({ config, onChanged }: { config: ConfigResponse
           <Plus data-icon="inline-start" /> Add
         </Button>
       </div>
-      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
         {config.stakeholders.map((s) => (
-          <li key={s.id} className="flex items-start gap-2 rounded-lg px-1.5 py-1.5 hover:bg-muted/70">
+          <li key={s.id} className="flex items-start gap-3 rounded-xl border bg-card px-3 py-2 transition-colors hover:border-ring/40">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">
                 {s.name}
