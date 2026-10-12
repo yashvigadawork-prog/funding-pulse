@@ -1,0 +1,2512 @@
+{
+  "_meta": {
+    "name": "Cloudburst Ventures seed config",
+    "version": 1,
+    "generated_on": "2026-10-12",
+    "purpose": "Initial data for the Funding Pulse app. Loaded into the database on first run; edited afterwards through the My Coverage sidebar. Export and import use this same shape.",
+    "notes": [
+      "Portfolio is illustrative and modelled on a publicly listed early-stage portfolio. Acquired and wound-down companies were excluded.",
+      "Portfolio sectors follow the source listing's category tabs. Companies from its miscellaneous tab were assigned to a sector manually.",
+      "Company descriptions are short paraphrases. Domains come from each company's own website link.",
+      "On Radar entries come from funding news dated roughly 15 Aug to 12 Oct 2026. Each has an evidence URL and is single-source; verify before relying on any figure.",
+      "Priority values are an analyst suggestion and are editable.",
+      "Climate coverage in On Radar is thin because the news search returned few early-stage climate rounds. The weekly pipeline will add more.",
+      "Entries with match_requires_context share a name with other companies; the matcher should require one of the listed context words nearby.",
+      "No API keys belong in this file. Keys go in environment variables."
+    ]
+  },
+  "fund_profile": {
+    "name": "Cloudburst Ventures",
+    "tagline": "Early-stage capital for India-first founders",
+    "timezone": "Asia/Kolkata",
+    "digest_day": "Monday",
+    "digest_time": "07:00",
+    "display_currency": [
+      "INR crore",
+      "USD"
+    ],
+    "usd_inr_rate": 95.7,
+    "usd_inr_rate_note": "Approximate rate implied by the weekly roundup's rupee-to-dollar conversions in Sep to Oct 2026. Edit as needed."
+  },
+  "mandate": {
+    "geography": "India",
+    "focus_sectors": [
+      "Fintech",
+      "Health & wellness",
+      "Climate & sustainability",
+      "Media, deeptech & education"
+    ],
+    "other_sectors_to_note": true,
+    "stages": [
+      {
+        "name": "Pre-seed",
+        "focus": true,
+        "follow_on_only": false
+      },
+      {
+        "name": "Seed",
+        "focus": true,
+        "follow_on_only": false
+      },
+      {
+        "name": "Pre-Series A",
+        "focus": true,
+        "follow_on_only": false
+      },
+      {
+        "name": "Series A",
+        "focus": true,
+        "follow_on_only": false
+      },
+      {
+        "name": "Series B+",
+        "focus": false,
+        "follow_on_only": true
+      }
+    ],
+    "ticket_size_usd": {
+      "min": null,
+      "max": null,
+      "note": "Not specified. Set by Aarav."
+    }
+  },
+  "taxonomy": {
+    "sectors": {
+      "Fintech": [
+        "fintech",
+        "wealthtech",
+        "investing",
+        "trading",
+        "broking",
+        "payments",
+        "lending",
+        "insurtech",
+        "insurance",
+        "credit",
+        "banking",
+        "pension"
+      ],
+      "Health & wellness": [
+        "healthtech",
+        "health",
+        "wellness",
+        "fitness",
+        "nutrition",
+        "mental health",
+        "elder care",
+        "longevity",
+        "medtech",
+        "diagnostics",
+        "foodtech",
+        "sports"
+      ],
+      "Climate & sustainability": [
+        "climate",
+        "cleantech",
+        "solar",
+        "energy storage",
+        "battery",
+        "ev",
+        "electric mobility",
+        "water",
+        "waste",
+        "recycling",
+        "sustainable",
+        "agritech",
+        "carbon",
+        "hydrogen"
+      ],
+      "Media, deeptech & education": [
+        "deeptech",
+        "space",
+        "satellite",
+        "quantum",
+        "semiconductor",
+        "edtech",
+        "education",
+        "media",
+        "content",
+        "robotics"
+      ],
+      "Other": []
+    },
+    "stages": [
+      "Pre-seed",
+      "Seed",
+      "Pre-Series A",
+      "Series A",
+      "Series B+",
+      "Debt",
+      "Unknown"
+    ]
+  },
+  "portfolio": [
+    {
+      "id": "actlogica",
+      "name": "Actlogica",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "actlogica.com",
+      "description": "Technology infrastructure for wealth managers and investment professionals",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "assetplus",
+      "name": "AssetPlus",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "assetplus.in",
+      "description": "Platform for mutual fund distributors and advisors with research and multi-portfolio support",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "beyondirr",
+      "name": "BeyondIRR",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "beyondirr.tech",
+      "description": "Portfolio analytics and support tools for wealth advisors",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "blostem",
+      "name": "Blostem",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "blostem.com",
+      "description": "Software that lets apps offer fixed deposits from multiple banks",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "capitalmind",
+      "name": "Capitalmind",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "capitalmind.in",
+      "description": "Asset management firm running data-driven investment strategies",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "card91",
+      "name": "Card91",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "card91.io",
+      "description": "Corporate and closed-group card issuing platform",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "castler",
+      "name": "Castler",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "castler.com",
+      "description": "Digitised escrow services for businesses and consumers",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "cred",
+      "name": "Cred",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "cred.club",
+      "description": "Members-only app for credit card bill payments with rewards",
+      "aliases": [
+        "CRED"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "digio",
+      "name": "Digio",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "digio.in",
+      "description": "Paperless documentation and digital workflows for businesses",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "ditto",
+      "name": "Ditto",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "joinditto.in",
+      "description": "Health insurance advice and purchase",
+      "aliases": [],
+      "status": "active",
+      "match_requires_context": [
+        "insurance",
+        "health insurance"
+      ]
+    },
+    {
+      "id": "epifi",
+      "name": "Epifi",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "fi.money",
+      "description": "Digital banking app aimed at younger Indians",
+      "aliases": [
+        "Fi Money",
+        "Epifi Technologies"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "fold",
+      "name": "Fold",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "fold.money",
+      "description": "Personal finance companion app",
+      "aliases": [
+        "Fold Money"
+      ],
+      "status": "active",
+      "match_requires_context": [
+        "fintech",
+        "bitcoin",
+        "investing",
+        "personal finance"
+      ]
+    },
+    {
+      "id": "goalteller",
+      "name": "Goalteller",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "goalteller.com",
+      "description": "Goal-based personal finance platform covering investing and protection",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "hissa",
+      "name": "Hissa",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "hissa.com",
+      "description": "Digital management of private company equity and fundraising",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "indiadatahub",
+      "name": "Indiadatahub",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "indiadatahub.com",
+      "description": "Market and economic data and analytics platform",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "indiagold",
+      "name": "IndiaGold",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "indiagold.co",
+      "description": "Digital gold loans and lockers",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "indus",
+      "name": "Indus",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "investindus.com",
+      "description": "Lets global retail investors invest in Indian markets",
+      "aliases": [],
+      "status": "active",
+      "match_requires_context": [
+        "invest",
+        "NRI",
+        "retail investors",
+        "Indian markets"
+      ]
+    },
+    {
+      "id": "jodo",
+      "name": "Jodo",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "jodo.in",
+      "description": "School fee financing for middle-income urban households",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "jupiter",
+      "name": "Jupiter",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "jupiter.money",
+      "description": "Digital banking app",
+      "aliases": [
+        "Jupiter Money"
+      ],
+      "status": "active",
+      "match_requires_context": [
+        "neobank",
+        "banking",
+        "fintech",
+        "money app"
+      ]
+    },
+    {
+      "id": "kalpi",
+      "name": "Kalpi",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "kalpi.ai",
+      "description": "Equity screener and stock analyser",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "kambala",
+      "name": "Kambala",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "kambala.co.in",
+      "description": "Trading platform for equity, currency and commodity markets",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "m2p-fintech",
+      "name": "M2P Fintech",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "m2pfintech.com",
+      "description": "Core banking, lending and payments software",
+      "aliases": [
+        "M2P"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "mprofit",
+      "name": "Mprofit",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "mprofit.in",
+      "description": "Investment tracking and portfolio reporting",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "nullpointer",
+      "name": "NullPointer",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "nullpointer.in",
+      "description": "Financial data tools for credit default models and PDF data extraction",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "oneassure",
+      "name": "OneAssure",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "oneassure.in",
+      "description": "Digital insurance platform",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "pensionbox",
+      "name": "PensionBox",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "pensionbox.in",
+      "description": "Digital pension product",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "prime-investor",
+      "name": "Prime Investor",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "primeinvestor.in",
+      "description": "Research-led investment recommendations and curated portfolios",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "procol",
+      "name": "Procol",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "procol.io",
+      "description": "Procurement software for companies",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "quicko",
+      "name": "Quicko",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "quicko.com",
+      "description": "Income tax, GST and TDS filing platform with APIs",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "ria",
+      "name": "RIA",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "riainsurance.com",
+      "description": "Health insurance manufacturer",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "rupeeflo",
+      "name": "Rupeeflo",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "rupeeflo.com",
+      "description": "Banking and wealth management for NRIs",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "sensibull",
+      "name": "Sensibull",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "sensibull.com",
+      "description": "Options trading platform and education",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "smallcase",
+      "name": "smallcase",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "smallcase.com",
+      "description": "Thematic investment products",
+      "aliases": [
+        "Smallcase"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "streak",
+      "name": "Streak",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "streak.tech",
+      "description": "Backtesting and deployment of trading algorithms without code",
+      "aliases": [],
+      "status": "active",
+      "match_requires_context": [
+        "algo",
+        "trading",
+        "backtest"
+      ]
+    },
+    {
+      "id": "the-financialist",
+      "name": "The Financialist",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "thefinancialist.co.in",
+      "description": "Registered investment advisor platform for personal finance",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "tijori",
+      "name": "Tijori",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "tijorifinance.com",
+      "description": "Public market research and tracking",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "valuenable",
+      "name": "ValuEnable",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "valuenable.in",
+      "description": "Loans against life insurance surrender value",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "wint-wealth",
+      "name": "Wint Wealth",
+      "tag": "Portfolio",
+      "sector": "Fintech",
+      "domain": "wintwealth.com",
+      "description": "Retail access to listed debt and fixed income",
+      "aliases": [
+        "WintWealth"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "adsys",
+      "name": "Adsys",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "adsys.in",
+      "description": "Machine-learning devices for fast, low-cost blood testing",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "agilitas",
+      "name": "Agilitas",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "agilitas.com",
+      "description": "Sports ecosystem combining manufacturing, brands and retail",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "ai-health-highway",
+      "name": "AI Health Highway",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "aisteth.com",
+      "description": "Smart stethoscope (AiSteth) to widen healthcare access",
+      "aliases": [
+        "AiSteth"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "allo-health",
+      "name": "Allo Health",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "allohealth.com",
+      "description": "Sexual health care",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "amaha",
+      "name": "Amaha",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "amahahealth.com",
+      "description": "Therapy, psychiatry and mental wellness programmes",
+      "aliases": [
+        "InnerHour"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "arboreal",
+      "name": "Arboreal",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "arborealstevia.com",
+      "description": "Plant-based natural extracts and nutrition ingredients",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "aroleap",
+      "name": "Aroleap",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "aroleap.com",
+      "description": "Wall-mounted home gym machine with built-in coaching",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "biopeak",
+      "name": "Biopeak",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "biopeak.com",
+      "description": "Community around proactive health and longevity",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "blackfrog",
+      "name": "Blackfrog",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "blackfrog.in",
+      "description": "Last-mile cold chain storage for vaccines",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "boldcare",
+      "name": "Boldcare",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "boldcare.in",
+      "description": "Science-backed men's sexual wellness",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "devigere-biosolutions",
+      "name": "Devigere BioSolutions",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "devigerebiosolutions.com",
+      "description": "Plant-based protein ingredients for food and cosmetics",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "dreamspan",
+      "name": "Dreamspan",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "dreamspan.co",
+      "description": "Sleep technology for the bedroom",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "emoha",
+      "name": "Emoha",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "emoha.com",
+      "description": "At-home elder care services",
+      "aliases": [
+        "Age Care Labs",
+        "Emoha Elder Care"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "even",
+      "name": "Even",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "even.in",
+      "description": "Managed healthcare plans with optional group insurance cover",
+      "aliases": [
+        "Even Healthcare"
+      ],
+      "status": "active",
+      "match_requires_context": [
+        "healthcare",
+        "health plan",
+        "insurance"
+      ]
+    },
+    {
+      "id": "evolved-foods",
+      "name": "Evolved Foods",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "evolvedfoods.in",
+      "description": "Plant-based cooking ingredients that add protein to home meals",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "fitpage",
+      "name": "Fitpage",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "fitpage.in",
+      "description": "Personalised fitness resources",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "fittr",
+      "name": "Fittr",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "fittr.com",
+      "description": "Fitness and nutrition coaching with a fitness-tracking ring",
+      "aliases": [
+        "FITTR"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "game-theory",
+      "name": "Game Theory",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "gametheory.in",
+      "description": "Sports-based fitness for Indians",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "gytree",
+      "name": "Gytree",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "gytree.com",
+      "description": "Women's health platform",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "health-on-plants",
+      "name": "Health On Plants",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "healthonplants.com",
+      "description": "Plant-based soy products such as tofu",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "humanedge",
+      "name": "Humanedge",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "humanedge.co",
+      "description": "Longevity science to improve workforce energy for corporates",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "immuneel",
+      "name": "Immuneel",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "immuneel.com",
+      "description": "Cell, gene and immunotherapies for cancer care",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "lissun",
+      "name": "Lissun",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "lissun.app",
+      "description": "Mental and emotional health platform",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "lo-foods",
+      "name": "Lo! Foods",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "lofoods.fit",
+      "description": "Low-carb and keto-friendly foods",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "machaxi",
+      "name": "Machaxi",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "machaxi.com",
+      "description": "Sports coaching and infrastructure",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "michezo",
+      "name": "Michezo",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "michezo.com",
+      "description": "Design and build of premium sports facilities",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "myhealthcare",
+      "name": "Myhealthcare",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "myhealthcare.life",
+      "description": "EMR systems and white-label care apps for hospitals and clinics",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "niramai",
+      "name": "Niramai",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "niramai.com",
+      "description": "Breast cancer screening",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "noto-ice-creams",
+      "name": "NOTO Ice Creams",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "eatnoto.com",
+      "description": "Low-calorie ice creams with no added sugar",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "o4h",
+      "name": "O4H",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "o4h.in",
+      "description": "Cloud kitchen serving healthy food in Bengaluru",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "peesafe",
+      "name": "PeeSafe",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "peesafe.com",
+      "description": "Women's hygiene products",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "peptris",
+      "name": "Peptris",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "peptris.com",
+      "description": "AI-based drug discovery",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "praan-health",
+      "name": "Praan Health",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "praan.health",
+      "description": "Support for ageing parents managing chronic lifestyle conditions",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "sisters-in-sweat",
+      "name": "Sisters in Sweat",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "sistersinsweat.in",
+      "description": "Fitness community and sessions for women",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "spectacom",
+      "name": "Spectacom",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "spectacom.in",
+      "description": "Endurance and obstacle-race events with in-house ticketing, scoring and photo tech",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "stepout",
+      "name": "Stepout",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "stepout.ai",
+      "description": "Football analytics in India",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "sukino",
+      "name": "Sukino",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "sukino.com",
+      "description": "Post-hospital recovery and long-term care",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "superyou",
+      "name": "Superyou",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "superyou.in",
+      "description": "Protein snacks made with bio-fermentation",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "the-kenko-life",
+      "name": "The Kenko Life",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "thekenkolife.com",
+      "description": "Customised healthy meal subscriptions",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "the-whole-truth",
+      "name": "The Whole Truth",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "thewholetruthfoods.com",
+      "description": "Snacks with no added colours, sugar or preservatives",
+      "aliases": [
+        "Whole Truth Foods"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "twf-flours",
+      "name": "TWF Flours",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "twfflours.com",
+      "description": "Milling technology that preserves micronutrients in flour",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "ultrahuman",
+      "name": "Ultrahuman",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "ultrahuman.com",
+      "description": "Smart rings and glucose monitoring for athletes",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "upliance",
+      "name": "Upliance",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "upliance.ai",
+      "description": "Smart cooking appliance for healthier recipes",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "yoska",
+      "name": "Yoska",
+      "tag": "Portfolio",
+      "sector": "Health & wellness",
+      "domain": "yoska.in",
+      "description": "Digital platform for endurance sports",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "akshayakalpa",
+      "name": "Akshayakalpa",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "akshayakalpa.org",
+      "description": "Farmer-led food enterprise using sustainable practices",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "alt-mat",
+      "name": "Alt Mat",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "altmat.in",
+      "description": "Natural fibres and yarns from agricultural waste",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "amwoodo",
+      "name": "Amwoodo",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "amwoodo.com",
+      "description": "Bamboo alternatives for everyday items and construction",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "apratima-biosolutions",
+      "name": "Apratima Biosolutions",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "apratima.com",
+      "description": "Bioengineering for plastic waste circularity",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "aquaairx",
+      "name": "AquaAirX",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "aquaairx.com",
+      "description": "Amphibious air-and-underwater drones for defence, maritime and industry",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "aurassure",
+      "name": "Aurassure",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "aurassure.com",
+      "description": "IoT climate monitoring with AI insights on air quality and weather risk",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "bluj-aero",
+      "name": "BluJ Aero",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "blujaero.com",
+      "description": "Hydrogen-electric VTOL aircraft for cargo",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "boson",
+      "name": "Boson",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "bosonwhitewater.com",
+      "description": "Sewage treatment plant installation and operation for industry and housing societies",
+      "aliases": [
+        "Boson Whitewater"
+      ],
+      "status": "active",
+      "match_requires_context": [
+        "water",
+        "sewage",
+        "STP",
+        "wastewater"
+      ]
+    },
+    {
+      "id": "carbonstrong",
+      "name": "CarbonStrong",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "carbonstrong.in",
+      "description": "Low-carbon cement substitutes",
+      "aliases": [
+        "Carbon Strong"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "climes",
+      "name": "Climes",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "climes.io",
+      "description": "Carbon neutralisation offered through consumer services",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "delectrik",
+      "name": "Delectrik",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "delectrik.com",
+      "description": "Vanadium redox flow batteries for energy storage",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "dharaksha",
+      "name": "Dharaksha",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "dharaksha.com",
+      "description": "Biodegradable packaging as a plastic alternative",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "econovus",
+      "name": "Econovus",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "econovus.co.in",
+      "description": "Sustainable industrial packaging",
+      "aliases": [
+        "Econovus Packaging"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "ekam-eco-solutions",
+      "name": "Ekam Eco Solutions",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "ekameco.com",
+      "description": "Sanitation and waste management",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "fluxgen",
+      "name": "FluxGen",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "fluxgen.com",
+      "description": "Water management solutions",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "fragaria",
+      "name": "Fragaria",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "thefragaria.com",
+      "description": "Controlled-environment farming technology",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "green-worms",
+      "name": "Green Worms",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "greenworms.org",
+      "description": "Waste collection built around informal waste pickers",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "greenvironment",
+      "name": "Greenvironment",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "greenvironmentindia.com",
+      "description": "Water and environmental technology for buildings and businesses",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "hasiru-dala-innovations",
+      "name": "Hasiru Dala Innovations",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "hasirudalainnovations.com",
+      "description": "Waste management that brings waste pickers into the value chain",
+      "aliases": [
+        "Hasiru Dala"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "infinitybox",
+      "name": "InfinityBox",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "getinfinitybox.com",
+      "description": "Reusable containers replacing single-use plastic",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "jovaki-agro-food",
+      "name": "Jovaki Agro Food",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "jovaki.com",
+      "description": "Food processing tied to regenerative farming and tribal communities",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "jsp-enviro",
+      "name": "JSP Enviro",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "jspenviro.com",
+      "description": "Affordable secondary water treatment",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "karo-sambhav",
+      "name": "Karo Sambhav",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "karosambhav.com",
+      "description": "E-waste recycling for enterprises, consumers and governments",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "krop-ai",
+      "name": "Krop AI",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "kropai.com",
+      "description": "Food sourcing platform for enterprises",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "logicladder",
+      "name": "LogicLadder",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "thesustainabilitycloud.com",
+      "description": "Software tracking emissions, energy, water and waste",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "marin-elixirs",
+      "name": "Marin Elixirs",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "marinelixirs.us",
+      "description": "Seaweed-based biostimulants for plants",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "matchlog",
+      "name": "MatchLog",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "matchlog.delivery",
+      "description": "Container street-turn matching to cut empty trips",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "naxatra-labs",
+      "name": "Naxatra Labs",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "naxatralabs.com",
+      "description": "Motors for electric vehicles",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "neufin",
+      "name": "Neufin",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "neufin.co",
+      "description": "Solar, wind and storage electricity contracts for businesses",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "numocity",
+      "name": "Numocity",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "numocity.com",
+      "description": "EV charging and energy management software",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "organic-mandya",
+      "name": "Organic Mandya",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "organicmandya.com",
+      "description": "Organic farming adoption through a farmer network",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "ossus-bio",
+      "name": "Ossus Bio",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "ossusbio.com",
+      "description": "On-site green hydrogen from retrofittable devices",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "padcare",
+      "name": "Padcare",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "padcarelabs.com",
+      "description": "Menstrual waste disposal",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "polycycl",
+      "name": "Polycycl",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "polycycl.com",
+      "description": "Chemical recycling of hard-to-recycle plastic",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "raheja-solar",
+      "name": "Raheja Solar",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "rahejasolar.com",
+      "description": "Foldable solar dryers for farmers with produce buyback",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "recube",
+      "name": "Recube",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "recube.co.in",
+      "description": "Sustainability solutions for events",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "saroja-earth",
+      "name": "Saroja Earth",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "saroja.earth",
+      "description": "R&D on clean air solutions",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "smarter-dharma",
+      "name": "Smarter Dharma",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "smarterdharma.com",
+      "description": "Sustainable products marketplace for builders and developers",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "solarsquare",
+      "name": "SolarSquare",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "solarsquare.in",
+      "description": "Residential rooftop solar",
+      "aliases": [
+        "Solar Square"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "solinas",
+      "name": "Solinas",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "solinas.in",
+      "description": "Robotics and engineering for water and sanitation problems",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "sundaygrids",
+      "name": "SundayGrids",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "sundaygrids.com",
+      "description": "Marketplace to buy remote solar energy against utility bills",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "terra-do",
+      "name": "Terra.do",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "terra.do",
+      "description": "Online climate school",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "the-good-doll",
+      "name": "The Good Doll",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "thegooddoll.in",
+      "description": "Handcrafted fabric dolls made by rural and indigenous women",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "two-brothers-organic-farms",
+      "name": "Two Brothers Organic Farms",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "twobrothersindiashop.com",
+      "description": "Organic staples sourced directly from farmers",
+      "aliases": [
+        "Two Brothers India"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "vasshin",
+      "name": "Vasshin",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "himalayanpine.co",
+      "description": "Bio-based products from Himalayan pine needles",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "voltanova",
+      "name": "Voltanova",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "voltanova.in",
+      "description": "Thermal battery storage for industrial heat",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "voltseal",
+      "name": "VoltSeal",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "voltseal.in",
+      "description": "Energy storage for India",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "wastelink",
+      "name": "Wastelink",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "wastelink.co",
+      "description": "Commercial food waste turned into animal feed",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "wattr",
+      "name": "Wattr",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "wattr.ai",
+      "description": "AI for water and power systems",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "zerocircle",
+      "name": "Zerocircle",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "zerocircle.in",
+      "description": "Seaweed-based alternatives to everyday products",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "zodhya",
+      "name": "Zodhya",
+      "tag": "Portfolio",
+      "sector": "Climate & sustainability",
+      "domain": "zodhyatech.com",
+      "description": "Cuts HVAC electricity use by regulating energy intake",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "agnikul",
+      "name": "Agnikul",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "agnikul.in",
+      "description": "Small-satellite launch services",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "erpnext",
+      "name": "ERPNext",
+      "tag": "Portfolio",
+      "sector": "Other",
+      "domain": "erpnext.com",
+      "description": "Open-source ERP software",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "galaxeye",
+      "name": "Galaxeye",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "galaxeye.space",
+      "description": "Multi-sensor imaging satellite for earth observation",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "kalvium",
+      "name": "Kalvium",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "kalvium.com",
+      "description": "Work-integrated computer science engineering degree",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "karban",
+      "name": "Karban",
+      "tag": "Portfolio",
+      "sector": "Other",
+      "domain": "karban.in",
+      "description": "Air purifier that also works as a fan and light",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "kredily",
+      "name": "Kredily",
+      "tag": "Portfolio",
+      "sector": "Other",
+      "domain": "kredily.com",
+      "description": "Cloud HR and payroll software",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "lawyered",
+      "name": "Lawyered",
+      "tag": "Portfolio",
+      "sector": "Other",
+      "domain": "lawyered.in",
+      "description": "Legal services for mobility",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "lwl",
+      "name": "LWL",
+      "tag": "Portfolio",
+      "sector": "Other",
+      "domain": "ladieswholead.in",
+      "description": "Networking and mentorship programme for women",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "mecha-systems",
+      "name": "Mecha Systems",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "mecha.so",
+      "description": "Developer platform for building connected devices",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "mylang",
+      "name": "MyLang",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "mylang.in",
+      "description": "Kannada audiobooks on mobile",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "ptal",
+      "name": "Ptal",
+      "tag": "Portfolio",
+      "sector": "Other",
+      "domain": "ptal.com",
+      "description": "Handcrafted copper and brass kitchenware",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "qshala",
+      "name": "QShala",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "qshala.com",
+      "description": "Curiosity and life-skills platform for children",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "spacefields",
+      "name": "Spacefields",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "spacefields.in",
+      "description": "Engineering and R&D services for the Indian space sector",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "sparkl",
+      "name": "Sparkl",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "sparkl.me",
+      "description": "One-to-one tutoring for IB and IGCSE students",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "finshots",
+      "name": "Finshots",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "finshots.in",
+      "description": "Daily and weekly finance newsletters",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "gen-e",
+      "name": "Gen.E",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": null,
+      "description": "Content that makes sustainability accessible",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "learnapp",
+      "name": "LearnApp",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "learnapp.com",
+      "description": "Courses taught by finance industry leaders",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "sochcast",
+      "name": "Sochcast",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "sochcast.com",
+      "description": "Audio content and distribution platform focused on women",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "teepoi",
+      "name": "Teepoi",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "teepoi.com",
+      "description": "Documentary film production company in Bengaluru",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "the-arc",
+      "name": "The Arc",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "thearcweb.com",
+      "description": "Stories about influential Indian technology companies",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "the-bridge",
+      "name": "The Bridge",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "thebridge.in",
+      "description": "Digital sports media covering Olympic, regional and grassroots sports",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "the-ken",
+      "name": "The Ken",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "the-ken.com",
+      "description": "Business news publication",
+      "aliases": [],
+      "status": "active"
+    },
+    {
+      "id": "the-plate",
+      "name": "The Plate",
+      "tag": "Portfolio",
+      "sector": "Media, deeptech & education",
+      "domain": "theplate.in",
+      "description": "Digital platform for agriculture and food news",
+      "aliases": [],
+      "status": "active"
+    }
+  ],
+  "on_radar": [
+    {
+      "id": "zomint",
+      "name": "Zomint",
+      "tag": "On Radar",
+      "sector": "Fintech",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount not stated in source excerpt",
+      "investors_reported": [],
+      "reason_on_radar": "Wealth management startup that raised in the week of 5 to 10 Oct 2026",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Named among other funded startups in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "moneytruva",
+      "name": "MoneyTruVa",
+      "tag": "On Radar",
+      "sector": "Fintech",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount undisclosed",
+      "investors_reported": [],
+      "reason_on_radar": "Financial information platform that raised without disclosing the amount",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Listed among rounds with undisclosed amounts",
+      "confidence": "single-source"
+    },
+    {
+      "id": "definedge",
+      "name": "Definedge",
+      "tag": "On Radar",
+      "sector": "Fintech",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount not stated in source excerpt",
+      "investors_reported": [],
+      "reason_on_radar": "Fintech and brokerage startup funded in the week of 21 to 26 Sep 2026",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Named among other funded early-stage startups",
+      "confidence": "single-source"
+    },
+    {
+      "id": "stable-money",
+      "name": "Stable Money",
+      "tag": "On Radar",
+      "sector": "Fintech",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "No new round reported",
+      "investors_reported": [],
+      "reason_on_radar": "Completed a second ESOP buyback within four years of launch, a sign of maturing wealth-fintech peers",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-28-oct-3-12618694",
+      "evidence_note": "Reported in the ESOP buyback section of the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "sahi",
+      "name": "Sahi",
+      "tag": "On Radar",
+      "sector": "Fintech",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "No new round reported",
+      "investors_reported": [],
+      "reason_on_radar": "Fastest-growing among the top 20 brokers, up 11% month on month in September 2026 (NSE data cited by the source)",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Reported in the news flash section of the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "sunfox-technologies",
+      "name": "Sunfox Technologies",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Series A",
+      "last_round_text": "$7 million Series A",
+      "investors_reported": [
+        "Ashish Kacholia",
+        "Lashit Sanghvi",
+        "Alchemy Capital",
+        "3one4 Capital"
+      ],
+      "reason_on_radar": "Medtech startup with a co-led Series A in the week of 5 to 10 Oct 2026",
+      "priority": "high",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Round and investors as reported in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "disha",
+      "name": "Disha",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Series A",
+      "last_round_text": "Rs 43.88 crore Series A",
+      "investors_reported": [
+        "General Catalyst",
+        "Elevation Capital"
+      ],
+      "reason_on_radar": "AI-powered health coaching platform, formerly Curelink, with a Series A led by General Catalyst",
+      "priority": "high",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Round and investors as reported in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "rio-health",
+      "name": "Rio Health",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Pre-Series A",
+      "last_round_text": "Rs 43.08 crore (about $4.5 million) pre-Series A",
+      "investors_reported": [
+        "Version One Ventures",
+        "Xeed Ventures",
+        "Good Capital",
+        "Amplify Partner"
+      ],
+      "reason_on_radar": "Medicine quick-commerce platform with a pre-Series A led by Version One Ventures",
+      "priority": "high",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Round and investors as reported in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "vytalyou",
+      "name": "Vytalyou",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Pre-Series A",
+      "last_round_text": "Rs 9 crore pre-Series A at a Rs 33 crore valuation",
+      "investors_reported": [],
+      "reason_on_radar": "Longevity healthcare startup planning two new Mumbai clinics by the end of 2026",
+      "priority": "high",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://ascendants.in/business-stories/vytalyou-raises-9-crore-pre-series-a-funding-mumbai-clinic-expansion/",
+      "evidence_note": "Round and expansion plan as reported; also named in the 28 Sep to 3 Oct roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "primerry",
+      "name": "Primerry",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Pre-seed",
+      "last_round_text": "Rs 7.1 crore pre-seed",
+      "investors_reported": [],
+      "reason_on_radar": "Paediatric health-tech startup expanding products, clinical expertise and distribution",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://www.bwdisrupt.com/article/paediatric-health-tech-startup-primerry-raises-rs-7-1-cr-in-pre-seed-round-626052",
+      "evidence_note": "Published roughly two weeks before 12 Oct 2026",
+      "confidence": "single-source"
+    },
+    {
+      "id": "aignosis",
+      "name": "Aignosis",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Seed",
+      "last_round_text": "Rs 4 crore seed",
+      "investors_reported": [
+        "Antler",
+        "Nikhil Kamath"
+      ],
+      "reason_on_radar": "Jaipur-based healthtech building an early childhood screening platform",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://www.indianretailer.com/news/funding-alert-healthtech-startup-aignosis-bags-rs-4-cr-scale-early-childhood-screening",
+      "evidence_note": "Led by Antler, Nikhil Kamath and a group of angel investors per the source",
+      "confidence": "single-source"
+    },
+    {
+      "id": "curemeabroad",
+      "name": "CureMeAbroad",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Pre-seed",
+      "last_round_text": "$1.1 million pre-seed",
+      "investors_reported": [
+        "SteerX Ventures"
+      ],
+      "reason_on_radar": "Medical tourism healthtech with a pre-seed led by a healthcare-focused fund",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://indianstartupnews.com/funding/medical-tourism-startup-curemeabroad-raises-11-million-in-pre-seed-funding-led-by-steerx-ventures-12629200",
+      "evidence_note": "Published about three days before 12 Oct 2026",
+      "confidence": "single-source"
+    },
+    {
+      "id": "supermush",
+      "name": "SuperMush",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount not stated in source excerpt",
+      "investors_reported": [],
+      "reason_on_radar": "Healthtech startup funded in the week of 5 to 10 Oct 2026",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Named among other funded startups in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "betterhood",
+      "name": "Betterhood",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount not stated in source excerpt",
+      "investors_reported": [],
+      "reason_on_radar": "Healthtech startup funded in the week of 21 to 26 Sep 2026",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Named among other funded startups in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "myrx",
+      "name": "MyRx",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount undisclosed",
+      "investors_reported": [],
+      "reason_on_radar": "Primary healthcare infrastructure company that raised without disclosing the amount",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Listed among rounds with undisclosed amounts",
+      "confidence": "single-source"
+    },
+    {
+      "id": "protein-pantry",
+      "name": "Protein Pantry",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount not stated in source excerpt",
+      "investors_reported": [],
+      "reason_on_radar": "High-protein frozen food brand funded in the week of 21 to 26 Sep 2026",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Named among other funded startups in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "better-nutrition",
+      "name": "Better Nutrition",
+      "tag": "On Radar",
+      "sector": "Health & wellness",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Unknown",
+      "last_round_text": "Raised; amount undisclosed",
+      "investors_reported": [],
+      "reason_on_radar": "Biofortified staples brand that raised without disclosing the amount",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Listed among rounds with undisclosed amounts",
+      "confidence": "single-source"
+    },
+    {
+      "id": "drivn",
+      "name": "Drivn",
+      "tag": "On Radar",
+      "sector": "Climate & sustainability",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Seed",
+      "last_round_text": "Rs 45 crore (about $4.7 million) seed",
+      "investors_reported": [
+        "Avaana Capital"
+      ],
+      "reason_on_radar": "Electric commercial mobility startup; the round was for its Indian entity",
+      "priority": "high",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Round and lead investor as reported in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "zenergize-technologies",
+      "name": "Zenergize Technologies",
+      "tag": "On Radar",
+      "sector": "Climate & sustainability",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Pre-Series A",
+      "last_round_text": "$4 million pre-Series A",
+      "investors_reported": [
+        "Giraffe Studios"
+      ],
+      "reason_on_radar": "Power electronics deeptech startup relevant to energy and storage",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrepreneur.economictimes.indiatimes.com/news/funding/zenergize-raises-4-mn-pre-series-a-funding-led-by-giraffe-studios/133668687",
+      "evidence_note": "Published roughly one month before 12 Oct 2026",
+      "confidence": "single-source"
+    },
+    {
+      "id": "sanyark-space",
+      "name": "Sanyark Space",
+      "tag": "On Radar",
+      "sector": "Media, deeptech & education",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Pre-seed",
+      "last_round_text": "$2 million pre-seed",
+      "investors_reported": [
+        "Avaana",
+        "AUM Ventures"
+      ],
+      "reason_on_radar": "Space-tech startup building navigation-communication satellites",
+      "priority": "high",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://app.dealroom.co/news/note/sanyark-space-raises-2m-pre-seed-for-navigation-communication-satellites",
+      "evidence_note": "Published roughly two weeks before 12 Oct 2026",
+      "confidence": "single-source"
+    },
+    {
+      "id": "qpiai",
+      "name": "QpiAI",
+      "tag": "On Radar",
+      "sector": "Media, deeptech & education",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Debt",
+      "last_round_text": "Rs 50 crore debt funding",
+      "investors_reported": [
+        "InnoVen Capital"
+      ],
+      "reason_on_radar": "Quantum computing startup funded through debt in the week of 5 to 10 Oct 2026",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Round and lender as reported in the weekly roundup",
+      "confidence": "single-source"
+    },
+    {
+      "id": "allsecurex",
+      "name": "AllSecureX",
+      "tag": "On Radar",
+      "sector": "Media, deeptech & education",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Pre-seed",
+      "last_round_text": "Pre-seed; amount not stated in source excerpt",
+      "investors_reported": [],
+      "reason_on_radar": "Pre-seed backing for quantum-resilient cyber defence",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://yourstory.com/2026/09/startup-news-and-updates-daily-roundup-september-10-2026",
+      "evidence_note": "Mentioned in a daily news roundup; details not in the excerpt",
+      "confidence": "single-source"
+    },
+    {
+      "id": "bytexl",
+      "name": "byteXL",
+      "tag": "On Radar",
+      "sector": "Media, deeptech & education",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Early-stage",
+      "last_round_text": "$9 million",
+      "investors_reported": [
+        "Elevar Equity"
+      ],
+      "reason_on_radar": "Edtech startup with a $9 million round",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-oct-5-oct-10-12662210",
+      "evidence_note": "Round and investor as reported in the weekly roundup; stage label not given in excerpt",
+      "confidence": "single-source"
+    },
+    {
+      "id": "arivihan",
+      "name": "Arivihan",
+      "tag": "On Radar",
+      "sector": "Media, deeptech & education",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Early-stage",
+      "last_round_text": "$10 million",
+      "investors_reported": [],
+      "reason_on_radar": "Edtech startup with a $10 million early-stage round",
+      "priority": "medium",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-28-oct-3-12618694",
+      "evidence_note": "Amount as reported; investors not named in the excerpt",
+      "confidence": "single-source"
+    },
+    {
+      "id": "sol",
+      "name": "Sol",
+      "tag": "On Radar",
+      "sector": "Other",
+      "domain": null,
+      "aliases": [],
+      "stage_last_seen": "Early-stage",
+      "last_round_text": "$4 million",
+      "investors_reported": [
+        "General Catalyst",
+        "Nexus Venture Partners"
+      ],
+      "reason_on_radar": "Proactive AI startup, an example of AI activity outside the focus sectors",
+      "priority": "low",
+      "added_on": "2026-10-12",
+      "evidence_url": "https://entrackr.com/report/weekly-funding-report-weekly-funding-report/funding-and-acquisitions-in-indian-startups-this-week-sep-21-sep-26-12577542",
+      "evidence_note": "Source names General Catalyst and Nexus VP among investors",
+      "confidence": "single-source"
+    }
+  ],
+  "investors_of_interest": [
+    {
+      "name": "Peak XV Partners",
+      "note": "Raised its Surge seed investment cap to $5 million (Sep 2026 coverage)"
+    },
+    {
+      "name": "Chiratae Ventures",
+      "note": "Active in early-stage deeptech rounds"
+    },
+    {
+      "name": "Elevation Capital",
+      "note": "Existing investor in Disha; closed Fund IX for seed and Series A"
+    },
+    {
+      "name": "Avaana Capital",
+      "note": "Led Drivn's seed and co-led Sanyark Space's pre-seed"
+    },
+    {
+      "name": "AUM Ventures",
+      "note": "Co-led Sanyark Space's pre-seed"
+    },
+    {
+      "name": "General Catalyst",
+      "note": "Led Disha's Series A; invested in Sol"
+    },
+    {
+      "name": "Antler",
+      "note": "Led Aignosis's seed"
+    },
+    {
+      "name": "SteerX Ventures",
+      "note": "Healthcare-focused fund that led CureMeAbroad's pre-seed"
+    },
+    {
+      "name": "Version One Ventures",
+      "note": "Led Rio Health's pre-Series A"
+    },
+    {
+      "name": "Fireside Ventures",
+      "note": "Active in consumer and appliance rounds"
+    },
+    {
+      "name": "3one4 Capital",
+      "note": "Co-led Sunfox Technologies' Series A"
+    },
+    {
+      "name": "Elevar Equity",
+      "note": "Backed byteXL"
+    },
+    {
+      "name": "Giraffe Studios",
+      "note": "Led Zenergize's pre-Series A"
+    },
+    {
+      "name": "IAN Angel Fund",
+      "note": "Co-led CarbonStrong's seed"
+    },
+    {
+      "name": "Premji Invest",
+      "note": "Growth-stage lead in recent consumer rounds"
+    },
+    {
+      "name": "WEH Ventures",
+      "note": "First close of its third seed fund, target Rs 250 crore"
+    },
+    {
+      "name": "Lavni Ventures",
+      "note": "Closed a second deep-tech impact fund for health and climate startups"
+    },
+    {
+      "name": "NABVENTURES",
+      "note": "First close of its second fund, Rs 450 crore"
+    },
+    {
+      "name": "Naveli Ventures",
+      "note": "New venture arm of a family office investing in deeptech, AI, clean energy, space and healthcare"
+    }
+  ],
+  "stakeholders": [
+    {
+      "name": "Demo LP",
+      "role": "Limited partner",
+      "type": "LP",
+      "email": "demo.lp@example.com",
+      "demo": true
+    },
+    {
+      "name": "Demo Investment Committee Member",
+      "role": "Investment committee",
+      "type": "IC",
+      "email": "demo.ic@example.com",
+      "demo": true
+    },
+    {
+      "name": "Demo Portfolio Founder",
+      "role": "Founder",
+      "type": "portfolio_founder",
+      "email": "demo.founder@example.com",
+      "demo": true
+    }
+  ],
+  "sender_profile": {
+    "name": "Aarav",
+    "title": "Venture Scout",
+    "organisation": "Cloudburst Ventures",
+    "intro_line": "I'm a venture scout at Cloudburst Ventures, an early-stage fund backing India-first founders.",
+    "outreach_tone": "Warm, brief and specific to the founder's product. Expresses interest in learning more and makes no promises."
+  },
+  "digest_settings": {
+    "recipients": [],
+    "lookback_days": 7,
+    "highlights_top": 5,
+    "highlights_total": 15,
+    "backfill_weeks": 8,
+    "baseline_weeks": 4,
+    "acceleration_ratio": 1.25,
+    "slowing_ratio": 0.75,
+    "min_baseline_deals": 3,
+    "min_extra_deals": 2,
+    "daily_send_cap": 20,
+    "fuzzy_match_review_threshold": 0.85
+  },
+  "sources": {
+    "rss_and_sites": [
+      {
+        "outlet": "Entrackr",
+        "kind": "startup_media",
+        "site": "entrackr.com",
+        "feed_url": null,
+        "note": "Publishes a weekly funding roundup; best single source for backfill"
+      },
+      {
+        "outlet": "Inc42",
+        "kind": "startup_media",
+        "site": "inc42.com",
+        "feed_url": null,
+        "note": "Publishes a weekly funding summary"
+      },
+      {
+        "outlet": "YourStory",
+        "kind": "startup_media",
+        "site": "yourstory.com",
+        "feed_url": null,
+        "note": "Daily startup news roundup"
+      },
+      {
+        "outlet": "VCCircle",
+        "kind": "startup_media",
+        "site": "vccircle.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "Indian Startup News",
+        "kind": "startup_media",
+        "site": "indianstartupnews.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "Indian Startup Times",
+        "kind": "startup_media",
+        "site": "indianstartuptimes.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "ET Entrepreneur",
+        "kind": "business_press",
+        "site": "entrepreneur.economictimes.indiatimes.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "Moneycontrol",
+        "kind": "business_press",
+        "site": "moneycontrol.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "DealStreetAsia",
+        "kind": "business_press",
+        "site": "dealstreetasia.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "BW Disrupt",
+        "kind": "business_press",
+        "site": "bwdisrupt.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "PTI",
+        "kind": "newswire",
+        "site": "ptinews.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "PR Newswire",
+        "kind": "newswire",
+        "site": "prnewswire.com",
+        "feed_url": null,
+        "note": ""
+      },
+      {
+        "outlet": "Business Wire",
+        "kind": "newswire",
+        "site": "businesswire.com",
+        "feed_url": null,
+        "note": ""
+      }
+    ],
+    "feed_url_note": "feed_url values are null on purpose. Find and verify each outlet's RSS address before enabling it.",
+    "linkedin_via_search": {
+      "enabled": true,
+      "include_domain": "linkedin.com",
+      "query_templates": [
+        "{investor} announces investment in {sector} startup",
+        "{company} raises funding seed OR 'pre-Series A' OR 'Series A'"
+      ],
+      "note": "Public posts only, found through the search chain. Coverage is partial. A paste box covers the rest."
+    }
+  },
+  "search_chain": [
+    {
+      "order": 1,
+      "provider": "tavily",
+      "env": [
+        "TAVILY_API_KEY"
+      ],
+      "free_tier_note": "About 1,000 credits a month"
+    },
+    {
+      "order": 2,
+      "provider": "exa",
+      "env": [
+        "EXA_API_KEY"
+      ],
+      "free_tier_note": "Monthly free credit; check current amount"
+    },
+    {
+      "order": 3,
+      "provider": "google_programmable_search",
+      "env": [
+        "GOOGLE_PSE_API_KEY",
+        "GOOGLE_PSE_CX"
+      ],
+      "free_tier_note": "100 queries a day"
+    },
+    {
+      "order": 4,
+      "provider": "serper",
+      "env": [
+        "SERPER_API_KEY"
+      ],
+      "free_tier_note": "One-time signup credits"
+    },
+    {
+      "order": 5,
+      "provider": "gemini_grounding",
+      "env": [
+        "GEMINI_API_KEY"
+      ],
+      "free_tier_note": "Last resort; uses Gemini quota"
+    }
+  ]
+}
