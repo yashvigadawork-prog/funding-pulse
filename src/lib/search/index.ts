@@ -63,6 +63,7 @@ export async function search(
   if (ctx.budget?.exhausted) return { results: [], provider: null, cached: false, errors: [], skippedForBudget: true };
 
   const errors: SearchOutcome["errors"] = [];
+  let lastEmpty: string | null = null;
   const chain = [...ctx.chain].sort((a, b) => a.order - b.order);
   for (const entry of chain) {
     const fn = PROVIDERS[entry.provider];
@@ -81,6 +82,12 @@ export async function search(
       results = dropSocial(results, opts);
       const seen = new Set<string>();
       results = results.filter((r) => (seen.has(r.url) ? false : (seen.add(r.url), true)));
+      // An empty answer is not a failure, but the next provider may know more. Keep the empty result only if every provider is empty.
+      if (!results.length && chain.slice(chain.indexOf(entry) + 1).some((n) => PROVIDERS[n.provider] && providerReady(n))) {
+        errors.push({ provider: entry.provider, message: "no results" });
+        lastEmpty = entry.provider;
+        continue;
+      }
       await db
         .insert(searchCache)
         .values({ queryHash: hash, provider: entry.provider, results, fetchedAt: new Date() })
@@ -91,5 +98,5 @@ export async function search(
       if (ctx.budget?.exhausted) break;
     }
   }
-  return { results: [], provider: null, cached: false, errors };
+  return { results: [], provider: lastEmpty, cached: false, errors };
 }
