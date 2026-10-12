@@ -73,6 +73,7 @@ CREATE TABLE "deals" (
 	"company_id" text,
 	"match_tag" text,
 	"match_reason" text,
+	"match_score" double precision,
 	"needs_review" boolean DEFAULT false NOT NULL,
 	"stage" text,
 	"amount_usd" double precision,
@@ -145,6 +146,14 @@ CREATE TABLE "locks" (
 	"name" text PRIMARY KEY NOT NULL,
 	"run_id" text,
 	"locked_until" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "match_audit" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"company" text NOT NULL,
+	"article_url" text,
+	"snippet" text,
+	"at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "rate_limits" (

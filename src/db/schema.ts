@@ -123,6 +123,7 @@ export const deals = pgTable(
     companyId: text("company_id"),
     matchTag: text("match_tag"),
     matchReason: text("match_reason"),
+    matchScore: doublePrecision("match_score"),
     needsReview: boolean("needs_review").notNull().default(false),
     stage: text("stage"),
     amountUsd: doublePrecision("amount_usd"),
@@ -227,6 +228,15 @@ export const runs = pgTable(
   },
   (t) => [index("runs_run_idx").on(t.runId)],
 );
+
+/** Each time the "context word" rule blocks a look-alike name. Only the latest 50 rows are kept. */
+export const matchAudit = pgTable("match_audit", {
+  id: serial("id").primaryKey(),
+  company: text("company").notNull(),
+  articleUrl: text("article_url"),
+  snippet: text("snippet"),
+  at: ts("at").notNull().defaultNow(),
+});
 
 /* ------------------------------------------------------------------ */
 /* Supporting tables                                                   */

@@ -4,7 +4,7 @@
  */
 import { and, eq, gte, inArray, isNotNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { articles, dealInvestors, dealSources, deals, investors, type Article } from "@/db/schema";
+import { articles, dealInvestors, dealSources, deals, investors, matchAudit, type Article } from "@/db/schema";
 import type { CompanyJson } from "@/lib/config/schema";
 import type { ConfigBlocks } from "@/lib/config/store";
 import { matchCompany, type MatchCandidate } from "@/lib/matching";
@@ -109,6 +109,7 @@ async function writeDeal(id: number | null, d: DealLike, match: ReturnType<typeo
     companyId: match.company?.id ?? null,
     matchTag: match.company?.tag ?? null,
     matchReason: match.company ? match.reason : null,
+    matchScore: match.company ? match.score : null,
     needsReview: match.company ? match.needsReview : false,
     stage: d.stage,
     amountUsd: d.amountUsd,
@@ -147,6 +148,14 @@ async function writeDeal(id: number | null, d: DealLike, match: ReturnType<typeo
   return dealId;
 }
 
+/** Remembers that the context rule blocked a look-alike name, and keeps only the latest 50 such records. */
+async function recordContextRejection(company: string, dealName: string, articleUrl: string | null, text: string) {
+  const i = text.toLowerCase().indexOf(dealName.toLowerCase());
+  const snippet = (i >= 0 ? text.slice(Math.max(0, i - 80), i + 120) : text.slice(0, 200)).replace(/\s+/g, " ").trim().slice(0, 200);
+  await db.insert(matchAudit).values({ company, articleUrl, snippet });
+  await db.execute(sql`delete from match_audit where id not in (select id from match_audit order by id desc limit 50)`);
+}
+
 export interface ProcessResult {
   articlesProcessed: number;
   candidates: number;
@@ -154,11 +163,12 @@ export interface ProcessResult {
   merged: number;
   watchlistMatches: number;
   needsReview: number;
+  contextRejections: number;
 }
 
 export async function processExtracted(p: { blocks: ConfigBlocks; companies: CompanyJson[] }): Promise<ProcessResult> {
   const rows = await db.select().from(articles).where(and(isNotNull(articles.extracted), eq(articles.processed, false)));
-  const result: ProcessResult = { articlesProcessed: 0, candidates: 0, inserted: 0, merged: 0, watchlistMatches: 0, needsReview: 0 };
+  const result: ProcessResult = { articlesProcessed: 0, candidates: 0, inserted: 0, merged: 0, watchlistMatches: 0, needsReview: 0, contextRejections: 0 };
   if (!rows.length) return result;
 
   const candidates: DealLike[] = [];
@@ -185,6 +195,11 @@ export async function processExtracted(p: { blocks: ConfigBlocks; companies: Com
       const combined = hit ? mergeTwo(hit, d) : d;
       const context = `${combined.summary ?? ""}\n${combined.articleIds.map((i) => textByArticle.get(i) ?? "").join("\n")}`.slice(0, 12_000);
       const match = matchCompany({ name: combined.companyName, context }, matchable, { fuzzyThreshold: threshold });
+      if (match.rejectedForContext) {
+        const firstArticle = rows.find((r) => combined.articleIds.includes(r.id));
+        await recordContextRejection(match.rejectedForContext, combined.companyName, firstArticle?.url ?? null, firstArticle?.text ?? context);
+        result.contextRejections++;
+      }
       const id = await writeDeal(hit?.id ?? null, combined, match);
       if (hit) {
         result.merged++;
@@ -216,8 +231,8 @@ export async function rematchRecent(p: { blocks: ConfigBlocks; companies: Compan
   for (const r of rows) {
     const context = `${r.summary ?? ""}\n${src.filter((s) => s.dealId === r.id).map((s) => (s.text ?? "").slice(0, 6000)).join("\n")}`;
     const m = matchCompany({ name: r.companyName, context }, matchable, { fuzzyThreshold: p.blocks.digest_settings.fuzzy_match_review_threshold });
-    const next = { companyId: m.company?.id ?? null, matchTag: m.company?.tag ?? null, matchReason: m.company ? m.reason : null, needsReview: m.company ? m.needsReview : false };
-    if (next.companyId !== r.companyId || next.matchTag !== r.matchTag || next.needsReview !== r.needsReview) {
+    const next = { companyId: m.company?.id ?? null, matchTag: m.company?.tag ?? null, matchReason: m.company ? m.reason : null, matchScore: m.company ? m.score : null, needsReview: m.company ? m.needsReview : false };
+    if (next.companyId !== r.companyId || next.matchTag !== r.matchTag || next.needsReview !== r.needsReview || next.matchScore !== r.matchScore) {
       await db.update(deals).set(next).where(eq(deals.id, r.id));
       changed++;
     }

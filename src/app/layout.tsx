@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: "Funding Pulse",
-  description: "A weekly digest of Indian startup funding, matched against a fund's Portfolio and On Radar companies.",
+  description: "A weekly digest of Indian startup funding, matched against a family office's Portfolio and On Radar companies.",
 };
 
 export const viewport: Viewport = {

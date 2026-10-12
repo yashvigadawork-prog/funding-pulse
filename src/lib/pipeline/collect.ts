@@ -38,6 +38,10 @@ export interface CollectResult {
   cacheHits: number;
   searchErrors: string[];
   linkedinResults: number;
+  searchAttempted: number;
+  searchAnswered: number;
+  /** True when searches were tried and no provider answered any of them. */
+  searchUnavailable: boolean;
 }
 
 export interface GapQuery {
@@ -170,6 +174,9 @@ export async function collect(input: CollectInput): Promise<CollectResult> {
     cacheHits: 0,
     searchErrors: [],
     linkedinResults: 0,
+    searchAttempted: 0,
+    searchAnswered: 0,
+    searchUnavailable: false,
   };
 
   /* ---- 1. feeds ---- */
@@ -260,6 +267,10 @@ export async function collect(input: CollectInput): Promise<CollectResult> {
   for (const q of queries) {
     if (Date.now() > input.deadline || input.budget.exhausted) break;
     const out = await search(q.query, { limit: 8, days, includeDomains: q.includeDomains }, { chain: input.chain, settings, budget: input.budget });
+    if (!out.skippedForBudget) {
+      result.searchAttempted++;
+      if (out.provider) result.searchAnswered++;
+    }
     if (out.errors.length) result.searchErrors.push(...out.errors.map((e) => `${e.provider}: ${e.message}`));
     const fresh2 = await existingUrls(out.results.map((r) => r.url));
     for (const r of out.results) {
@@ -283,6 +294,7 @@ export async function collect(input: CollectInput): Promise<CollectResult> {
   result.searchQueries = input.budget.used;
   result.searchProviders = { ...input.budget.providerCounts };
   result.cacheHits = input.budget.cacheHits;
+  result.searchUnavailable = result.searchAttempted > 0 && result.searchAnswered === 0;
   return result;
 }
 

@@ -17,6 +17,8 @@
   },
   "fund_profile": {
     "name": "Cloudburst Ventures",
+    "type": "Family office",
+    "location": "Bengaluru, India",
     "tagline": "Early-stage capital for India-first founders",
     "timezone": "Asia/Kolkata",
     "digest_day": "Monday",
@@ -2344,7 +2346,7 @@
     "name": "Aarav",
     "title": "Venture Scout",
     "organisation": "Cloudburst Ventures",
-    "intro_line": "I'm a venture scout at Cloudburst Ventures, an early-stage fund backing India-first founders.",
+    "intro_line": "I'm a venture scout at Cloudburst Ventures, a Bengaluru-based family office backing early-stage Indian startups.",
     "outreach_tone": "Warm, brief and specific to the founder's product. Expresses interest in learning more and makes no promises."
   },
   "digest_settings": {
@@ -2359,7 +2361,21 @@
     "min_baseline_deals": 3,
     "min_extra_deals": 2,
     "daily_send_cap": 20,
-    "fuzzy_match_review_threshold": 0.85
+    "fuzzy_match_review_threshold": 0.85,
+    "refresh_cooldown_minutes": 30,
+    "ask_per_ip_per_hour": 10,
+    "ask_daily_cap": 200,
+    "send_per_ip_per_hour": 5,
+    "search_cache_hours": 24,
+    "max_search_queries_per_run": 20,
+    "extraction_batch_size": 5,
+    "max_article_chars": 6000,
+    "max_articles_per_run": 40,
+    "adjacency_window_days": 10,
+    "adjacency_min_shared_terms": 2,
+    "adjacency_cluster_min_companies": 2,
+    "typical_weekly_volume_min": 40,
+    "typical_weekly_volume_max": 60
   },
   "sources": {
     "rss_and_sites": [

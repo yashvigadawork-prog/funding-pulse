@@ -49,11 +49,15 @@ type Props = { config: ConfigResponse; onChanged: () => void };
 
 function FundProfileForm({ config, onChanged }: Props) {
   const [v, setV] = useState<FundProfile>(() => structuredClone(config.fund_profile));
-  const s = useBlockSave("fund_profile", v, onChanged, "Fund profile");
+  const s = useBlockSave("fund_profile", v, onChanged, "Profile");
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   return (
-    <Section title="Fund profile">
-      <Field label="Fund name">{(id) => <Input id={id} value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} />}</Field>
+    <Section title="Family office profile">
+      <Field label="Name">{(id) => <Input id={id} value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} />}</Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Type">{(id) => <Input id={id} value={v.type ?? ""} onChange={(e) => setV({ ...v, type: e.target.value })} placeholder="Family office" />}</Field>
+        <Field label="Location">{(id) => <Input id={id} value={v.location ?? ""} onChange={(e) => setV({ ...v, location: e.target.value })} placeholder="Bengaluru, India" />}</Field>
+      </div>
       <Field label="Tagline">{(id) => <Input id={id} value={v.tagline} onChange={(e) => setV({ ...v, tagline: e.target.value })} />}</Field>
       <Field label="Time zone" hint="Weeks run Monday to Sunday in this zone.">
         {(id) => <Input id={id} value={v.timezone} onChange={(e) => setV({ ...v, timezone: e.target.value })} />}
@@ -116,6 +120,11 @@ const NUMBER_FIELDS: { key: keyof DigestSettings; label: string; hint?: string; 
   { key: "extraction_batch_size", label: "Articles per AI call" },
   { key: "max_articles_per_run", label: "Articles per run" },
   { key: "max_article_chars", label: "Article text kept (characters)" },
+  { key: "typical_weekly_volume_min", label: "Typical weekly deals, low end", hint: "Used only for the data quality note." },
+  { key: "typical_weekly_volume_max", label: "Typical weekly deals, high end" },
+  { key: "adjacency_window_days", label: "Adjacent-deal window (days)", hint: "How far back to look for deals near a Portfolio company." },
+  { key: "adjacency_min_shared_terms", label: "Shared words needed to call a deal adjacent" },
+  { key: "adjacency_cluster_min_companies", label: "Companies needed to flag a cluster" },
 ];
 
 function DigestSettingsForm({ config, onChanged }: Props) {

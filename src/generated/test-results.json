@@ -1,0 +1,87 @@
+{
+  "recordedAt": "2026-10-12T10:05:58.915Z",
+  "commit": "3271ade",
+  "total": 120,
+  "passed": 120,
+  "failed": 0,
+  "files": [
+    {
+      "file": "src/lib/actions/actions.test.ts",
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/ask.test.ts",
+      "total": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/email/rules.test.ts",
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/matching/matching.test.ts",
+      "total": 15,
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/adjacency.test.ts",
+      "total": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/analyse.test.ts",
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/collect.test.ts",
+      "total": 3,
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/compute.test.ts",
+      "total": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/dates.test.ts",
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/dedupe.test.ts",
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/extract.test.ts",
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/feeds.test.ts",
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/normalise.test.ts",
+      "total": 21,
+      "passed": 21,
+      "failed": 0
+    }
+  ]
+}

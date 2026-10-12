@@ -25,6 +25,8 @@ export interface MatchResult {
   score: number;
   needsReview: boolean;
   reason: string;
+  /** Set when a look-alike name was blocked because none of its context words appeared nearby. */
+  rejectedForContext?: string;
 }
 
 const LEGAL_SUFFIXES = new Set(["pvt", "private", "ltd", "limited", "llp", "inc", "incorporated", "corp", "corporation", "llc"]);
@@ -219,7 +221,7 @@ export function matchCompany(
   }
   if (!best) {
     return rejectedForContext
-      ? { ...none, reason: `Name resembles ${rejectedForContext}, but none of its context words appear nearby, so it was not matched` }
+      ? { ...none, rejectedForContext, reason: `Name resembles ${rejectedForContext}, but none of its context words appear nearby, so it was not matched` }
       : none;
   }
   const ctx = best.contextWord ? ` (context word "${best.contextWord}" found nearby)` : "";

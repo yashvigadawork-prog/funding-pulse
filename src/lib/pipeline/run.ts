@@ -7,6 +7,7 @@ import { getBlocks, listCompanies, listInvestors, saveBlock } from "@/lib/config
 import { geminiConfigured, geminiStats } from "@/lib/gemini";
 import { SearchBudget } from "@/lib/search";
 import { addDays, istDay, weekStartIST } from "@/lib/time";
+import { buildActions } from "@/lib/actions/build";
 import { collect } from "./collect";
 import { analyseDigest, ensureTemplateDigests, prepareDigest, storeDigest, type PreparedDigest } from "./digest";
 import { extractPending, type ExtractResult } from "./extract";
@@ -67,7 +68,7 @@ export async function runPipeline(opts: RunOptions): Promise<RunSummary> {
           await saveBlock("sources", { ...current, rss_and_sites: current.rss_and_sites.map((s) => (s.outlet === outlet ? { ...s, feed_url: feedUrl } : s)) });
         },
       });
-      await setState("last_collect", { at: new Date().toISOString(), total: r.sourcesTotal, reachable: r.sourcesReachable, unreachable: r.unreachable });
+      await setState("last_collect", { at: new Date().toISOString(), total: r.sourcesTotal, reachable: r.sourcesReachable, unreachable: r.unreachable, searchUnavailable: r.searchUnavailable });
       const providers = Object.entries(r.searchProviders).map(([k, v]) => `${k} ${v}`).join(", ") || "none used";
       return {
         message: `${r.sourcesReachable} of ${r.sourcesTotal} sources reachable. ${r.newArticles} new articles. Search: ${r.searchQueries} queries (${providers}), ${r.cacheHits} from cache.${r.searchErrors.length ? ` Search problems: ${[...new Set(r.searchErrors)].slice(0, 3).join("; ")}.` : ""}`,
@@ -128,7 +129,7 @@ export async function runPipeline(opts: RunOptions): Promise<RunSummary> {
 
     // 6. store
     await log.step("store", async () => {
-      const actions = opts.buildActions ? await opts.buildActions(ready).catch(() => ({})) : {};
+      const actions = await (opts.buildActions ?? buildActions)(ready).catch(() => ({}));
       await storeDigest(ready, analysis.analysis, analysis.highlights, actions);
       const extra = await ensureTemplateDigests(blocks);
       return { message: `Digest for the week of ${week} saved${extra ? `, plus ${extra} earlier week${extra === 1 ? "" : "s"}` : ""}.` };

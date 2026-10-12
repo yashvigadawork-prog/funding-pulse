@@ -133,11 +133,27 @@ export async function seedIfMissing(): Promise<{ inserted: { companies: number; 
   };
 }
 
+const OLD_INTRO = "I'm a venture scout at Cloudburst Ventures, an early-stage fund backing India-first founders.";
+
+/** Updates wording stored by an earlier version without touching anything else the user has edited. */
+export async function patchStoredWording(): Promise<boolean> {
+  const [row] = await db.select().from(fundConfig).where(eq(fundConfig.id, 1)).limit(1);
+  if (!row) return false;
+  const sender = row.senderProfile as { intro_line?: string };
+  if (sender?.intro_line !== OLD_INTRO) return false;
+  await db
+    .update(fundConfig)
+    .set({ senderProfile: { ...sender, intro_line: loadSeed().sender_profile.intro_line }, updatedAt: new Date() })
+    .where(eq(fundConfig.id, 1));
+  return true;
+}
+
 /** Called by the app so a fresh database fills itself on first use. */
 export async function ensureSeeded(): Promise<void> {
   if (seededThisProcess) return;
   const rows = await db.select({ id: fundConfig.id }).from(fundConfig).limit(1);
   if (!rows.length) await seedIfMissing();
+  else await patchStoredWording();
   seededThisProcess = true;
 }
 

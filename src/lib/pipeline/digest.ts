@@ -2,9 +2,12 @@
 import { asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, dealInvestors, dealSources, deals, digests, investors, investorsOfInterest } from "@/db/schema";
+import { and, gte, lte } from "drizzle-orm";
 import type { ConfigBlocks } from "@/lib/config/store";
 import { normalizeName } from "@/lib/matching";
-import { addDays } from "@/lib/time";
+import { addDays, istDay } from "@/lib/time";
+import { listCompanies } from "@/lib/config/store";
+import { computeAdjacency, type AdjacencyDeal, type AdjacentGroup, adjacencyWindow } from "./adjacency";
 import { geminiAnalyse, selectCandidates, templateAnalysis, type Analysis, type AnalysisInput, type DealView, type Highlight } from "./analyse";
 import { computeWeek, type ComputeDeal, type WeekCompute } from "./compute";
 
@@ -64,6 +67,8 @@ export async function loadDealViews(week: string, all: ComputeDeal[]): Promise<D
       amountText: r.amountText,
       summary: r.summary,
       confidence: r.confidence,
+      domain: r.domain,
+      founders: (r.founders as { name: string; role?: string | null }[] | null) ?? [],
       sources: mine.map((s) => ({ n: s.id, url: s.url, outlet: s.outlet, title: s.title })),
       excerpt: excerptAround((mine[0]?.text ?? pasted[0]?.text ?? r.summary ?? ""), r.companyName),
       novel: !earlier.has(normalizeName(r.companyName)),
@@ -71,7 +76,41 @@ export async function loadDealViews(week: string, all: ComputeDeal[]): Promise<D
   });
 }
 
+export interface ReviewItem {
+  dealId: number;
+  asWritten: string;
+  closestCompany: string | null;
+  closestTag: string | null;
+  score: number | null;
+  reason: string;
+  sources: { url: string; outlet: string | null }[];
+}
+
+/** Deals in the adjacency window (which can start in the previous week) with their source links. */
+export async function loadAdjacencyDeals(from: string, to: string): Promise<AdjacencyDeal[]> {
+  const rows = await db.select().from(deals).where(and(gte(deals.announcedOn, from), lte(deals.announcedOn, to)));
+  if (!rows.length) return [];
+  const src = await db
+    .select({ dealId: dealSources.dealId, url: articles.url, outlet: articles.outlet })
+    .from(dealSources)
+    .innerJoin(articles, eq(articles.id, dealSources.articleId))
+    .where(inArray(dealSources.dealId, rows.map((r) => r.id)));
+  return rows.map((r) => ({
+    id: r.id,
+    companyName: r.companyName,
+    matchTag: (r.matchTag as AdjacencyDeal["matchTag"]) ?? null,
+    sector: r.sector ?? "Other",
+    stage: r.stage,
+    amountText: r.amountText,
+    announcedOn: r.announcedOn ?? from,
+    summary: r.summary,
+    sources: src.filter((s) => s.dealId === r.id && !s.url.startsWith("paste:")).map((s) => ({ url: s.url, outlet: s.outlet })),
+  }));
+}
+
 export interface PreparedDigest {
+  adjacency: AdjacentGroup[];
+  needsReview: ReviewItem[];
   week: string;
   compute: WeekCompute;
   views: DealView[];
@@ -92,7 +131,32 @@ export async function prepareDigest(week: string, blocks: ConfigBlocks): Promise
     watchInvestors: watch,
   });
   const candidates = selectCandidates(views, compute, blocks.mandate, new Set(watch.map((w) => w.toLowerCase())), blocks.digest_settings.highlights_total);
-  return { week, compute, views, candidates, input: { week, compute, deals: views, candidates, mandate: blocks.mandate } };
+  const companies = await listCompanies();
+  const win = adjacencyWindow(week, istDay(), blocks.digest_settings.adjacency_window_days);
+  const adjacency = computeAdjacency({
+    deals: await loadAdjacencyDeals(win.from, win.to),
+    portfolio: companies.filter((c) => c.tag === "Portfolio").map((c) => ({ id: c.id, name: c.name, sector: c.sector, description: c.description ?? null })),
+    weekStart: week,
+    today: istDay(),
+    settings: blocks.digest_settings,
+  });
+  const scoreRows = views.length ? await db.select({ id: deals.id, score: deals.matchScore, reason: deals.matchReason }).from(deals).where(inArray(deals.id, views.map((v) => v.id))) : [];
+  const needsReview: ReviewItem[] = views
+    .filter((v) => v.needsReview)
+    .map((v) => {
+      const co = companies.find((c) => c.id === v.companyId);
+      const s = scoreRows.find((r) => r.id === v.id);
+      return {
+        dealId: v.id,
+        asWritten: v.companyName,
+        closestCompany: co?.name ?? null,
+        closestTag: co?.tag ?? null,
+        score: s?.score ?? null,
+        reason: "Close match, below the exact-match threshold",
+        sources: v.sources.map((x) => ({ url: x.url, outlet: x.outlet })),
+      };
+    });
+  return { week, compute, views, candidates, adjacency, needsReview, input: { week, compute, deals: views, candidates, mandate: blocks.mandate } };
 }
 
 export async function analyseDigest(prep: PreparedDigest, useAi: boolean): Promise<{ analysis: Analysis; highlights: Highlight[] }> {
@@ -128,8 +192,12 @@ export async function storeDigest(prep: PreparedDigest, analysis: Analysis, high
   const prevWeek = addDays(prep.week, -7);
   const all = await loadComputeDeals();
   const prev = all.filter((d) => d.weekStart === prevWeek);
+  const adjacentDealIds = new Set(prep.adjacency.flatMap((g) => g.items.map((i) => i.dealId)));
   const kpis = {
     ...prep.compute.kpis,
+    directHits: prep.compute.kpis.watchlistHits,
+    adjacentHits: adjacentDealIds.size,
+    adjacentClusters: prep.adjacency.filter((g) => g.cluster).length,
     week: prep.week,
     prevDeals: prev.length,
     prevDisclosedUsd: prev.reduce((a, d) => a + (d.amountUsd ?? 0), 0),
@@ -158,6 +226,8 @@ export async function storeDigest(prep: PreparedDigest, analysis: Analysis, high
   });
   const patterns = {
     computed: prep.compute,
+    adjacency: prep.adjacency,
+    needsReview: prep.needsReview,
     items: [
       { key: "capital", title: "Which sectors are attracting capital?", oneLine: analysis.capital.summary },
       { key: "momentum", title: "Is activity speeding up or slowing in the portfolio's spaces?", oneLine: analysis.momentum.summary },

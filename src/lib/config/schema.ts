@@ -4,6 +4,8 @@ import { z } from "zod";
 
 export const fundProfileSchema = z.looseObject({
   name: z.string().min(1),
+  type: z.string().default("Family office"),
+  location: z.string().default("Bengaluru, India"),
   tagline: z.string().default(""),
   timezone: z.string().default("Asia/Kolkata"),
   digest_day: z.string().default("Monday"),
@@ -67,6 +69,11 @@ export const digestSettingsSchema = z.looseObject({
   extraction_batch_size: z.number().int().min(1).default(5),
   max_article_chars: z.number().int().min(500).default(6000),
   max_articles_per_run: z.number().int().min(1).default(40),
+  typical_weekly_volume_min: z.number().int().min(0).default(40),
+  typical_weekly_volume_max: z.number().int().min(0).default(60),
+  adjacency_window_days: z.number().int().min(1).default(10),
+  adjacency_min_shared_terms: z.number().int().min(1).default(2),
+  adjacency_cluster_min_companies: z.number().int().min(2).default(2),
 });
 
 export const sourceSchema = z.looseObject({

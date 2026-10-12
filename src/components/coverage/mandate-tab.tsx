@@ -54,7 +54,7 @@ export function MandateTab({ config, onChanged }: { config: ConfigResponse; onCh
       <fieldset className="grid gap-2">
         <legend className="mb-1 text-sm font-medium">Stages</legend>
         <p className="text-xs text-muted-foreground">
-          &ldquo;In focus&rdquo; stages are the ones the fund writes first cheques in. &ldquo;Follow-on only&rdquo; stages count only for companies already in Portfolio or On Radar.
+          &ldquo;In focus&rdquo; stages are the ones the family office writes first cheques in. &ldquo;Follow-on only&rdquo; stages count only for companies already in Portfolio or On Radar.
         </p>
         <ul className="grid gap-1.5">
           {m.stages.map((s) => (

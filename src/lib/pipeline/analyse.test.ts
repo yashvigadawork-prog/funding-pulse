@@ -28,6 +28,8 @@ const mk = (id: number, o: Partial<DealView> = {}): DealView => ({
   summary: "x",
   confidence: "medium",
   sources: [{ n: id, url: `https://ex.com/${id}`, outlet: "Ex", title: "t" }],
+  domain: null,
+  founders: [],
   excerpt: "text",
   novel: false,
   ...o,

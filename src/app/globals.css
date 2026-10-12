@@ -224,4 +224,6 @@ html.theme-fade *::after {
   .print-page { break-after: page; page-break-after: always; }
   .print-page:last-child { break-after: auto; page-break-after: auto; }
   .print-avoid-break { break-inside: avoid; }
+  .print-links a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.7em; word-break: break-all; }
+  .print-links a svg { display: none; }
 }
