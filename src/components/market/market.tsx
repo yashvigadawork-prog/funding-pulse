@@ -292,7 +292,8 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
   // Rows are handed out group by group until the page limit is used up.
   const sliced = groups.reduce<{ sector: string; rows: DealRowView[]; focus: boolean; isOpen: boolean; shown: DealRowView[]; left: number }[]>((acc, g) => {
     const left = acc.length ? acc[acc.length - 1].left : limit;
-    const isOpen = open[g.sector] ?? (g.focus || showAll);
+    // "All sectors": every group starts closed. Picking one sector opens it.
+    const isOpen = open[g.sector] ?? (sector !== "all" || showAll);
     const take = isOpen ? Math.max(0, Math.min(g.rows.length, left)) : 0;
     acc.push({ ...g, isOpen, shown: g.rows.slice(0, take), left: left - take });
     return acc;
@@ -305,15 +306,15 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
         <h2 id="all-deals-h" className="text-lg font-semibold tracking-tight">
           All deals this week ({view.deals.length})
         </h2>
-        <p className="text-sm text-muted-foreground">Grouped by sector. Focus sectors are open; others are collapsed. Select a row for details and every source link.</p>
+        <p className="text-sm text-muted-foreground">Grouped by sector, all closed to start with. Open a sector, or pick one above, then select a row for details and every source link.</p>
       </div>
       <div className="mb-3 grid gap-2.5">
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" className={chip(sector === "all")} aria-pressed={sector === "all"} onClick={() => { setSector("all"); setLimit(PAGE); }}>
+          <button type="button" className={chip(sector === "all")} aria-pressed={sector === "all"} onClick={() => { setSector("all"); setOpen({}); setLimit(PAGE); }}>
             All sectors <span className="fig opacity-70">{view.deals.length}</span>
           </button>
           {sectors.map((s) => (
-            <button key={s} type="button" className={chip(sector === s)} aria-pressed={sector === s} onClick={() => { setSector(sector === s ? "all" : s); setLimit(PAGE); }}>
+            <button key={s} type="button" className={chip(sector === s)} aria-pressed={sector === s} onClick={() => { setSector(sector === s ? "all" : s); setOpen({}); setLimit(PAGE); }}>
               <span className="size-2 rounded-full" style={{ background: sectorVar(s) }} />
               {s} <span className="fig opacity-70">{counts.get(s)}</span>
             </button>
@@ -340,9 +341,11 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
               { value: "On Radar", label: "On Radar" },
             ]}
           />
-          <Button variant="outline" className="h-9 rounded-full" onClick={() => setShowAll((s) => !s)} aria-pressed={showAll}>
-            {showAll ? "Collapse others" : "Show all sectors"}
-          </Button>
+          {sector === "all" ? (
+            <Button variant="outline" className="h-9 rounded-full" onClick={() => { setShowAll((s) => !s); setOpen({}); }} aria-pressed={showAll}>
+              {showAll ? "Collapse all" : "Expand all sectors"}
+            </Button>
+          ) : null}
         </div>
       </div>
       {!groups.length ? (

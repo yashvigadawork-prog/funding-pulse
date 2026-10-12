@@ -1,4 +1,5 @@
 /** Building a week's digest: compute (code) -> analyse (Gemini or template) -> store. */
+import { targetWeek } from "./target-week";
 import { asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, dealInvestors, dealSources, deals, digests, investors, investorsOfInterest } from "@/db/schema";
@@ -256,8 +257,10 @@ export async function ensureTemplateDigests(blocks: ConfigBlocks, opts: { skipWe
   const weeks = await db.selectDistinct({ w: deals.weekStart }).from(deals);
   const existing = new Map((await db.select({ w: digests.weekStart, a: digests.analysis, k: digests.kpis }).from(digests)).map((d) => [d.w, d]));
   let n = 0;
+  const latest = targetWeek();
   for (const { w } of weeks) {
-    if (!w || w === opts.skipWeek) continue;
+    // A week that has not started its digest yet (today's deals belong to the next one) gets no digest at all.
+    if (!w || w === opts.skipWeek || w > latest) continue;
     const have = existing.get(w);
     // Template digests are cheap, so they are always rebuilt from the latest deals and match results.
     const stale = have && (have.a as Analysis).source === "template";
@@ -271,6 +274,7 @@ export async function ensureTemplateDigests(blocks: ConfigBlocks, opts: { skipWe
 }
 
 export async function listDigestWeeks(): Promise<{ week: string; deals: number; source: string; emailedAt: Date | null }[]> {
-  const rows = await db.select().from(digests).orderBy(desc(digests.weekStart));
+  const latest = targetWeek();
+  const rows = (await db.select().from(digests).orderBy(desc(digests.weekStart))).filter((r) => r.weekStart <= latest);
   return rows.map((r) => ({ week: r.weekStart, deals: (r.kpis as { deals?: number }).deals ?? 0, source: (r.analysis as Analysis).source, emailedAt: r.emailedAt }));
 }
