@@ -43,6 +43,21 @@ export function Dashboard() {
   let body: React.ReactNode;
   if (error && !data) body = <div className="mx-auto max-w-2xl px-4 py-10"><ErrorRetry message={error instanceof Error ? error.message : undefined} onRetry={reload} /></div>;
   else if (isLoading || !data) body = <DashboardSkeleton />;
+  else if (data.weeks.length > 0 && !data.digest)
+    body = (
+      <div className="mx-auto grid max-w-2xl gap-4 px-4 py-10">
+        <EmptyState
+          title="No digest for this week"
+          action={
+            <Button onClick={() => router.replace("/")}>
+              Go to the latest digest
+            </Button>
+          }
+        >
+          Nothing has been collected for the week of {data.week ? formatWeekRange(data.week) : "this date"}. Pick another week from the list at the top, or open the latest one.
+        </EmptyState>
+      </div>
+    );
   else if (!data.weeks.length || !data.digest)
     body = (
       <div className="mx-auto max-w-2xl px-4 py-10 grid gap-4">
