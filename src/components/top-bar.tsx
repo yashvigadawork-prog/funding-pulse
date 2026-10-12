@@ -33,7 +33,18 @@ export function TopBar({
       await navigator.clipboard.writeText(url);
       toast.success("Link copied");
     } catch {
-      toast.info(`Copy this link: ${url}`);
+      // Older or locked-down browsers: fall back to a hidden text box and the classic copy command.
+      const box = document.createElement("textarea");
+      box.value = url;
+      box.setAttribute("readonly", "");
+      box.style.position = "fixed";
+      box.style.opacity = "0";
+      document.body.appendChild(box);
+      box.select();
+      const ok = document.execCommand("copy");
+      box.remove();
+      if (ok) toast.success("Link copied");
+      else toast.info(`Copy this link: ${url}`);
     }
   }
 

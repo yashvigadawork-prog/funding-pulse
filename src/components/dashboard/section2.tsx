@@ -245,7 +245,7 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
     .sort((a, b) => Number(b.focus) - Number(a.focus) || b.rows.length - a.rows.length);
 
   return (
-    <div>
+    <div id="all-deals" className="scroll-mt-28">
       <H hint="Grouped by sector. Focus sectors are open; others are collapsed. Select a row for details and every source link.">All deals this week ({view.deals.length})</H>
       <div className="mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto]">
         <div className="relative">

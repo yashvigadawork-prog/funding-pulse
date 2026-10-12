@@ -11,7 +11,7 @@ import type { DealRowView, DigestView } from "@/lib/view-types";
 function Heading({ id, children, hint }: { id: string; children: React.ReactNode; hint?: string }) {
   return (
     <div className="mb-3">
-      <h2 id={id} className="text-lg font-semibold tracking-tight">
+      <h2 id={id} className="scroll-mt-28 text-lg font-semibold tracking-tight">
         {children}
       </h2>
       {hint ? <p className="text-sm text-muted-foreground">{hint}</p> : null}

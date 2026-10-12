@@ -137,7 +137,7 @@ export function CoverageContent({ config, onChanged }: Props) {
           <TabsTrigger value="radar">On Radar ({config.counts.on_radar})</TabsTrigger>
           <TabsTrigger value="more">More</TabsTrigger>
         </TabsList>
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div tabIndex={0} role="region" aria-label="My Coverage content" className="min-h-0 flex-1 overflow-y-auto px-4 py-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
           <TabsContent value="mandate">
             <MandateTab key={epoch} config={config} onChanged={refresh} />
           </TabsContent>
