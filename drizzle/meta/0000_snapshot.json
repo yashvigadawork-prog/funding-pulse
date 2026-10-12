@@ -1,5 +1,5 @@
 {
-  "id": "d8ea0b46-707e-4590-8268-53adeb25eafb",
+  "id": "c4fd4fb8-f968-4d27-a1ad-4a003447f63a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -94,6 +94,19 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "extracted": {
+          "name": "extracted",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "processed": {
           "name": "processed",

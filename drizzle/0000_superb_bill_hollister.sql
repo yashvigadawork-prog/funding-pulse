@@ -14,6 +14,8 @@ CREATE TABLE "articles" (
 	"text" text,
 	"kind" text DEFAULT 'article' NOT NULL,
 	"via" text,
+	"extracted" jsonb,
+	"attempts" integer DEFAULT 0 NOT NULL,
 	"processed" boolean DEFAULT false NOT NULL,
 	"fetched_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "articles_url_unique" UNIQUE("url")

@@ -42,8 +42,8 @@ export function weekEnd(weekStart: string): string {
   return addDays(weekStart, 6);
 }
 
-export function isValidDay(s: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(new Date(`${s}T00:00:00Z`).getTime());
+export function isValidDay(s: string | null | undefined): s is string {
+  return !!s && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(new Date(`${s}T00:00:00Z`).getTime());
 }
 
 export function formatDay(day: string): string {

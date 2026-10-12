@@ -105,8 +105,10 @@ export const articles = pgTable(
     publishedAt: ts("published_at"),
     textHash: text("text_hash"),
     text: text("text"), // truncated article text kept so extraction can be resumed
-    kind: text("kind").notNull().default("article"), // 'article' | 'roundup'
+    kind: text("kind").notNull().default("article"), // 'article' | 'roundup' | 'linkedin'
     via: text("via"), // 'feed' | search provider name | 'paste'
+    extracted: jsonb("extracted"), // what Gemini pulled out of the text (kept so work is never repeated)
+    attempts: integer("attempts").notNull().default(0), // extraction tries, to stop endless retries
     processed: boolean("processed").notNull().default(false),
     fetchedAt: ts("fetched_at").notNull().defaultNow(),
   },
