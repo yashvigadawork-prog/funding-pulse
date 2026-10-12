@@ -127,6 +127,7 @@ export function buildExtractionPrompt(batch: Pick<Article, "id" | "outlet" | "ur
     "- Include only funding rounds raised by startups (equity or debt) that the text reports. Skip acquisitions, IPOs, grants, layoffs, rumours and opinion pieces.",
     "- Include only startups based in or operating mainly in India. Skip established corporates and conglomerates unless the text itself calls the company a startup.",
     "- One entry per company per round per article. A roundup article may list many companies: return every one of them.",
+    "- Return only the round the article is reporting as new. Ignore earlier rounds, previous funding totals and accelerator cheques that are mentioned only as background (for example 'it earlier raised a seed round').",
     "- amount_text must be copied exactly from the text. amount_value, amount_unit and currency describe the same amount without converting or adding anything.",
     "- Do no arithmetic. Do not convert currencies. Do not total amounts.",
     `- sector must be one of: ${sectors}. Use null if you cannot tell from the text.`,
@@ -241,5 +242,11 @@ export async function extractPending(p: { settings: DigestSettings; taxonomy: Ta
     }
   }
   await Promise.all(Array.from({ length: Math.min(EXTRACT_CONCURRENCY, Math.max(1, batches.length)) }, worker));
+  // Count what is genuinely still waiting (the list above is capped, so it can understate the backlog).
+  const [left] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(articles)
+    .where(and(isNull(articles.extracted), eq(articles.processed, false), lt(articles.attempts, MAX_ATTEMPTS)));
+  res.remaining = left?.n ?? res.remaining;
   return res;
 }

@@ -124,15 +124,19 @@ export async function runPipeline(opts: RunOptions): Promise<RunSummary> {
     });
 
     // 6. store
-    await log.step("store", async () => {
+    const stored = await log.step("store", async () => {
       const actions = await (opts.buildActions ?? buildActions)(ready, started + (opts.budgetMs ?? 270_000) - 25_000).catch(() => ({}));
       await storeDigest(ready, analysis.analysis, analysis.highlights, actions);
       const extra = await ensureTemplateDigests(blocks, { skipWeek: week });
       return { message: `Digest for the week of ${week} saved${extra ? `, plus ${extra} earlier week${extra === 1 ? "" : "s"}` : ""}.` };
     });
 
-    // 7. send (scheduled runs only)
-    if (opts.afterStore) await opts.afterStore(week, log);
+    // 7. send (scheduled runs only). Never email a digest that did not just save: it could be an older version of the week.
+    if (opts.afterStore && stored.ok) await opts.afterStore(week, log);
+    else if (opts.afterStore) {
+      const id = await log.begin("send", undefined);
+      await log.end(id, "skipped", "The digest could not be saved, so no email was sent.");
+    }
 
     await setState("last_run", { at: new Date().toISOString(), runId: opts.runId, kind: opts.kind, week, partial });
     await log.step("done", async () => ({ message: partial ? "Finished, but some articles are still waiting. Press Refresh again to continue." : "All done." }));

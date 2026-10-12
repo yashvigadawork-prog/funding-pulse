@@ -45,7 +45,8 @@ export function normaliseExtracted(d: ExtractedDeal, article: Pick<Article, "id"
       ...d.other_investors.map((name) => ({ name, role: "participant" as const })),
     ],
     articleIds: [article.id],
-    confidence: "medium",
+    // No stated date and no publish date: the day is a guess (today), so the deal is marked low confidence.
+    confidence: !d.announced_on && !article.publishedAt ? "low" : "medium",
   };
 }
 

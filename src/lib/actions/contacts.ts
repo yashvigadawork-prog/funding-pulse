@@ -83,7 +83,15 @@ export async function findLinkedIn(founder: string, company: string, ctx: Search
   return null;
 }
 
+/** A plain public website name such as "zomint.com": no address numbers, ports, paths or internal names. */
+export function isPublicHostname(raw: string): boolean {
+  const h = raw.trim().toLowerCase().replace(/^https?:\/\//, "");
+  if (!/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/.test(h)) return false;
+  return !/\.(local|internal|localhost|lan|home|corp|test|invalid|example)$/.test(h);
+}
+
 export async function findEmail(domain: string): Promise<{ email: string; source: string } | null> {
+  if (!isPublicHostname(domain)) return null;
   for (const path of ["", "/contact", "/contact-us", "/about"]) {
     const url = `https://${domain.replace(/^https?:\/\//, "")}${path}`;
     try {

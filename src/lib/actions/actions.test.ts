@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractEmails, isLinkedInProfile, nameAppears } from "./contacts";
+import { extractEmails, isLinkedInProfile, isPublicHostname, nameAppears } from "./contacts";
 import { founderEmailDraft, linkedinNoteDraft, lpBriefDraft, lpBullets, portfolioFollowUpDraft } from "./drafts";
 
 const sender = { name: "Aarav", title: "Venture Scout", organisation: "Cloudburst Ventures", intro_line: "I'm a venture scout at Cloudburst Ventures, a Bengaluru-based family office backing early-stage Indian startups.", outreach_tone: "warm" };
@@ -21,6 +21,14 @@ describe("contacts helpers", () => {
   it("requires every name part to appear in the text", () => {
     expect(nameAppears("Riya Sharma", "Riya Sharma - CEO at Zomint")).toBe(true);
     expect(nameAppears("Riya Sharma", "Riya Patel - CEO")).toBe(false);
+  });
+});
+
+describe("contact lookup safety", () => {
+  it("only looks up plain public website names", () => {
+    expect(isPublicHostname("zomint.com")).toBe(true);
+    expect(isPublicHostname("https://www.zomint.co.in")).toBe(true);
+    for (const bad of ["localhost", "127.0.0.1", "169.254.169.254", "zomint.internal", "foo.local", "zomint.com:8080", "zomint.com/admin", "user@zomint.com", ""]) expect(isPublicHostname(bad)).toBe(false);
   });
 });
 

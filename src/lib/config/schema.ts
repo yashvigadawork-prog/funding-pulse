@@ -47,9 +47,16 @@ export const senderProfileSchema = z.looseObject({
 });
 
 /** The seed only has some of these. The rest get defaults so nothing is hard-coded in code. */
+/** A whole number kept inside sensible limits. Out-of-range values are clamped, never rejected, so stored settings always load. */
+const bounded = (min: number, max: number, fallback: number) =>
+  z
+    .number()
+    .default(fallback)
+    .transform((v) => Math.min(max, Math.max(min, Math.round(v))));
+
 export const digestSettingsSchema = z.looseObject({
   recipients: z.array(z.string().email("Each recipient must be a valid email address")).default([]),
-  lookback_days: z.number().int().min(1).default(7),
+  lookback_days: bounded(1, 30, 7),
   highlights_top: z.number().int().min(1).default(5),
   highlights_total: z.number().int().min(1).default(15),
   backfill_weeks: z.number().int().min(1).default(8),
@@ -58,17 +65,17 @@ export const digestSettingsSchema = z.looseObject({
   slowing_ratio: z.number().positive().default(0.75),
   min_baseline_deals: z.number().int().min(0).default(3),
   min_extra_deals: z.number().int().min(0).default(2),
-  daily_send_cap: z.number().int().min(1).default(20),
+  daily_send_cap: bounded(1, 100, 20),
   fuzzy_match_review_threshold: z.number().min(0).max(1).default(0.85),
-  refresh_cooldown_minutes: z.number().min(0).default(30),
-  ask_per_ip_per_hour: z.number().int().min(1).default(10),
-  ask_daily_cap: z.number().int().min(1).default(200),
-  send_per_ip_per_hour: z.number().int().min(1).default(5),
+  refresh_cooldown_minutes: bounded(5, 1440, 30),
+  ask_per_ip_per_hour: bounded(1, 100, 10),
+  ask_daily_cap: bounded(1, 2000, 200),
+  send_per_ip_per_hour: bounded(1, 20, 5),
   search_cache_hours: z.number().min(0).default(24),
-  max_search_queries_per_run: z.number().int().min(0).default(30),
-  extraction_batch_size: z.number().int().min(1).default(5),
-  max_article_chars: z.number().int().min(500).default(6000),
-  max_articles_per_run: z.number().int().min(1).default(40),
+  max_search_queries_per_run: bounded(0, 100, 30),
+  extraction_batch_size: bounded(1, 10, 5),
+  max_article_chars: bounded(500, 20000, 6000),
+  max_articles_per_run: bounded(1, 100, 40),
   typical_weekly_volume_min: z.number().int().min(0).default(40),
   typical_weekly_volume_max: z.number().int().min(0).default(60),
   adjacency_window_days: z.number().int().min(1).default(10),

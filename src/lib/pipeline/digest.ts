@@ -61,7 +61,8 @@ export async function loadDealViews(week: string, all: ComputeDeal[]): Promise<D
     .where(inArray(dealSources.dealId, ids));
   const earlier = new Set(all.filter((d) => d.weekStart < week).map((d) => normalizeName(d.companyName)));
   const byId = new Map(all.map((d) => [d.id, d]));
-  return rows.map((r) => {
+  // A deal saved after the list above was read (for example a pasted post) is picked up on the next build.
+  return rows.filter((r) => byId.has(r.id)).map((r) => {
     const base = byId.get(r.id)!;
     const mine = src.filter((s) => s.dealId === r.id && !s.url.startsWith("paste:"));
     const pasted = src.filter((s) => s.dealId === r.id && s.url.startsWith("paste:"));

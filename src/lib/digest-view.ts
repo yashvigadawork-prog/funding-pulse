@@ -109,7 +109,6 @@ export async function loadQuality(week: string | null, dealsFound: number, undis
   };
 }
 
-/** Everything the page, the report and the emails show passes through here once. */
 /** One entry per person: a first name on its own is dropped when the full name is also listed. */
 function tidyFounders<T extends { name: string }>(list: T[]): T[] {
   const seen = new Set<string>();
@@ -125,6 +124,7 @@ function tidyFounders<T extends { name: string }>(list: T[]): T[] {
   });
 }
 
+/** Everything the page, the report and the emails show passes through here once. */
 export async function loadDigestView(requestedWeek: string | null): Promise<DigestView> {
   return scrubDeep(await loadDigestViewRaw(requestedWeek));
 }

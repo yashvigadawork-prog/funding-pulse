@@ -1,8 +1,8 @@
 {
-  "recordedAt": "2026-10-12T14:46:17.427Z",
-  "commit": "5a579dd",
-  "total": 169,
-  "passed": 169,
+  "recordedAt": "2026-10-12T15:08:00.896Z",
+  "commit": "823c8df",
+  "total": 175,
+  "passed": 175,
   "failed": 0,
   "files": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "file": "src/lib/actions/actions.test.ts",
-      "total": 14,
-      "passed": 14,
+      "total": 15,
+      "passed": 15,
       "failed": 0
     },
     {
@@ -33,6 +33,12 @@
       "file": "src/lib/ask.test.ts",
       "total": 4,
       "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/config/schema.test.ts",
+      "total": 3,
+      "passed": 3,
       "failed": 0
     },
     {
@@ -111,6 +117,12 @@
       "file": "src/lib/pipeline/normalise.test.ts",
       "total": 23,
       "passed": 23,
+      "failed": 0
+    },
+    {
+      "file": "src/lib/pipeline/process.test.ts",
+      "total": 2,
+      "passed": 2,
       "failed": 0
     },
     {

@@ -7,6 +7,7 @@ import { addPastedArticle } from "@/lib/pipeline/collect";
 import { extractPending } from "@/lib/pipeline/extract";
 import { processExtracted } from "@/lib/pipeline/process";
 import { canonicalUrl } from "@/lib/http";
+import { acquireLock, newRunId, releaseLock } from "@/lib/pipeline/runs";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 90;
@@ -22,19 +23,26 @@ export const POST = handle(async (req: Request) => {
   await limitAi(req, "draft");
   if (!geminiConfigured()) throw new HttpError(503, "The AI reader is not available right now, so the post could not be read. Please try again later.");
   const url = canonicalUrl(b.url);
-  const added = await addPastedArticle({ text: b.text, url, title: `Pasted post: ${b.text.slice(0, 60)}` });
-  if (!added) throw new HttpError(409, "That post (or its link) is already stored.");
-  const blocks = await getBlocks();
-  const ex = await extractPending({ settings: blocks.digest_settings, taxonomy: blocks.taxonomy, deadline: Date.now() + 60_000, limit: 3 });
-  const proc = await processExtracted({ blocks, companies: await listCompanies() });
-  return Response.json({
-    ok: true,
-    dealsFound: ex.dealsFound,
-    newDeals: proc.inserted,
-    merged: proc.merged,
-    message:
-      ex.dealsFound === 0
-        ? "Saved, but no funding deal was found in that text."
-        : `Found ${ex.dealsFound} deal${ex.dealsFound === 1 ? "" : "s"} (${proc.inserted} new, ${proc.merged} merged with existing). It shows on the dashboard after the next refresh.`,
-  });
+  // Share the one-run-at-a-time lock, so a pasted post and a refresh never process the same articles together.
+  const lockId = `paste-${newRunId()}`;
+  if (!(await acquireLock(lockId))) throw new HttpError(409, "A refresh is running right now. Please paste the post again in a minute or two.");
+  try {
+    const added = await addPastedArticle({ text: b.text, url, title: `Pasted post: ${b.text.slice(0, 60)}` });
+    if (!added) throw new HttpError(409, "That post (or its link) is already stored.");
+    const blocks = await getBlocks();
+    const ex = await extractPending({ settings: blocks.digest_settings, taxonomy: blocks.taxonomy, deadline: Date.now() + 60_000, limit: 3 });
+    const proc = await processExtracted({ blocks, companies: await listCompanies() });
+    return Response.json({
+      ok: true,
+      dealsFound: ex.dealsFound,
+      newDeals: proc.inserted,
+      merged: proc.merged,
+      message:
+        ex.dealsFound === 0
+          ? "Saved, but no funding deal was found in that text."
+          : `Found ${ex.dealsFound} deal${ex.dealsFound === 1 ? "" : "s"} (${proc.inserted} new, ${proc.merged} merged with existing). It shows on the dashboard after the next refresh.`,
+    });
+  } finally {
+    await releaseLock(lockId);
+  }
 });
