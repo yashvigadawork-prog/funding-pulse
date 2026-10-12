@@ -89,6 +89,11 @@ export function Hero({ view, onOpenFocus }: { view: DigestView; onOpenFocus: () 
               </Rise>
             ))}
           </ul>
+          {d.analysis.source === "template" ? (
+            <p className="mt-4 rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning-ink">
+              {d.analysis.reason === "ai_unavailable" ? "Written from a template because the AI service was unavailable. The numbers are unaffected." : "A plain summary written from the numbers. The latest digest has the full AI explanation."}
+            </p>
+          ) : null}
           {d.emailedAt ? <p className="mt-4 text-xs text-muted-foreground">Emailed to the digest list.</p> : null}
         </div>
 

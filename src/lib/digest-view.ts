@@ -66,11 +66,12 @@ export async function loadDealsForWeek(week: string, newInvestors: WeekCompute["
           return [{ outlet: s.outlet, said }];
         })
         .filter((x, i, a) => a.findIndex((y) => y.outlet === x.outlet && y.said === x.said) === i),
-      founders: (r.founders as DealRowView["founders"] | null) ?? [],
+      founders: tidyFounders((r.founders as DealRowView["founders"] | null) ?? []),
       investors: inv
         .filter((i) => i.dealId === r.id && !containsForbidden(i.name))
         .map((i) => ({ name: i.name, role: (i.role === "lead" ? "lead" : "participant") as "lead" | "participant", newInSector: newKey.has(`${r.id}::${normalizeName(i.name)}`) }))
-        .sort((a, b) => Number(b.role === "lead") - Number(a.role === "lead")),
+        .sort((a, b) => Number(b.role === "lead") - Number(a.role === "lead"))
+        .filter((x, i, all) => all.findIndex((y) => normalizeName(y.name) === normalizeName(x.name)) === i),
       sources: src.filter((s) => s.dealId === r.id && !s.url.startsWith("paste:")).map((s) => ({ url: s.url, outlet: s.outlet, title: s.title })),
       adjacentTo: adjacency.filter((g) => g.items.some((i) => i.dealId === r.id)).map((g) => ({ portfolioName: g.portfolioName, sharedTerms: g.items.find((i) => i.dealId === r.id)!.sharedTerms })),
     }))
@@ -109,6 +110,21 @@ export async function loadQuality(week: string | null, dealsFound: number, undis
 }
 
 /** Everything the page, the report and the emails show passes through here once. */
+/** One entry per person: a first name on its own is dropped when the full name is also listed. */
+function tidyFounders<T extends { name: string }>(list: T[]): T[] {
+  const seen = new Set<string>();
+  const out = list.filter((f) => {
+    const k = f.name.trim().toLowerCase();
+    if (!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  return out.filter((f) => {
+    const tokens = f.name.trim().toLowerCase().split(/\s+/);
+    return tokens.length > 1 || !out.some((o) => o !== f && o.name.trim().toLowerCase().split(/\s+/).length > 1 && o.name.toLowerCase().split(/\s+/).includes(tokens[0]));
+  });
+}
+
 export async function loadDigestView(requestedWeek: string | null): Promise<DigestView> {
   return scrubDeep(await loadDigestViewRaw(requestedWeek));
 }

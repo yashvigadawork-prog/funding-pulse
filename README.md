@@ -107,7 +107,11 @@ All of them are listed, without values, in `.env.example`. Real values live only
 
 ## How it is built
 
-- Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Recharts, `motion`.
+- Next.js (App Router), TypeScript, Tailwind, shadcn/ui, `motion`. Charts are hand-built (SVG and HTML) so they can animate and print cleanly; Recharts is no longer used.
+- Layout: three tabs (Brief, Market, Actions) kept in the address (`?tab=`), a My Coverage slide-over, a data-quality strip, and a bottom bar on phones. Fonts are Instrument Serif, Geist and Geist Mono; every colour is a variable in `src/app/globals.css` for light and dark. Every animation is switched off for people who ask for reduced motion.
+- One shared display filter (`src/lib/forbidden.ts`) removes a name the fund does not want shown from everything a reader or Gemini sees; stored source text is never changed. `npm run check:names` checks the repository files.
+- A deal's stage is shown only when a source states it; otherwise it reads "Stage not reported" and the deal drawer shows which outlet said what (`src/lib/stage-words.ts`).
+- Email drafts (LP note, founder, portfolio check-in) are written in `src/lib/actions/drafts.ts` in first person with no internal labels and one link at most; Gemini may polish them from the Compose drawer (Improve, Rewrite warmer, Shorter) but is rejected if it changes a number or link.
 - Neon Postgres with Drizzle ORM. Nothing is written to disk at runtime; all state is in the database. Vercel functions run in Singapore (`sin1`) next to the database.
 - zod validates all input. Resend and React Email send mail.
 - The pipeline steps are short, repeatable and resumable: collect, extract, process (normalise, deduplicate, match), compute, analyse, store, send. Progress is written to the `runs` table, which the Refresh stepper reads.
