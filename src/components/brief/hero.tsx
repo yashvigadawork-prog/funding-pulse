@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { Sparkles } from "lucide-react";
 import { InfoTip } from "@/components/common/info-tip";
+import { Sparkline } from "@/components/common/sparkline";
 import { CountNumber, RollText, WordReveal } from "@/components/common/motion-bits";
 import { Rise } from "@/components/common/motion-bits";
 import { useConfig } from "@/lib/client/api";
@@ -14,7 +15,7 @@ import { buildExplanations, ExplainBody, type Explain } from "./kpi-explain";
 import { weekBullets, weekHeadline } from "./derive";
 import type { DigestView } from "@/lib/view-types";
 
-function Tile({ label, explain, children, sub, onClick, index }: { label: string; explain: Explain; children: React.ReactNode; sub?: React.ReactNode; onClick?: () => void; index: number }) {
+function Tile({ label, explain, children, sub, onClick, index, spark }: { label: string; explain: Explain; children: React.ReactNode; sub?: React.ReactNode; onClick?: () => void; index: number; spark?: React.ReactNode }) {
   const nav = useNav();
   const Wrapper = onClick ? "button" : "div";
   return (
@@ -29,6 +30,7 @@ function Tile({ label, explain, children, sub, onClick, index }: { label: string
         </span>
         <span className="mt-1 text-[1.75rem] leading-none font-medium tracking-tight">{children}</span>
         {sub ? <span className="mt-1.5 text-xs text-muted-foreground">{sub}</span> : null}
+        {spark ? <span className="pointer-events-none absolute right-3 bottom-3">{spark}</span> : null}
       </Wrapper>
       <span className="absolute top-2.5 right-2.5">
         <InfoTip label={`What is ${label}?`} width="w-[22rem]">
@@ -66,7 +68,7 @@ export function Hero({ view, onOpenFocus }: { view: DigestView; onOpenFocus: () 
   const ref = useRef<HTMLDivElement>(null);
 
   return (
-    <Rise as="section" className="col-span-12 rounded-2xl border bg-card p-4 md:p-6" >
+    <Rise as="section" className="col-span-12 rounded-[16px] border bg-card p-4 md:p-6" >
       <div ref={ref} className="grid gap-6 lg:grid-cols-12 lg:gap-8">
         <div className="min-w-0 lg:col-span-7">
           <div className="flex items-center gap-2.5">
@@ -92,10 +94,10 @@ export function Hero({ view, onOpenFocus }: { view: DigestView; onOpenFocus: () 
 
         <div className="relative min-w-0 lg:col-span-5">
           <div role="group" aria-label="Key numbers" className="-mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0">
-            <Tile index={0} label="Deals" explain={ex.deals} sub={delta === null ? undefined : `${delta >= 0 ? "+" : ""}${delta} vs last week`}>
+            <Tile index={0} label="Deals" explain={ex.deals} spark={<Sparkline label="Deals per week, last weeks" values={view.history.map((h) => h.deals)} />} sub={delta === null ? undefined : `${delta >= 0 ? "+" : ""}${delta} vs last week`}>
               <CountNumber value={k.deals} />
             </Tile>
-            <Tile index={1} label="Capital disclosed" explain={ex.capital} sub={k.disclosedUsd > 0 ? <span className="fig">{formatUsd(k.disclosedUsd)}{k.undisclosedCount ? ` · ${k.undisclosedCount} undisclosed` : ""}</span> : "None disclosed"}>
+            <Tile index={1} label="Capital disclosed" explain={ex.capital} spark={<Sparkline label="Disclosed capital per week, last weeks" values={view.history.map((h) => h.disclosedUsd)} />} sub={k.disclosedUsd > 0 ? <span className="fig">{formatUsd(k.disclosedUsd)}{k.undisclosedCount ? ` · ${k.undisclosedCount} undisclosed` : ""}</span> : "None disclosed"}>
               <CountNumber value={k.disclosedInr} format={(n) => (k.disclosedUsd > 0 ? formatInr(n) : "None")} />
             </Tile>
             <Tile index={2} label="Watchlist hits" explain={ex.watch} sub="Names you follow, in the news">

@@ -204,10 +204,18 @@ html.theme-fade *::after {
 }
 .fp-pulse-once { animation: fp-pulse-once 900ms ease-out 1; }
 @keyframes fp-row-highlight {
-  0% { background-color: color-mix(in oklch, var(--primary) 22%, transparent); }
+  0% { background-color: color-mix(in oklch, var(--warning) 28%, transparent); }
   100% { background-color: transparent; }
 }
-.fp-new-row { animation: fp-row-highlight 1600ms ease-out 1; }
+.fp-new-row { animation: fp-row-highlight 2000ms ease-out 1; }
+
+/* Drawers: a springy slide, a soft blurred backdrop, and the content settling in one piece at a time */
+.fp-sheet[data-open] > * { animation: fp-fade-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.fp-sheet[data-open] > *:nth-child(1) { animation-delay: 40ms; }
+.fp-sheet[data-open] > *:nth-child(2) { animation-delay: 90ms; }
+.fp-sheet[data-open] > *:nth-child(3) { animation-delay: 140ms; }
+.fp-sheet[data-open] > *:nth-child(4) { animation-delay: 190ms; }
+.fp-sheet[data-open] > *:nth-child(n + 5) { animation-delay: 240ms; }
 @keyframes fp-ring {
   0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--warning) 45%, transparent); }
   70% { box-shadow: 0 0 0 12px color-mix(in oklch, var(--warning) 0%, transparent); }
@@ -219,6 +227,12 @@ html.theme-fade *::after {
   50% { opacity: 0.45; transform: scale(0.8); }
 }
 .fp-live { animation: fp-breathe 2.4s ease-in-out infinite; }
+@keyframes fp-step-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 45%, transparent); }
+  70% { box-shadow: 0 0 0 9px color-mix(in oklch, var(--primary) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.fp-step-pulse { animation: fp-step-pulse 1.6s ease-out infinite; }
 @keyframes fp-fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: none; }

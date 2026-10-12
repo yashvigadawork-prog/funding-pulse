@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Loader2, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { Loader2, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { motion } from "motion/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { api, ApiError, fetcher } from "@/lib/client/api";
+import { usePrefersReducedMotion } from "@/lib/client/hooks";
 import { cn } from "@/lib/utils";
 
 export interface StatusResponse {
@@ -61,9 +63,11 @@ export function useRefresh(onFinished: () => void) {
       wasRunning.current = true;
     } else if (wasRunning.current) {
       wasRunning.current = false;
+      const n = data?.steps.find((x) => x.step === "process")?.message?.match(/(\d+) new deals?/)?.[1];
+      toast.success(n !== undefined ? `Refreshed: ${n} new ${n === "1" ? "deal" : "deals"}` : "Refreshed");
       finished.current();
     }
-  }, [data?.running]);
+  }, [data?.running, data?.steps]);
 
   const start = useCallback(async () => {
     setStarting(true);
@@ -114,11 +118,17 @@ export function RefreshButton({ r, compact }: { r: ReturnType<typeof useRefresh>
 }
 
 export function RefreshStepper({ r }: { r: ReturnType<typeof useRefresh> }) {
+  const reduced = usePrefersReducedMotion();
   const rows = r.status?.steps ?? [];
   if (!r.panelOpen) return null;
   const stages = STAGES.map((s, i) => ({ ...s, ...stageStatus(rows, s.steps, i === STAGES.length - 1, r.running) }));
+  const finished = (st: StageStatus) => st === "ok" || st === "skipped" || st === "partial";
+  // How far the connector line is filled: every finished step, plus half a step toward the one that is running.
+  const done = stages.filter((x) => finished(x.status)).length;
+  const running = stages.some((x) => x.status === "running");
+  const fill = Math.min(100, (Math.max(0, done - 1) + (running ? 0.5 : 0)) / (stages.length - 1) * 100);
   return (
-    <section aria-label="Refresh progress" className="rounded-xl border bg-card px-4 py-3">
+    <section aria-label="Refresh progress" className="rounded-[16px] border bg-card px-4 py-4 md:px-5">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">{r.running ? "Refreshing now…" : "Last refresh"}</h2>
         {!r.running ? (
@@ -127,15 +137,21 @@ export function RefreshStepper({ r }: { r: ReturnType<typeof useRefresh> }) {
           </Button>
         ) : null}
       </div>
-      <ol className="mt-2 grid gap-2 md:grid-cols-5" aria-live="polite">
+      <ol className="relative mt-3 grid gap-4 md:grid-cols-5 md:gap-2" aria-live="polite">
+        <div aria-hidden className="absolute top-[17px] right-[10%] left-[10%] hidden h-0.5 rounded-full bg-border md:block">
+          <motion.div className="h-full origin-left rounded-full bg-primary" initial={false} animate={{ width: `${fill}%` }} transition={{ duration: reduced ? 0 : 0.7, ease: "easeOut" }} />
+        </div>
         {stages.map((s) => (
-          <li key={`${s.key}-${s.status}`} className={cn("rounded-lg border px-3 py-2 text-sm", s.status === "running" && "border-primary/50 bg-primary/5", s.status !== "pending" && "fp-new-row")}>
-            <div className="flex items-center gap-2 font-medium">
-              <StageIcon status={s.status} />
-              {s.label}
-            </div>
-            {s.message ? <p className="mt-1 line-clamp-4 text-xs text-muted-foreground">{s.message}</p> : null}
-            <span className="sr-only">{s.status}</span>
+          <li key={`${s.key}-${s.status}`} className={cn("relative flex gap-3 rounded-lg md:flex-col md:items-center md:gap-2 md:text-center", s.status !== "pending" && "fp-new-row")}>
+            <span className={cn("relative z-10 grid size-9 shrink-0 place-items-center rounded-full border-2 bg-card transition-colors", s.status === "running" && "border-primary", finished(s.status) && s.status !== "partial" && "border-positive bg-positive-soft", s.status === "partial" && "border-warning bg-warning-soft", s.status === "error" && "border-destructive", s.status === "pending" && "border-border")}>
+              {s.status === "running" ? <span aria-hidden className="fp-step-pulse absolute inset-0 rounded-full" /> : null}
+              <StageIcon status={s.status} reduced={reduced} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-medium">{s.label}</span>
+              {s.message ? <span className="mt-0.5 line-clamp-3 block text-xs text-muted-foreground">{s.message}</span> : null}
+              <span className="sr-only">{s.status}</span>
+            </span>
           </li>
         ))}
       </ol>
@@ -143,10 +159,15 @@ export function RefreshStepper({ r }: { r: ReturnType<typeof useRefresh> }) {
   );
 }
 
-function StageIcon({ status }: { status: StageStatus }) {
-  if (status === "running") return <Loader2 className="size-4 animate-spin text-primary" aria-hidden />;
-  if (status === "ok") return <Check className="size-4 text-positive-ink" aria-hidden />;
+function StageIcon({ status, reduced }: { status: StageStatus; reduced: boolean }) {
+  if (status === "running") return <Loader2 className="relative size-4 animate-spin text-primary" aria-hidden />;
+  if (status === "ok")
+    return (
+      <svg viewBox="0 0 24 24" className="size-4 text-positive-ink" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <motion.path d="M5 12.5l4.5 4.5L19 7.5" initial={reduced ? false : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.45, ease: "easeOut" }} />
+      </svg>
+    );
   if (status === "partial" || status === "error") return <TriangleAlert className={cn("size-4", status === "error" ? "text-destructive" : "text-warning-ink")} aria-hidden />;
-  if (status === "skipped") return <span className="size-4 text-center text-muted-foreground" aria-hidden>–</span>;
-  return <span className="size-3 rounded-full border-2 border-muted-foreground/40" aria-hidden />;
+  if (status === "skipped") return <span className="text-center text-sm text-muted-foreground" aria-hidden>–</span>;
+  return <span className="size-2 rounded-full bg-muted-foreground/40" aria-hidden />;
 }

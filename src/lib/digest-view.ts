@@ -122,9 +122,15 @@ async function loadDigestViewRaw(requestedWeek: string | null): Promise<DigestVi
   const patterns = row?.patterns as DigestView["digest"] extends infer D ? (D extends { patterns: infer P } ? P : never) : never;
   const dealRows = week && row ? await loadDealsForWeek(week, patterns?.computed?.newInvestors ?? [], patterns?.adjacency ?? []) : week ? await loadDealsForWeek(week, [], []) : [];
   const quality = await loadQuality(week, dealRows.length, dealRows.filter((d) => d.amountUsd === null).length, dealRows.filter((d) => d.needsReview).length);
+  const allDigests = await db.select({ week: digests.weekStart, kpis: digests.kpis }).from(digests).orderBy(digests.weekStart);
+  const history = allDigests
+    .filter((d) => !week || d.week <= week)
+    .slice(-8)
+    .map((d) => ({ week: d.week, deals: Number((d.kpis as { deals?: number }).deals ?? 0), disclosedUsd: Number((d.kpis as { disclosedUsd?: number }).disclosedUsd ?? 0) }));
   return {
     weeks: weeks.map((w) => ({ ...w, emailedAt: w.emailedAt ? w.emailedAt.toISOString() : null })),
     week,
+    history,
     defaultWeek,
     digest: row
       ? {

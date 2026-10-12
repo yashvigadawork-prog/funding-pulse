@@ -32,7 +32,7 @@ export function BentoCard({
   index?: number;
 }) {
   return (
-    <Rise as="section" id={id} index={index} className={cn("min-w-0 scroll-mt-32 rounded-2xl border bg-card p-4 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-ring/40 hover:shadow-[0_6px_24px_-16px_rgb(0_0_0/0.35)] md:p-5", className)}>
+    <Rise as="section" id={id} index={index} className={cn("min-w-0 scroll-mt-32 rounded-[16px] border bg-card p-4 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-ring/40 hover:shadow-[0_6px_24px_-16px_rgb(0_0_0/0.35)] md:p-5", className)}>
       <header className="mb-3 flex items-center gap-2.5">
         <span aria-hidden className={cn("grid size-8 shrink-0 place-items-center rounded-lg", TONES[tone])}>
           <Icon className="size-4" />

@@ -352,7 +352,7 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
           {sliced.map((g) => {
             const disclosed = g.rows.reduce((a, r) => a + (r.amountUsd ?? 0), 0);
             return (
-              <div key={g.sector} className="overflow-hidden rounded-2xl border bg-card">
+              <div key={g.sector} className="overflow-hidden rounded-[16px] border bg-card">
                 <button type="button" aria-expanded={g.isOpen} onClick={() => setOpen((o) => ({ ...o, [g.sector]: !g.isOpen }))} className="flex w-full items-center gap-2.5 px-4 py-3 text-left outline-none hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring">
                   <ChevronDown aria-hidden className={`size-4 text-muted-foreground transition-transform duration-200 ${g.isOpen ? "" : "-rotate-90"}`} />
                   <span className="size-2.5 rounded-full" style={{ background: sectorVar(g.sector) }} />
@@ -405,7 +405,7 @@ function NeedsReview({ view }: { view: DigestView }) {
       {items.length ? (
         <ul className="grid gap-2.5 md:grid-cols-2">
           {items.map((r) => (
-            <li key={r.dealId} className="rounded-2xl border bg-card p-4 text-sm">
+            <li key={r.dealId} className="rounded-[16px] border bg-card p-4 text-sm">
               <p>
                 <span className="font-medium">{r.asWritten}</span> <span className="text-muted-foreground">(as written in the article)</span>
               </p>
@@ -419,7 +419,7 @@ function NeedsReview({ view }: { view: DigestView }) {
           ))}
         </ul>
       ) : (
-        <p className="rounded-2xl border border-dashed px-4 py-5 text-center text-sm text-muted-foreground">None this week.</p>
+        <p className="rounded-[16px] border border-dashed px-4 py-5 text-center text-sm text-muted-foreground">None this week.</p>
       )}
     </section>
   );

@@ -49,6 +49,8 @@ export interface QualityView {
 export interface DigestView {
   weeks: { week: string; deals: number; source: string; emailedAt: string | null }[];
   week: string | null;
+  /** Up to eight weeks of stored totals ending at this week, oldest first. Used for the small trend lines. */
+  history: { week: string; deals: number; disclosedUsd: number }[];
   /** The week the latest digest describes. Weeks after it are still in progress. */
   defaultWeek: string | null;
   digest: {

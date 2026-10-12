@@ -2,7 +2,6 @@
 
 import { AlertTriangle, Info, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 /** Skeleton blocks use the shimmer animation, which switches off for reduced motion. */
@@ -67,21 +66,23 @@ export function ErrorRetry({ message, onRetry, busy }: { message?: string; onRet
   );
 }
 
+/** Loading shapes that match the real Brief: a hero card with five tiles, then a bento of cards. */
 export function DashboardSkeleton() {
   return (
-    <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6" aria-busy="true" aria-label="Loading the dashboard">
+    <div className="mx-auto grid max-w-6xl gap-4 px-4 py-6" aria-busy="true" aria-label="Loading the dashboard">
+      <Shimmer className="h-9 w-2/3 rounded-[16px]" />
+      <Shimmer className="h-6 w-1/2 rounded-[16px]" />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Shimmer key={i} className="h-24" />
+          <Shimmer key={i} className="h-24 rounded-[16px]" />
         ))}
       </div>
-      <Shimmer className="h-10" />
-      <div className="grid gap-3 md:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Shimmer key={i} className="h-44" />
-        ))}
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-6">
+        <Shimmer className="h-64 rounded-[16px] md:col-span-4" />
+        <Shimmer className="h-64 rounded-[16px] md:col-span-2" />
+        <Shimmer className="h-52 rounded-[16px] md:col-span-3" />
+        <Shimmer className="h-52 rounded-[16px] md:col-span-3" />
       </div>
-      <Skeleton className="h-64 w-full" />
     </div>
   );
 }

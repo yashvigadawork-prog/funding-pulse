@@ -47,7 +47,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
         {/* Page 1: cover and key numbers */}
         <section className="print-page grid content-start gap-5 pb-10">
           <p className="text-sm text-muted-foreground">{view.fundName}</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Funding Pulse</h1>
+          <h1 className="display text-4xl">Funding Pulse</h1>
           <p className="text-lg">{formatWeekRange(week)}</p>
           <dl className="grid grid-cols-2 gap-3 md:grid-cols-5">
             {[

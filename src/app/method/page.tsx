@@ -73,7 +73,7 @@ export default async function MethodPage() {
         </Button>
         <ThemeToggle />
       </header>
-      <h1 className="text-3xl font-semibold tracking-tight">Method and checks</h1>
+      <h1 className="display text-4xl">Method and checks</h1>
       <p className="mt-2 text-muted-foreground">How Funding Pulse works, what it does when things go wrong, and the evidence that it was tested. Everything on this page is read from the live app.</p>
       <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-2 text-sm">
         {["purpose", "how", "edge", "tests", "run", "map", "limits"].map((id, i) => (
