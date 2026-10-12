@@ -99,7 +99,7 @@ export async function loadEdgeCases(): Promise<EdgeCase[]> {
     example: history ? { text: `Week of ${latestDigest!.weekStart}: ${history.sector} had ${history.baselineTotal} baseline deals, below the minimum set in Settings.` } : null,
   });
 
-  const collect = await getState<{ at: string; total: number; reachable: number; unreachable: string[] }>("last_collect");
+  const collect = await safe(() => getState<{ at: string; total: number; reachable: number; unreachable: string[] }>("last_collect"));
   out.push({
     id: "unreachable",
     problem: "A news source cannot be reached",
