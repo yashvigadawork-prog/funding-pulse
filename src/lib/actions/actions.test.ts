@@ -108,6 +108,11 @@ describe("LP note", () => {
     expect(noRawLinks(d.body)).toBe(1);
     expect(d.body).not.toMatch(JARGON);
   });
+  it("never makes the catch-all Other sector a bullet", () => {
+    const o = lpBullets([cap("Other", 23, 165_000_000, 20_000_000), cap("Fintech", 7, 20_000_000, 10_000_000)], [trend("Other", 23, 6, "accelerating")]);
+    expect(o.bullets.join(" ")).not.toMatch(/Other/);
+    expect(o.leadSectors).toEqual(["fintech"]);
+  });
   it("copes with a quiet week and no nearby cluster", () => {
     const q = lpBullets([], []);
     const d = lpBriefDraft({ fundName: "x", weekStartLabel: "5 Oct", recipientName: null, deals: 2, bullets: q.bullets, leadSectors: q.leadSectors, nearby: null, reportUrl: "https://app.example/r" }, sender);

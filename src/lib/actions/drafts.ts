@@ -138,7 +138,7 @@ const times = (r: number) => `roughly ${numberWord(Math.round(r))} times a usual
 
 /** At most three plain bullets, each built only from computed figures. */
 export function lpBullets(capital: SectorCapital[], trends: SectorTrend[]): { bullets: string[]; leadSectors: string[] } {
-  const byCapital = capital.filter((c) => c.disclosedUsd > 0).sort((a, b) => b.disclosedUsd - a.disclosedUsd);
+  const byCapital = capital.filter((c) => c.disclosedUsd > 0 && c.sector !== "Other").sort((a, b) => b.disclosedUsd - a.disclosedUsd);
   const bullets: string[] = [];
   const lead = byCapital[0];
   if (lead) {
@@ -147,7 +147,7 @@ export function lpBullets(capital: SectorCapital[], trends: SectorTrend[]): { bu
   }
   const second = byCapital[1];
   if (second) bullets.push(`${cap(sectorWord(second.sector))} followed with ${formatUsd(second.disclosedUsd)} across ${second.deals} round${second.deals === 1 ? "" : "s"}.`);
-  const busy = trends.filter((t) => t.status === "accelerating" && t.sector !== lead?.sector && t.sector !== second?.sector).sort((a, b) => b.extra - a.extra)[0];
+  const busy = trends.filter((t) => t.status === "accelerating" && t.sector !== "Other" && t.sector !== lead?.sector && t.sector !== second?.sector).sort((a, b) => b.extra - a.extra)[0];
   if (busy) {
     const usual = Math.round(busy.baselineAvg);
     bullets.push(`${cap(sectorWord(busy.sector))} is busy again: ${busy.thisWeek} round${busy.thisWeek === 1 ? "" : "s"} against ${usual >= 1 ? `a usual ${usual}` : "almost none in a usual week"}.`);

@@ -29,7 +29,7 @@ function Tile({ label, explain, children, sub, onClick, index, spark }: { label:
           {/* the info icon sits inside the tile; its own button keeps it separate from the tile's click */}
         </span>
         <span className="mt-1 text-[1.75rem] leading-none font-medium tracking-tight">{children}</span>
-        {sub ? <span className="mt-1.5 text-xs text-muted-foreground">{sub}</span> : null}
+        {sub ? <span className={cn("mt-1.5 text-xs text-muted-foreground", spark && "max-w-[calc(100%-4.75rem)]")}>{sub}</span> : null}
         {spark ? <span className="pointer-events-none absolute right-3 bottom-3">{spark}</span> : null}
       </Wrapper>
       <span className="absolute top-2.5 right-2.5">
