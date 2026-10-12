@@ -77,7 +77,7 @@ This finds weekly funding roundups, reads them with Gemini, and gives the trend 
 2. Click **API Keys**, create one, and copy it. This is `RESEND_API_KEY`.
 3. For `RESEND_FROM`, use `Funding Pulse <onboarding@resend.dev>` to start with.
 4. Until you verify your own domain in Resend, Resend only delivers to the email address that owns the Resend account. Send your first test to that address. The app shows Resend's refusal in plain words if another address is tried.
-5. Add your own address under **My Coverage → More → Settings → Digest settings → Digest recipients** to receive the Monday digest.
+5. Add your own address under **My Coverage → Settings → Digest settings → Digest recipients** to receive the Monday digest.
 
 ### 7. The Monday schedule (cron-job.org)
 
