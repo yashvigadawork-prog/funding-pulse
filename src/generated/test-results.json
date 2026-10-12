@@ -1,8 +1,8 @@
 {
-  "recordedAt": "2026-10-12T10:07:21.544Z",
-  "commit": "491ca85",
-  "total": 120,
-  "passed": 120,
+  "recordedAt": "2026-10-12T10:34:57.137Z",
+  "commit": "4f3ca18",
+  "total": 124,
+  "passed": 124,
   "failed": 0,
   "files": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "file": "src/lib/pipeline/compute.test.ts",
-      "total": 13,
-      "passed": 13,
+      "total": 14,
+      "passed": 14,
       "failed": 0
     },
     {
@@ -61,8 +61,8 @@
     },
     {
       "file": "src/lib/pipeline/dedupe.test.ts",
-      "total": 9,
-      "passed": 9,
+      "total": 12,
+      "passed": 12,
       "failed": 0
     },
     {

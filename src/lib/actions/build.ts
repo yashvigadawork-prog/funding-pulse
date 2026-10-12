@@ -15,7 +15,7 @@ import type { ActionsBlock, FollowUp, FounderLead } from "./types";
 
 const OUTREACH_COUNT = 5;
 
-export async function buildActions(prep: PreparedDigest): Promise<ActionsBlock> {
+export async function buildActions(prep: PreparedDigest, deadline: number = Date.now() + 120_000): Promise<ActionsBlock> {
   const blocks = await getBlocks();
   const [companies, stakeholders] = await Promise.all([listCompanies(), listStakeholders()]);
   const sender = blocks.sender_profile;
@@ -78,17 +78,19 @@ export async function buildActions(prep: PreparedDigest): Promise<ActionsBlock> 
   for (const v of focusViews.slice(3)) add(fromView(v, `Focus deal: ${v.stage ?? "Unknown"} in ${v.sector}`));
 
   const budget = new SearchBudget(Math.min(10, Math.max(0, settings.max_search_queries_per_run)));
-  const outreach: FounderLead[] = [];
-  for (const p of picks) {
+  const none = { founder: null, founderSource: null, linkedinUrl: null, linkedinSource: null, email: null, emailSource: null };
+  const outreach: FounderLead[] = await Promise.all(
+    picks.map(async (p) => {
     const known = p.founders[0] && p.sourceUrl ? { name: p.founders[0].name, source: p.sourceUrl } : null;
-    const c = await findContact({
+    // Out of time: keep the company on the list, but say the contact was not looked up rather than guess.
+    const c = Date.now() > deadline ? (known ? { ...none, founder: known.name, founderSource: known.source } : none) : await findContact({
       company: p.company,
       domain: p.domain,
       knownFounder: known,
       ctx: { chain: blocks.search_chain, settings, budget, linkedinEnabled: blocks.sources.linkedin_via_search.enabled },
-    }).catch(() => ({ founder: null, founderSource: null, linkedinUrl: null, linkedinSource: null, email: null, emailSource: null }));
+    }).catch(() => none);
     const facts = { company: p.company, founder: c.founder, stage: p.stage, amountText: p.amountText, sector: p.sector, summary: p.summary, sourceUrl: p.sourceUrl };
-    outreach.push({
+    return {
       company: p.company,
       companyId: p.companyId,
       domain: p.domain,
@@ -105,8 +107,9 @@ export async function buildActions(prep: PreparedDigest): Promise<ActionsBlock> 
       sources: p.sources,
       emailDraft: founderEmailDraft(facts, sender),
       linkedinDraft: linkedinNoteDraft(facts, sender),
-    });
-  }
+    } satisfies FounderLead;
+    }),
+  );
   await db.delete(founderLeads).where(eq(founderLeads.weekStart, prep.week));
   if (outreach.length)
     await db.insert(founderLeads).values(

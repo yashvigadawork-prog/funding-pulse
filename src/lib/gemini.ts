@@ -21,14 +21,19 @@ export class GeminiError extends Error {
 export function geminiModel(): string {
   return process.env.GEMINI_MODEL?.trim() || GEMINI_DEFAULT_MODEL;
 }
-export function geminiConfigured(): boolean {
-  return !!process.env.GEMINI_API_KEY;
+/** The main key first, then an optional backup key (GEMINI_API_KEY_BACKUP). */
+function geminiKeys(): string[] {
+  return [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_BACKUP].map((k) => k?.trim() ?? "").filter(Boolean);
 }
+export function geminiConfigured(): boolean {
+  return geminiKeys().length > 0;
+}
+// Index of the key in use. When the main key is refused or its quota is used up we move to the backup.
+let keyIndex = 0;
 
 /* ---- global limiter: one request at a time, with a minimum gap between starts ---- */
-let queue: Promise<unknown> = Promise.resolve();
-let lastStart = 0;
-const stats = { calls: 0, retries: 0, inputTokens: 0, outputTokens: 0 };
+let nextSlot = 0; // earliest time the next request may start
+const stats = { calls: 0, retries: 0, inputTokens: 0, outputTokens: 0, keySwitches: 0 };
 export const geminiStats = () => ({ ...stats });
 
 function minGapMs() {
@@ -36,15 +41,13 @@ function minGapMs() {
   return Number.isFinite(v) && v >= 0 ? v : 2500;
 }
 
-function limited<T>(fn: () => Promise<T>): Promise<T> {
-  const run = queue.then(async () => {
-    const wait = lastStart + minGapMs() - Date.now();
-    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-    lastStart = Date.now();
-    return fn();
-  });
-  queue = run.catch(() => undefined);
-  return run;
+/** Requests start at least minGapMs apart, but several can be in flight at once. */
+async function limited<T>(fn: () => Promise<T>): Promise<T> {
+  const slot = Math.max(Date.now(), nextSlot);
+  nextSlot = slot + minGapMs();
+  const wait = slot - Date.now();
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  return fn();
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -95,10 +98,13 @@ interface GeminiResponse {
 }
 
 let schemaField: "responseJsonSchema" | "responseSchema" = "responseJsonSchema";
+// "Thinking" tokens count against the output budget. Low is plenty for extraction and for explaining given numbers.
+let thinkingEnabled = true;
+const thinkingLevel = () => process.env.GEMINI_THINKING_LEVEL?.trim() || "low";
 
 export async function geminiGenerate(opts: GenerateOptions): Promise<GenerateResult> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new GeminiError("GEMINI_API_KEY is not set", 0);
+  const keys = geminiKeys();
+  if (!keys.length) throw new GeminiError("GEMINI_API_KEY is not set", 0);
   const maxAttempts = opts.maxAttempts ?? 5;
   let lastErr: GeminiError | null = null;
 
@@ -108,6 +114,7 @@ export async function geminiGenerate(opts: GenerateOptions): Promise<GenerateRes
       generationConfig: {
         temperature: opts.temperature ?? 0,
         maxOutputTokens: opts.maxOutputTokens ?? 8192,
+        ...(thinkingEnabled ? { thinkingConfig: { thinkingLevel: thinkingLevel() } } : {}),
         ...(opts.jsonSchema ? { responseMimeType: "application/json", [schemaField]: opts.jsonSchema } : {}),
       },
     };
@@ -122,7 +129,7 @@ export async function geminiGenerate(opts: GenerateOptions): Promise<GenerateRes
         try {
           const r = await fetch(`${BASE}/models/${geminiModel()}:generateContent`, {
             method: "POST",
-            headers: { "content-type": "application/json", "x-goog-api-key": key },
+            headers: { "content-type": "application/json", "x-goog-api-key": keys[Math.min(keyIndex, keys.length - 1)] },
             body: JSON.stringify(body),
             signal: ctrl.signal,
           });
@@ -156,7 +163,19 @@ export async function geminiGenerate(opts: GenerateOptions): Promise<GenerateRes
         attempt--;
         continue;
       }
+      if (res.status === 400 && thinkingEnabled && /thinking/i.test(msg)) {
+        thinkingEnabled = false;
+        attempt--;
+        continue;
+      }
       const quotaDaily = /per day|daily|PerDay/i.test(JSON.stringify(json ?? ""));
+      // A refused key (401/403) or an used-up daily quota: switch to the backup key if there is one.
+      if ((res.status === 401 || res.status === 403 || (res.status === 429 && quotaDaily)) && keyIndex < keys.length - 1) {
+        keyIndex++;
+        stats.keySwitches++;
+        attempt--;
+        continue;
+      }
       if (res.status === 429 || res.status >= 500) {
         lastErr = new GeminiError(msg, res.status, true, res.status === 429);
         if (res.status === 429 && quotaDaily) throw new GeminiError(`Gemini daily quota is used up. ${msg}`, 429, false, true);

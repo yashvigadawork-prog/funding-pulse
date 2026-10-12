@@ -30,10 +30,32 @@ const AMOUNT_TOLERANCE = 0.05;
 
 const stageCompatible = (a: string, b: string) => a === b || a === "Unknown" || b === "Unknown";
 
+/**
+ * Two names for one company (for example a brand and its parent) raising the same amount, with a named
+ * investor in common, is the same round. Needs a disclosed amount, so it never merges on a guess.
+ */
+function sameRoundByAmount(a: DealLike, b: DealLike): boolean {
+  if (a.amountUsd === null || b.amountUsd === null) return false;
+  if (Math.abs(a.amountUsd - b.amountUsd) / Math.max(a.amountUsd, b.amountUsd) > 0.03) return false;
+  const inv = new Set(a.investors.map((i) => normalizeName(i.name)).filter(Boolean));
+  if (!b.investors.some((i) => inv.has(normalizeName(i.name)))) return false;
+  return namesOverlap(a.companyName, b.companyName);
+}
+
+const COMMON = new Set(["labs", "lab", "tech", "money", "pay", "bank", "app", "apps", "capital", "india", "finance", "health", "care", "energy", "solutions", "services", "systems", "group", "global", "digital", "and", "the"]);
+
+/** Do the names share a distinctive word (even inside another word, like "TVS" inside "myTVS")? */
+function namesOverlap(x: string, y: string): boolean {
+  const nx = normalizeName(x);
+  const ny = normalizeName(y);
+  const hit = (from: string, into: string) => from.split(" ").some((t) => t.length >= 3 && !COMMON.has(t) && into.includes(t));
+  return hit(nx, ny) || hit(ny, nx);
+}
+
 export function sameRound(a: DealLike, b: DealLike, windowDays = DEDUPE_WINDOW_DAYS): boolean {
   const na = normalizeName(a.companyName);
   const nb = normalizeName(b.companyName);
-  const sameCompany = (!!na && na === nb) || (!!a.domain && !!b.domain && a.domain.toLowerCase() === b.domain.toLowerCase());
+  const sameCompany = (!!na && na === nb) || (!!a.domain && !!b.domain && a.domain.toLowerCase() === b.domain.toLowerCase()) || sameRoundByAmount(a, b);
   if (!sameCompany) return false;
   if (!stageCompatible(a.stage, b.stage)) return false;
   return Math.abs(daysBetween(a.announcedOn, b.announcedOn)) <= windowDays;

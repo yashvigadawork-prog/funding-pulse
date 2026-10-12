@@ -26,7 +26,7 @@ function Card({ label, children, sub }: { label: string; children: React.ReactNo
 export function KpiStrip({ view }: { view: DigestView }) {
   const k = view.digest?.kpis;
   if (!k) return null;
-  const delta = k.prevDeals !== undefined ? k.deals - k.prevDeals : null;
+  const delta = k.prevDeals !== undefined && k.prevDeals > 0 ? k.deals - k.prevDeals : null;
   const direct = k.directHits ?? k.watchlistHits;
   return (
     <section aria-label="Key numbers" className="grid grid-cols-2 gap-3 md:grid-cols-5">

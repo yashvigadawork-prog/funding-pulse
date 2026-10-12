@@ -1,5 +1,5 @@
 /** Building a week's digest: compute (code) -> analyse (Gemini or template) -> store. */
-import { asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
+import { asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, dealInvestors, dealSources, deals, digests, investors, investorsOfInterest } from "@/db/schema";
 import { and, gte, lte } from "drizzle-orm";
@@ -188,7 +188,7 @@ export interface StoredHighlight {
   sources: { url: string; outlet: string | null }[];
 }
 
-export async function storeDigest(prep: PreparedDigest, analysis: Analysis, highlights: Highlight[], actions: unknown = {}): Promise<number> {
+export async function storeDigest(prep: PreparedDigest, analysis: Analysis, highlights: Highlight[], actions?: unknown): Promise<number> {
   const prevWeek = addDays(prep.week, -7);
   const all = await loadComputeDeals();
   const prev = all.filter((d) => d.weekStart === prevWeek);
@@ -234,25 +234,33 @@ export async function storeDigest(prep: PreparedDigest, analysis: Analysis, high
       { key: "new_investors", title: "Has a new investor started moving in our target sectors?", oneLine: analysis.new_investors.summary },
     ],
   };
-  const row = { weekStart: prep.week, kpis, highlights: stored, patterns, analysis, actions };
+  const row = { weekStart: prep.week, kpis, highlights: stored, patterns, analysis, actions: actions ?? {} };
   const [saved] = await db
     .insert(digests)
     .values(row)
-    .onConflictDoUpdate({ target: digests.weekStart, set: { kpis, highlights: stored, patterns, analysis, actions } })
+    .onConflictDoUpdate({ target: digests.weekStart, set: { kpis, highlights: stored, patterns, analysis, ...(actions === undefined ? {} : { actions }) } })
     .returning({ id: digests.id });
   return saved.id;
 }
 
-/** Makes sure every week that has deals also has a digest (template text only, no AI cost). */
-export async function ensureTemplateDigests(blocks: ConfigBlocks, onlyBefore?: string): Promise<number> {
-  const weeks = await db.selectDistinct({ w: deals.weekStart }).from(deals).where(onlyBefore ? lt(deals.weekStart, onlyBefore) : sql`true`);
-  const have = new Set((await db.select({ w: digests.weekStart }).from(digests)).map((d) => d.w));
+/**
+ * Makes sure every week that has deals also has a digest (template text only, no AI cost), and refreshes
+ * earlier template digests whose numbers have changed because more deals arrived. Digests written by Gemini
+ * are left alone, except the one for `skipWeek`'s caller, which is rebuilt by the main run.
+ */
+export async function ensureTemplateDigests(blocks: ConfigBlocks, opts: { skipWeek?: string } = {}): Promise<number> {
+  const weeks = await db.selectDistinct({ w: deals.weekStart }).from(deals);
+  const existing = new Map((await db.select({ w: digests.weekStart, a: digests.analysis, k: digests.kpis }).from(digests)).map((d) => [d.w, d]));
+  const counts = new Map((await db.select({ w: deals.weekStart, n: sql<number>`count(*)::int` }).from(deals).groupBy(deals.weekStart)).map((r) => [r.w, r.n]));
   let n = 0;
   for (const { w } of weeks) {
-    if (!w || have.has(w)) continue;
+    if (!w || w === opts.skipWeek) continue;
+    const have = existing.get(w);
+    const stale = have && (have.a as Analysis).source === "template" && (have.k as { deals?: number }).deals !== counts.get(w);
+    if (have && !stale) continue;
     const prep = await prepareDigest(w, blocks);
     const { analysis, highlights } = await analyseDigest(prep, false);
-    await storeDigest(prep, analysis, highlights);
+    await storeDigest(prep, analysis, highlights, have ? undefined : {});
     n++;
   }
   return n;

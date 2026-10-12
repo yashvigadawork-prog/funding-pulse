@@ -129,4 +129,12 @@ describe("computeWeek", () => {
     // Fintech Seed deals (4) plus the Series B+ one tagged On Radar (1) plus the Health seed deal (1)
     expect(r.focusDealIds).toHaveLength(6);
   });
+  it("does not call the catch-all Other bucket the top sector when a named sector has deals", () => {
+    const deals = [
+      deal({ weekStart: W, sector: "Other", amountUsd: 900_000_000, amountInr: 1, investors: [] }),
+      deal({ weekStart: W, sector: "Fintech", amountUsd: 1_000_000, amountInr: 1, investors: [] }),
+    ];
+    const r2 = computeWeek({ week: W, deals, sectors, settings, mandate, watchInvestors: [] });
+    expect(r2.kpis.topSector).toBe("Fintech");
+  });
 });

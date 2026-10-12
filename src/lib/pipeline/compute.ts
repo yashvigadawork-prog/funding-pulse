@@ -190,7 +190,9 @@ export function computeWeek(p: {
     .map((d) => ({ dealId: d.id, tag: d.matchTag, companyName: d.companyName }));
   const disclosedUsd = thisWeek.reduce((a, d) => a + (d.amountUsd ?? 0), 0);
   const disclosedInr = thisWeek.reduce((a, d) => a + (d.amountInr ?? 0), 0);
-  const top = capital.find((c) => c.disclosedUsd > 0) ?? [...capital].sort((a, b) => b.deals - a.deals)[0];
+  // "Other" is a catch-all bucket, so it only leads when nothing else has deals.
+  const named = capital.filter((c) => c.sector !== "Other");
+  const top = named.find((c) => c.disclosedUsd > 0) ?? capital.find((c) => c.disclosedUsd > 0 && named.every((n) => n.deals === 0)) ?? [...named].sort((a, b) => b.deals - a.deals)[0] ?? capital[0];
 
   return {
     week,

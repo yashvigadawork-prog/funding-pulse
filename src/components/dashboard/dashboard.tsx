@@ -78,7 +78,7 @@ export function Dashboard() {
         <Section3 view={data} onCompose={setCompose} />
         <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-4 text-sm text-muted-foreground no-print">
           <span>Every claim links to its source. Amounts that were not disclosed are never guessed or added up.</span>
-          <Button variant="link" size="sm" render={<Link href="/method" />}>
+          <Button variant="link" size="sm" nativeButton={false} render={<Link href="/method" />}>
             Method and checks
           </Button>
         </footer>

@@ -90,7 +90,7 @@ function ConfigFooter({ onReplaced }: { onReplaced: () => void }) {
   return (
     <div className="grid gap-2 border-t px-4 py-3">
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" render={<a href="/api/config/export" download />}>
+        <Button variant="outline" size="sm" nativeButton={false} render={<a href="/api/config/export" download />}>
           <Download data-icon="inline-start" /> Export config
         </Button>
         <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>

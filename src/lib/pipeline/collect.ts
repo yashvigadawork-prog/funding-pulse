@@ -289,7 +289,8 @@ export async function collect(input: CollectInput): Promise<CollectResult> {
       }
     }
   }
-  const searchReady = searchPending.filter((p) => p.text.length >= 80);
+  // The search result date can be missing, so also check the date found on the page itself.
+  const searchReady = searchPending.filter((p) => p.text.length >= 80 && !(p.publishedAt && (p.publishedAt < since || p.publishedAt > until)));
   result.newArticles += await saveArticles(searchReady);
   result.searchQueries = input.budget.used;
   result.searchProviders = { ...input.budget.providerCounts };

@@ -20,7 +20,7 @@ export interface RunOptions {
   /** Total time we allow ourselves, in ms (the platform limit is 300 s). */
   budgetMs?: number;
   /** Builds the Section 3 action items. Provided by the actions module. */
-  buildActions?: (prep: PreparedDigest) => Promise<unknown>;
+  buildActions?: (prep: PreparedDigest, deadline: number) => Promise<unknown>;
   /** Sends the digest email after it is stored (scheduled runs only). */
   afterStore?: (week: string, log: StepLog) => Promise<void>;
 }
@@ -62,7 +62,7 @@ export async function runPipeline(opts: RunOptions): Promise<RunSummary> {
         onRadar: companies.filter((c) => c.tag === "On Radar"),
         investors,
         budget,
-        deadline: started + 120_000,
+        deadline: started + 90_000,
         onFeedDiscovered: async (outlet, feedUrl) => {
           const current = (await getBlocks()).sources;
           await saveBlock("sources", { ...current, rss_and_sites: current.rss_and_sites.map((s) => (s.outlet === outlet ? { ...s, feed_url: feedUrl } : s)) });
@@ -129,9 +129,9 @@ export async function runPipeline(opts: RunOptions): Promise<RunSummary> {
 
     // 6. store
     await log.step("store", async () => {
-      const actions = await (opts.buildActions ?? buildActions)(ready).catch(() => ({}));
+      const actions = await (opts.buildActions ?? buildActions)(ready, started + (opts.budgetMs ?? 270_000) - 25_000).catch(() => ({}));
       await storeDigest(ready, analysis.analysis, analysis.highlights, actions);
-      const extra = await ensureTemplateDigests(blocks);
+      const extra = await ensureTemplateDigests(blocks, { skipWeek: week });
       return { message: `Digest for the week of ${week} saved${extra ? `, plus ${extra} earlier week${extra === 1 ? "" : "s"}` : ""}.` };
     });
 

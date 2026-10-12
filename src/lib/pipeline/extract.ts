@@ -10,6 +10,7 @@ import { escapeForTag, geminiJson, UNTRUSTED_NOTICE, truncate } from "@/lib/gemi
 import type { DigestSettings, Taxonomy } from "@/lib/config/schema";
 
 export const MAX_ATTEMPTS = 3;
+const EXTRACT_CONCURRENCY = 3;
 const MAX_CHARS_PER_CALL = 36_000;
 
 const nullableStr = z
@@ -124,7 +125,7 @@ export function buildExtractionPrompt(batch: Pick<Article, "id" | "outlet" | "ur
     "Rules:",
     "- Use ONLY the text provided. Never use outside knowledge and never guess. If a value is not in the text, return null.",
     "- Include only funding rounds raised by startups (equity or debt) that the text reports. Skip acquisitions, IPOs, grants, layoffs, rumours and opinion pieces.",
-    "- Include only startups based in or operating mainly in India.",
+    "- Include only startups based in or operating mainly in India. Skip established corporates and conglomerates unless the text itself calls the company a startup.",
     "- One entry per company per round per article. A roundup article may list many companies: return every one of them.",
     "- amount_text must be copied exactly from the text. amount_value, amount_unit and currency describe the same amount without converting or adding anything.",
     "- Do no arithmetic. Do not convert currencies. Do not total amounts.",
@@ -187,11 +188,22 @@ export async function extractPending(p: { settings: DigestSettings; taxonomy: Ta
     .limit(p.limit ?? 120);
   const res: ExtractResult = { attempted: 0, extracted: 0, dealsFound: 0, failed: 0, calls: 0, remaining: rows.length, stoppedEarly: false, lastError: null };
   const batches = makeBatches(rows, p.settings.extraction_batch_size);
-  for (const batch of batches) {
-    if (Date.now() > p.deadline) {
-      res.stoppedEarly = true;
-      break;
+  let next = 0;
+  let halt = false;
+  const worker = async () => {
+    for (;;) {
+      const i = next++;
+      if (i >= batches.length || halt) return;
+      const batch = batches[i];
+      if (Date.now() > p.deadline) {
+        res.stoppedEarly = true;
+        halt = true;
+        return;
+      }
+      await runBatch(batch);
     }
+  };
+  async function runBatch(batch: typeof rows) {
     res.calls++;
     res.attempted += batch.length;
     const { system, prompt } = buildExtractionPrompt(batch, p.taxonomy, p.settings.max_article_chars * (batch[0].kind === "roundup" ? 4 : 1));
@@ -224,9 +236,10 @@ export async function extractPending(p: { settings: DigestSettings; taxonomy: Ta
       // A quota problem will not fix itself within this run.
       if (/quota|RESOURCE_EXHAUSTED|GEMINI_API_KEY/i.test(res.lastError)) {
         res.stoppedEarly = true;
-        break;
+        halt = true;
       }
     }
   }
+  await Promise.all(Array.from({ length: Math.min(EXTRACT_CONCURRENCY, Math.max(1, batches.length)) }, worker));
   return res;
 }

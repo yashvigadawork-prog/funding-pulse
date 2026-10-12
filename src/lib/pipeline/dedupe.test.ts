@@ -75,3 +75,21 @@ describe("dedupeDeals", () => {
     expect(a[0].articleIds.sort()).toEqual(b[0].articleIds.sort());
   });
 });
+
+describe("same round under two names", () => {
+  it("merges a brand and its parent when amount and an investor match", () => {
+    const a = d({ companyName: "myTVS", investors: [{ name: "CE-I", role: "lead" }], amountUsd: 44_400_000 });
+    const b = d({ companyName: "TVS Automobile Solutions", investors: [{ name: "CE-I", role: "lead" }], amountUsd: 44_100_000, articleIds: [2] });
+    expect(dedupeDeals([a, b])).toHaveLength(1);
+  });
+  it("does not merge on amount alone", () => {
+    const a = d({ companyName: "A Co", investors: [{ name: "X", role: "lead" }], amountUsd: 5_000_000 });
+    const b = d({ companyName: "B Co", investors: [{ name: "Y", role: "lead" }], amountUsd: 5_000_000 });
+    expect(dedupeDeals([a, b])).toHaveLength(2);
+  });
+  it("does not merge undisclosed amounts", () => {
+    const a = d({ companyName: "A Co", investors: [{ name: "X", role: "lead" }], amountUsd: null });
+    const b = d({ companyName: "B Co", investors: [{ name: "X", role: "lead" }], amountUsd: null });
+    expect(dedupeDeals([a, b])).toHaveLength(2);
+  });
+});

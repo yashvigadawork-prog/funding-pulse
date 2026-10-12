@@ -68,7 +68,7 @@ export default async function MethodPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 pb-16">
       <header className="flex flex-wrap items-center justify-between gap-2 py-4">
-        <Button variant="ghost" size="sm" render={<Link href="/" />}>
+        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/" />}>
           ← Back to the dashboard
         </Button>
         <ThemeToggle />

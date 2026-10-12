@@ -61,11 +61,11 @@ export function TopBar({
         <Share2 />
       </Button>
       {week ? (
-        <Button variant="outline" size="icon" aria-label="Download PDF" render={<a href={`/report/${week}?print=1`} target="_blank" rel="noopener noreferrer" />}>
+        <Button variant="outline" size="icon" aria-label="Download PDF" nativeButton={false} render={<a href={`/report/${week}?print=1`} target="_blank" rel="noopener noreferrer" />}>
           <FileDown />
         </Button>
       ) : null}
-      <Button variant="ghost" size="sm" render={<Link href="/method" />}>
+      <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/method" />}>
         <BookOpenText data-icon="inline-start" /> Method
       </Button>
       <ThemeToggle />
