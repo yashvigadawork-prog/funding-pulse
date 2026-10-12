@@ -30,6 +30,7 @@ Sources feed Collect. Collect passes articles to Extract, which uses Gemini to p
 | Compose drawer | One place to edit and confirm every email type | Draft, recipient | Sent email or a copied LinkedIn note | Resend (through the sender) | Per-visitor hourly limit for new addresses |
 | Founder contact finder | Finds a founder, public LinkedIn link and a published email, each with its source. Never guesses | Company, domain | Founder, link, email or Not found | Search chain and the company's own website | Uses search queries from the run budget |
 | Ask drawer | Answers questions only from stored data, with links; offers a labelled web search if not found | Question | Answer and sources | Gemini Flash | Per-visitor hourly limit and a daily cap |
+| Paste box | Reads a public post (for example from LinkedIn) that a person pastes in, with its link, as if it were an article | Post text and link | Deals added to the stored data | Gemini Flash | Shares the per-visitor hourly limit and daily cap. Nothing is fetched from LinkedIn |
 | PDF report | Print-styled page, one section per page, charts included | Stored digest | Browser print dialog or PDF | None (browser) | None |
 | Rate limiter and run lock | Protects public endpoints and allows one run at a time | Caller id (hashed) | Allow or refuse | Neon Postgres | None |
 | Method page | Shows how it works, edge cases with live examples, recorded test results and the latest run log | Database, test results file | Public page | Vercel | None |

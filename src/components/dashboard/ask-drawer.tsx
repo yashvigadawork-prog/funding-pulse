@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Globe, MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Banner } from "@/components/common/states";
 import { api, ApiError } from "@/lib/client/api";
@@ -32,6 +33,25 @@ export function AskDrawer() {
   const [stored, setStored] = useState<Stored | null>(null);
   const [web, setWeb] = useState<Web | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [pasteText, setPasteText] = useState("");
+  const [pasteUrl, setPasteUrl] = useState("");
+  const [pasteBusy, setPasteBusy] = useState(false);
+  const [pasteMsg, setPasteMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function sendPaste() {
+    setPasteBusy(true);
+    setPasteMsg(null);
+    try {
+      const r = await api.post<{ message: string }>("/api/paste", { text: pasteText, url: pasteUrl });
+      setPasteMsg({ ok: true, text: r.message });
+      setPasteText("");
+      setPasteUrl("");
+    } catch (e) {
+      setPasteMsg({ ok: false, text: e instanceof ApiError ? e.message : "Could not read the post. Please try again." });
+    } finally {
+      setPasteBusy(false);
+    }
+  }
 
   async function ask() {
     if (q.trim().length < 3) return setErr("Please type a question.");
@@ -101,6 +121,24 @@ export function AskDrawer() {
               </Button>
             </div>
           ) : null}
+          <details className="rounded-xl border p-4 text-sm">
+            <summary className="cursor-pointer font-medium">Paste a LinkedIn post (or any public post)</summary>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Copy the text of a public post about a funding round, and its link. It is read like any article. Nothing is fetched from LinkedIn.
+            </p>
+            <div className="mt-3 grid gap-2">
+              <Input aria-label="Link to the post" value={pasteUrl} onChange={(e) => setPasteUrl(e.target.value)} placeholder="https://www.linkedin.com/posts/…" />
+              <Textarea aria-label="Text of the post" rows={5} value={pasteText} onChange={(e) => setPasteText(e.target.value)} placeholder="Paste the post text here" />
+              <Button size="sm" onClick={sendPaste} disabled={pasteBusy || pasteText.trim().length < 40 || !pasteUrl.trim()}>
+                {pasteBusy ? "Reading…" : "Read this post"}
+              </Button>
+              {pasteMsg ? (
+                <p role="status" className={`text-xs font-medium ${pasteMsg.ok ? "text-positive" : "text-destructive"}`}>
+                  {pasteMsg.text}
+                </p>
+              ) : null}
+            </div>
+          </details>
           {web ? (
             <div className="rounded-xl border border-warning/40 bg-warning/5 p-4" aria-live="polite">
               <p className="text-xs font-medium text-warning">Web search result{web.provider ? ` (via ${web.provider})` : ""}. Not from the stored data.</p>
