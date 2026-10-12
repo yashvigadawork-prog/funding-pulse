@@ -61,7 +61,7 @@ export async function loadDealsForWeek(week: string, newInvestors: WeekCompute["
 
 export async function loadQuality(week: string | null, dealsFound: number, undisclosed: number, needsReview: number): Promise<QualityView> {
   const settings = (await getBlocks()).digest_settings;
-  const collect = await getState<{ at: string; total: number; reachable: number; unreachable: string[]; searchUnavailable?: boolean }>("last_collect");
+  const collect = await getState<{ at: string; total: number; reachable: number; unreachable: string[]; searchedInstead?: string[]; searchUnavailable?: boolean }>("last_collect");
   const run = await getState<{ at: string; partial?: boolean }>("last_run");
   let articlesRead = 0;
   if (week) {
@@ -76,7 +76,7 @@ export async function loadQuality(week: string | null, dealsFound: number, undis
   const times = [collect?.at, run?.at].filter((x): x is string => !!x).map((x) => new Date(x).getTime());
   const last = times.length ? new Date(Math.max(...times)) : null;
   return {
-    sources: collect ? { total: collect.total, reachable: collect.reachable, unreachable: collect.unreachable } : null,
+    sources: collect ? { total: collect.total, reachable: collect.reachable, unreachable: collect.unreachable, searchedInstead: collect.searchedInstead ?? [] } : null,
     articlesRead,
     dealsFound,
     undisclosed,

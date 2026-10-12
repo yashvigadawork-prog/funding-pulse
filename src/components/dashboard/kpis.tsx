@@ -58,7 +58,7 @@ export function QualityStrip({ view }: { view: DigestView }) {
     {
       label: "Sources reachable",
       value: q.sources ? `${q.sources.reachable} of ${q.sources.total}` : "Not checked yet",
-      tip: unreachable.length ? `Could not reach: ${unreachable.join(", ")}` : q.sources ? "All sources answered" : undefined,
+      tip: unreachable.length ? `Could not read the feed of: ${unreachable.join(", ")}.${q.sources?.searchedInstead.length ? ` Searched their websites instead: ${q.sources.searchedInstead.join(", ")}.` : ""}` : q.sources ? "All sources answered" : undefined,
     },
     { label: "Articles read this week", value: q.articlesRead },
     { label: "Deals found (duplicates merged)", value: `${q.dealsFound} · typical ${q.typicalVolume.min} to ${q.typicalVolume.max}` },

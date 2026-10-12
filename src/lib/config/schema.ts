@@ -65,7 +65,7 @@ export const digestSettingsSchema = z.looseObject({
   ask_daily_cap: z.number().int().min(1).default(200),
   send_per_ip_per_hour: z.number().int().min(1).default(5),
   search_cache_hours: z.number().min(0).default(24),
-  max_search_queries_per_run: z.number().int().min(0).default(20),
+  max_search_queries_per_run: z.number().int().min(0).default(30),
   extraction_batch_size: z.number().int().min(1).default(5),
   max_article_chars: z.number().int().min(500).default(6000),
   max_articles_per_run: z.number().int().min(1).default(40),

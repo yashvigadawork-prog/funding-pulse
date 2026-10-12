@@ -4,7 +4,7 @@ import { Banner, EmptyState, ErrorRetry } from "./states";
 import { StatusBanners } from "@/components/dashboard/kpis";
 import type { DigestView } from "@/lib/view-types";
 
-const base = { sources: { total: 13, reachable: 5, unreachable: ["A"] }, articlesRead: 5, dealsFound: 5, undisclosed: 0, needsReview: 0, lastUpdatedAt: new Date().toISOString(), daysOld: 1, typicalVolume: { min: 40, max: 60 }, searchUnavailable: false, partialRun: false };
+const base = { sources: { total: 13, reachable: 5, unreachable: ["A"], searchedInstead: [] as string[] }, articlesRead: 5, dealsFound: 5, undisclosed: 0, needsReview: 0, lastUpdatedAt: new Date().toISOString(), daysOld: 1, typicalVolume: { min: 40, max: 60 }, searchUnavailable: false, partialRun: false };
 const view = (q: Partial<typeof base>) => ({ quality: { ...base, ...q }, digest: null }) as unknown as DigestView;
 
 describe("designed failure and empty states", () => {

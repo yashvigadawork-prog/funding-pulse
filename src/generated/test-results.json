@@ -1,8 +1,8 @@
 {
-  "recordedAt": "2026-10-12T11:48:46.915Z",
-  "commit": "96617e0",
-  "total": 136,
-  "passed": 136,
+  "recordedAt": "2026-10-12T11:54:12.810Z",
+  "commit": "5d442c3",
+  "total": 137,
+  "passed": 137,
   "failed": 0,
   "files": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "file": "src/lib/pipeline/collect.test.ts",
-      "total": 3,
-      "passed": 3,
+      "total": 4,
+      "passed": 4,
       "failed": 0
     },
     {

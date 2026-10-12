@@ -42,11 +42,13 @@ export interface CollectResult {
   searchAnswered: number;
   /** True when searches were tried and no provider answered any of them. */
   searchUnavailable: boolean;
+  /** Outlets whose feed was unreachable but which were searched through their own site instead. */
+  searchedInstead: string[];
 }
 
 export interface GapQuery {
   query: string;
-  purpose: "sector" | "radar" | "linkedin";
+  purpose: "sector" | "outlet" | "radar" | "linkedin";
   includeDomains?: string[];
 }
 
@@ -57,15 +59,19 @@ export function buildGapQueries(p: {
   investors: InvestorJson[];
   linkedin: Sources["linkedin_via_search"];
   maxQueries: number;
+  /** Outlets whose feed could not be read. They are covered through a search limited to their own website. */
+  outlets?: { outlet: string; site: string }[];
 }): GapQuery[] {
   const out: GapQuery[] = [];
   for (const s of p.mandate.focus_sectors) out.push({ query: `India ${s} startup raises funding round this week`, purpose: "sector" });
+  const outletCap = Math.max(0, Math.floor(p.maxQueries * 0.25));
+  for (const o of (p.outlets ?? []).slice(0, outletCap)) out.push({ query: `${o.outlet} startup raises funding round`, purpose: "outlet", includeDomains: [o.site] });
   const rank = { high: 0, medium: 1, low: 2 } as Record<string, number>;
   const radar = [...p.onRadar].sort((a, b) => (rank[a.priority ?? "low"] ?? 3) - (rank[b.priority ?? "low"] ?? 3));
-  const radarCap = Math.max(0, Math.floor(p.maxQueries * 0.4));
+  const radarCap = Math.max(0, Math.floor(p.maxQueries * 0.35));
   for (const c of radar.slice(0, radarCap)) out.push({ query: `${c.name} raises funding seed OR "pre-Series A" OR "Series A"`, purpose: "radar" });
   if (p.linkedin.enabled) {
-    const liCap = Math.max(0, Math.floor(p.maxQueries * 0.3));
+    const liCap = Math.max(0, Math.floor(p.maxQueries * 0.25));
     const li: GapQuery[] = [];
     const templates = p.linkedin.query_templates;
     let i = 0;
@@ -177,6 +183,7 @@ export async function collect(input: CollectInput): Promise<CollectResult> {
     searchAttempted: 0,
     searchAnswered: 0,
     searchUnavailable: false,
+    searchedInstead: [],
   };
 
   /* ---- 1. feeds ---- */
@@ -260,6 +267,7 @@ export async function collect(input: CollectInput): Promise<CollectResult> {
     investors: input.investors,
     linkedin: sources.linkedin_via_search,
     maxQueries: settings.max_search_queries_per_run,
+    outlets: enabled.filter((s) => result.unreachable.includes(s.outlet)).map((s) => ({ outlet: s.outlet, site: s.site })),
   });
   const days = Math.max(1, Math.ceil((until.getTime() - since.getTime()) / 86_400_000));
   const searchPending: Pending[] = [];
@@ -267,6 +275,10 @@ export async function collect(input: CollectInput): Promise<CollectResult> {
   for (const q of queries) {
     if (Date.now() > input.deadline || input.budget.exhausted) break;
     const out = await search(q.query, { limit: 8, days, includeDomains: q.includeDomains }, { chain: input.chain, settings, budget: input.budget });
+    if (q.purpose === "outlet" && !out.skippedForBudget) {
+      const o = enabled.find((s) => s.site === q.includeDomains?.[0]);
+      if (o && out.results.length) result.searchedInstead.push(o.outlet);
+    }
     if (!out.skippedForBudget) {
       result.searchAttempted++;
       if (out.provider) result.searchAnswered++;

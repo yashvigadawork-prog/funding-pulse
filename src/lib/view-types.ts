@@ -30,7 +30,7 @@ export interface DealRowView {
 }
 
 export interface QualityView {
-  sources: { total: number; reachable: number; unreachable: string[] } | null;
+  sources: { total: number; reachable: number; unreachable: string[]; searchedInstead: string[] } | null;
   articlesRead: number;
   dealsFound: number;
   undisclosed: number;

@@ -2367,7 +2367,7 @@
     "ask_daily_cap": 200,
     "send_per_ip_per_hour": 5,
     "search_cache_hours": 24,
-    "max_search_queries_per_run": 20,
+    "max_search_queries_per_run": 30,
     "extraction_batch_size": 5,
     "max_article_chars": 6000,
     "max_articles_per_run": 40,

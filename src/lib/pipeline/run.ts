@@ -64,7 +64,7 @@ export async function runPipeline(opts: RunOptions): Promise<RunSummary> {
           await saveBlock("sources", { ...current, rss_and_sites: current.rss_and_sites.map((s) => (s.outlet === outlet ? { ...s, feed_url: feedUrl } : s)) });
         },
       });
-      await setState("last_collect", { at: new Date().toISOString(), total: r.sourcesTotal, reachable: r.sourcesReachable, unreachable: r.unreachable, searchUnavailable: r.searchUnavailable });
+      await setState("last_collect", { at: new Date().toISOString(), total: r.sourcesTotal, reachable: r.sourcesReachable, unreachable: r.unreachable, searchedInstead: r.searchedInstead, searchUnavailable: r.searchUnavailable });
       const providers = Object.entries(r.searchProviders).map(([k, v]) => `${k} ${v}`).join(", ") || "none used";
       return {
         message: `${r.sourcesReachable} of ${r.sourcesTotal} sources reachable. ${r.newArticles} new articles. Search: ${r.searchQueries} queries (${providers}), ${r.cacheHits} from cache.${r.searchErrors.length ? ` Search problems: ${[...new Set(r.searchErrors)].slice(0, 3).join("; ")}.` : ""}`,
