@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
-import { ChevronDown, Flame, Landmark, Search, SearchCheck, UserRoundPlus } from "lucide-react";
+import { ChevronDown, Eye, Flame, Landmark, Search, SearchCheck, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Banner, EmptyState } from "@/components/common/states";
@@ -277,14 +277,14 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
 
   const stages = Array.from(new Set(view.deals.map((d) => d.stage ?? "Unknown")));
   const sectors = Array.from(new Set(view.deals.map((d) => d.sector)));
-  const counts = new Map(sectors.map((s) => [s, view.deals.filter((d) => d.sector === s).length]));
-  const filtered = view.deals.filter(
-    (d) =>
-      (sector === "all" || d.sector === sector) &&
-      (stage === "all" || (d.stage ?? "Unknown") === stage) &&
-      (list === "all" || (list === "watch" ? !!d.matchTag && !d.needsReview : d.matchTag === list && !d.needsReview)) &&
-      (!q.trim() || d.companyName.toLowerCase().includes(q.trim().toLowerCase()) || d.investors.some((i) => i.name.toLowerCase().includes(q.trim().toLowerCase()))),
-  );
+  // Every filter except the sector chips; the chip counts show what each sector would have left under these.
+  const passesOthers = (d: DealRowView) =>
+    (stage === "all" || (d.stage ?? "Unknown") === stage) &&
+    (list === "all" || (list === "watch" ? !!d.matchTag && !d.needsReview : d.matchTag === list && !d.needsReview)) &&
+    (!q.trim() || d.companyName.toLowerCase().includes(q.trim().toLowerCase()) || d.investors.some((i) => i.name.toLowerCase().includes(q.trim().toLowerCase())));
+  const counts = new Map(sectors.map((s) => [s, view.deals.filter((d) => d.sector === s && passesOthers(d)).length]));
+  const totalLeft = view.deals.filter(passesOthers).length;
+  const filtered = view.deals.filter((d) => (sector === "all" || d.sector === sector) && passesOthers(d));
   const groups = sectors
     .map((s) => ({ sector: s, rows: filtered.filter((d) => d.sector === s), focus: focusSectors.has(s) }))
     .filter((g) => g.rows.length)
@@ -311,16 +311,23 @@ function DealTable({ view, onOpenDeal }: { view: DigestView; onOpenDeal: (d: Dea
       <div className="mb-3 grid gap-2.5">
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" className={chip(sector === "all")} aria-pressed={sector === "all"} onClick={() => { setSector("all"); setOpen({}); setLimit(PAGE); }}>
-            All sectors <span className="fig opacity-70">{view.deals.length}</span>
+            All sectors <span className="fig opacity-70">{totalLeft}</span>
           </button>
           {sectors.map((s) => (
-            <button key={s} type="button" className={chip(sector === s)} aria-pressed={sector === s} onClick={() => { setSector(sector === s ? "all" : s); setOpen({}); setLimit(PAGE); }}>
+            <button key={s} type="button" className={`${chip(sector === s)}${counts.get(s) === 0 && sector !== s ? " opacity-50" : ""}`} aria-pressed={sector === s} onClick={() => { setSector(sector === s ? "all" : s); setOpen({}); setLimit(PAGE); }}>
               <span className="size-2 rounded-full" style={{ background: sectorVar(s) }} />
               {s} <span className="fig opacity-70">{counts.get(s)}</span>
             </button>
           ))}
-          <button type="button" className={chip(list === "watch")} aria-pressed={list === "watch"} onClick={() => { setList(list === "watch" ? "all" : "watch"); setLimit(PAGE); }}>
-            Watchlist only
+          <span aria-hidden className="mx-1 hidden h-6 w-px bg-border sm:block" />
+          <button
+            type="button"
+            className={`inline-flex items-center gap-1.5 rounded-full border border-dashed px-3 py-1.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring ${list === "watch" ? "border-primary bg-primary text-primary-foreground" : "bg-card text-ink-2 hover:border-primary/60"}`}
+            aria-pressed={list === "watch"}
+            title="Show only companies on your Portfolio or On Radar lists. Works together with the sector you pick."
+            onClick={() => { setList(list === "watch" ? "all" : "watch"); setLimit(PAGE); }}
+          >
+            <Eye className="size-3.5" aria-hidden /> Watchlist only
           </button>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_auto]">

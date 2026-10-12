@@ -1,0 +1,78 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:#fff;color:#14161C}
+#wrap{position:relative;width:2600px;padding:0 20px 30px}
+h1{font-size:44px;text-align:center;color:#0E1A44;padding:34px 0 26px;font-weight:700}
+#grid{position:relative;width:2560px;border-radius:14px;overflow:hidden}
+.hdr{display:grid;grid-template-columns:200px repeat(6,393.3px);background:#14274E;color:#fff;height:80px}
+.hdr div{display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:600;border-left:1px solid #2b3f6b}
+.row{position:relative;display:grid;grid-template-columns:200px repeat(6,393.3px)}
+.row .act{background:#14274E;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-top:1px solid #2b3f6b;padding:10px}
+.row .act b{font-size:27px}.row .act span{font-size:18px;opacity:.85;margin-top:6px;line-height:1.3}
+.row .cell{border-left:1px solid rgba(20,39,78,.08)}
+.r0{height:300px;background:#E8F1FF}.r1{height:960px;background:#FFF9E3}.r2{height:640px;background:#EAF8EE}.r3{height:330px;background:#FDEAF0}
+.box{position:absolute;width:330px;border:2.5px solid;border-radius:14px;padding:14px 16px;font-size:17.5px;line-height:1.38;text-align:center}
+.box b{display:block;font-size:19px;margin-bottom:5px}
+.t{background:#E6E4FF;border-color:#4B3FD6}.i{background:#E2EDFF;border-color:#2C6BE0}.c{background:#E0F6E6;border-color:#2FA84F}
+.p{background:#FFF0C9;border-color:#F0A500}.a{background:#FFE0F0;border-color:#DF2F98}.o{background:#FFE2DD;border-color:#E5483A}
+.badge{position:absolute;left:-13px;top:-13px;width:30px;height:30px;border-radius:50%;background:#14274E;color:#fff;font-size:16px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}.legend{padding:14px 20px;font-size:19px;color:#14274E;background:#fff;text-align:center}
+svg{position:absolute;left:0;top:0;pointer-events:none}
+</style></head><body><div id="wrap"><h1>Funding Pulse · Digest &amp; Dashboard — Components Map</h1><div id="grid">
+<div class="hdr"><div>Actor</div><div>Trigger</div><div>Input</div><div>Context</div><div>Processing</div><div>AI</div><div>Output</div></div>
+<div class="row r0" id="R0"><div class="act"><b>Aarav</b><span>(User: venture scout,<br>Cloudburst Ventures)</span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+<div class="row r1" id="R1"><div class="act"><b>System</b><span>(App backend on Vercel,<br>scheduler cron-job.org,<br>database Neon,<br>news and search sources)</span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+<div class="row r2" id="R2"><div class="act"><b>AI Model</b><span>(Gemini Flash,<br>the only AI used)</span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+<div class="row r3" id="R3"><div class="act"><b>Email Service</b><span>(Resend)</span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+<svg id="svg" width="2560" height="2700"></svg>
+</div><div class="legend"><b>Numbers 1 to 11</b> follow the weekly build, in order. <b>Letters a to c</b> follow what Aarav does on the dashboard. Dashed arrows show where information moves.</div></div>
+<script>
+const COLW=393.3, ACT=200, BW=330;
+const boxes=[
+ ['a1','R0',0,60,'t','','<b>Presses Refresh now</b>or simply opens the dashboard (a public page, no login)'],
+ ['a2','R0',1,40,'i','a','<b>Aarav\'s input</b>A question for Ask · a pasted LinkedIn post · edits to My Coverage lists'],
+ ['a4','R0',3,60,'t','b','<b>Reviews a draft</b>Edits it, can ask for a warmer or shorter version, then confirms Send'],
+ ['a3','R0',5,20,'o','10','<b>Dashboard and outputs</b>Brief, Market and Actions tabs · answers from Ask · drafts ready to send · PDF report · Method page with tests and run log'],
+ ['s1','R1',0,40,'t','1','<b>Scheduled or on demand</b>Monday 06:00 IST: cron-job.org calls the secured digest address. Refresh now runs the same steps: one run at a time, 30-minute cooldown'],
+ ['s2','R1',1,40,'i','2','<b>News, last 7 days</b>13 sources (feeds and outlet pages). Outlets that cannot be read are searched instead: Tavily, then Exa, Serper, Gemini search (max 30 searches a run, 24-hour cache). No social posts, no LinkedIn scraping'],
+ ['s3','R1',2,330,'c','','<b>My Coverage (database)</b>Portfolio 156 · On Radar 25 · watched investors · mandate (sectors, stages, ticket size) · sector keywords · settings. Plus 8 weeks of stored deals as the "usual week" baseline'],
+ ['s4','R1',3,40,'p','3','<b>Collect and clean (code)</b>Reads up to 40 new articles (6,000 characters each, treated as untrusted text). Merges the same deal from several outlets, sets sector and amount in code. A stage is kept only if a source states it'],
+ ['s5','R1',3,330,'p','5','<b>Match and compute (code and SQL)</b>Matches names to Portfolio and On Radar (near-misses go to Needs review). Works out deals, capital by sector, speeding up or slowing vs the 4-week average, new investors, focus deals, raises within 10 days of a Portfolio company. Ranks highlights by a score'],
+ ['s8','R1',3,700,'p','6','<b>Builds action drafts (templates)</b>Founders to meet, Portfolio check-ins and the LP note, in Aarav\'s voice, from the matched data only. Amounts come from computed figures; the LP note has one link. Founder names, LinkedIn links and emails come only from public pages or search results, each with its source'],
+ ['s7','R1',4,330,'p','8','<b>Checks (code)</b>Every number in AI text must exist in the computed data, text must be short, every claim needs a source link. If a check fails, a template written from the numbers is used instead'],
+ ['s6','R1',5,330,'o','9','<b>Stored digest (database)</b>Digest, short text, drafts and run log saved. Names the fund does not want shown are hidden by one shared filter before anything is displayed or sent to the AI'],
+ ['g2','R2',4,260,'a','7','<b>Analyse</b>Writes the one-line week summary, short bullets and the three explanations, using only the computed numbers and citing source numbers'],
+ ['g1','R2',4,30,'a','4','<b>Extract</b>Reads articles in batches of 5 (3 batches at once) and returns each deal as structured data: company, amount, stage, investors, date, source'],
+ ['g3','R2',2,420,'a','a','<b>Ask and drafting help</b>Answers from stored data first (a labelled web search only if nothing is stored). Improve, Rewrite warmer and Shorter on drafts; any change to a number or link is rejected'],
+ ['e1','R3',5,30,'i','11','<b>Monday digest email</b>Sent once per week for the week that just ended, to the listed recipients. Refresh now never sends it'],
+ ['e2','R3',3,60,'i','c','<b>Sends a draft</b>Only after Aarav confirms Send. Limits: 5 an hour outside the address book, 20 a day. Every send is logged'],
+];
+for(const [id,row,col,y,cls,n,html] of boxes){const d=document.createElement('div');d.className='box '+cls;d.id=id;d.innerHTML=(n?'<span class="badge">'+n+'</span>':'')+html;d.style.left=(ACT+col*COLW+(COLW-BW)/2)+'px';d.style.top=y+'px';document.getElementById(row).appendChild(d);}
+const g=document.getElementById('grid').getBoundingClientRect();
+const rect=id=>{const e=document.getElementById(id).getBoundingClientRect();return{l:e.left-g.left,r:e.right-g.left,t:e.top-g.top,b:e.bottom-g.top,cx:(e.left+e.right)/2-g.left,cy:(e.top+e.bottom)/2-g.top}};
+const gap=(c)=>ACT+c*COLW;
+const svg=document.getElementById('svg');
+svg.innerHTML='<defs><marker id="ar" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#14274E"/></marker></defs>';
+function path(pts,col){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d','M'+pts.map(q=>q.join(',')).join(' L'));p.setAttribute('fill','none');p.setAttribute('stroke',col||'#14274E');p.setAttribute('stroke-width','2.4');p.setAttribute('stroke-dasharray','8 6');p.setAttribute('marker-end','url(#ar)');svg.appendChild(p);}
+const r=Object.fromEntries(boxes.map(b=>[b[0],rect(b[0])]));
+const P='#5B3FD6';
+// weekly build
+path([[r.a1.cx,r.a1.b],[r.a1.cx,r.s1.t]],P);
+path([[r.s1.r,r.s1.t+70],[r.s2.l,r.s1.t+70]]);
+path([[r.s2.r,r.s2.t+70],[r.s4.l,r.s2.t+70]]);
+path([[r.s4.r,r.s4.t+90],[gap(4)+8,r.s4.t+90],[gap(4)+8,r.g1.t+55],[r.g1.l,r.g1.t+55]]);          // collect -> extract
+path([[r.g1.l,r.g1.b-35],[gap(4)-8,r.g1.b-35],[gap(4)-8,r.s5.t+60],[r.s5.r,r.s5.t+60]]);          // extract -> match
+path([[r.s3.r,r.s3.t+60],[r.s5.l,r.s3.t+60]]);                                                   // context -> match
+path([[r.s5.r,r.s5.b-45],[gap(4)-24,r.s5.b-45],[gap(4)-24,r.g2.t+70],[r.g2.l,r.g2.t+70]]);        // match -> analyse
+path([[r.s5.cx,r.s5.b],[r.s5.cx,r.s8.t]]);                                                       // match -> drafts
+path([[r.g2.r,r.g2.cy],[gap(5)-30,r.g2.cy],[gap(5)-30,r.s7.b+28],[r.s7.cx+60,r.s7.b+28],[r.s7.cx+60,r.s7.b]]);                                                       // analyse -> checks
+path([[r.s7.r,r.s7.t+70],[r.s6.l,r.s7.t+70]]);                                                   // checks -> store
+path([[r.s8.r,r.s8.cy],[r.s6.cx-70,r.s8.cy],[r.s6.cx-70,r.s6.b]]);                               // drafts -> store
+path([[r.s6.cx,r.s6.t],[r.s6.cx,r.a3.b]]);                                                       // store -> dashboard
+path([[r.s6.cx+70,r.s6.b],[r.s6.cx+70,r.e1.t]]);                                                 // store -> Monday email
+// Aarav
+path([[r.a2.r,r.a2.t+35],[gap(2)+10,r.a2.t+35],[gap(2)+10,r.s3.t+90],[r.s3.l,r.s3.t+90]],P);       // edits -> coverage
+path([[r.a2.r,r.a2.b-30],[gap(2)-12,r.a2.b-30],[gap(2)-12,r.g3.cy],[r.g3.l,r.g3.cy]],P);           // question -> ask
+path([[r.g3.r,r.g3.cy-30],[gap(5)+14,r.g3.cy-30],[gap(5)+14,r.a3.cy+20],[r.a3.l,r.a3.cy+20]],P);   // ask answer -> dashboard
+path([[r.a3.l,r.a3.t+45],[r.a4.r,r.a3.t+45]],P);                                                  // dashboard drafts -> review
+path([[r.a4.l,r.a4.b-25],[gap(3)-14,r.a4.b-25],[gap(3)-14,r.e2.cy],[r.e2.l,r.e2.cy]],P);          // review -> send
+</script></body></html>

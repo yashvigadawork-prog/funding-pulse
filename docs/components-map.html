@@ -1,0 +1,100 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:#fff;color:#14161C}
+#wrap{position:relative;width:2600px;padding:0 20px 30px}
+h1{font-size:44px;text-align:center;color:#0E1A44;padding:34px 0 26px;font-weight:700}
+#grid{position:relative;width:2560px;border-radius:14px;overflow:hidden}
+.hdr{display:grid;grid-template-columns:200px repeat(6,393.3px);background:#14274E;color:#fff;height:80px}
+.hdr div{display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:600;border-left:1px solid #2b3f6b}
+.row{position:relative;display:grid;grid-template-columns:200px repeat(6,393.3px)}
+.row .act{background:#14274E;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-top:1px solid #2b3f6b;padding:10px}
+.row .act b{font-size:26px}.row .act span{font-size:17px;opacity:.85;margin-top:6px;line-height:1.3}
+.row .cell{border-left:1px solid rgba(20,39,78,.08)}
+.k-u{background:#E8F1FF}.k-s{background:#FFF9E3}.k-d{background:#F0EBFB}.k-a{background:#EAF8EE}.k-e{background:#FDEAF0}
+.box{position:absolute;width:330px;border:2.5px solid;border-radius:14px;padding:14px 16px;font-size:17.5px;line-height:1.38;text-align:center}
+.box b{display:block;font-size:19px;margin-bottom:5px}
+.t{background:#E6E4FF;border-color:#4B3FD6}.i{background:#E2EDFF;border-color:#2C6BE0}.c{background:#E0F6E6;border-color:#2FA84F}
+.p{background:#FFF0C9;border-color:#F0A500}.a{background:#FFE0F0;border-color:#DF2F98}.o{background:#FFE2DD;border-color:#E5483A}
+.badge{position:absolute;left:-13px;top:-13px;width:30px;height:30px;border-radius:50%;background:#14274E;color:#fff;font-size:16px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
+.key{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;padding:6px 20px 0;font-size:18px;color:#14274E}.key span{display:inline-flex;align-items:center;gap:8px}.key i{display:inline-block;width:26px;height:18px;border-radius:5px;border:2.5px solid}.legend{padding:14px 20px 6px;font-size:19px;color:#14274E;background:#fff;text-align:center}
+.scope{display:grid;grid-template-columns:1.1fr 1.5fr 1.1fr;gap:18px;margin:0 0 22px}.card{border:2.5px solid #14274E;border-radius:14px;padding:16px 20px;font-size:19px;line-height:1.45;background:#F7F9FF}.card h3{font-size:22px;color:#0E1A44;margin-bottom:6px}.card.out{background:#FFF6F4;border-color:#E5483A}.card.ok{background:#F2FBF5;border-color:#2FA84F}
+.eb{position:absolute;right:-12px;top:-13px;background:#E5483A;color:#fff;border-radius:999px;font-size:14px;font-weight:700;padding:3px 9px;border:2px solid #fff;letter-spacing:.2px}
+.panels{margin-top:26px;display:grid;grid-template-columns:2fr 1fr;gap:20px}.panels h2{font-size:28px;color:#0E1A44;margin-bottom:10px}
+.edge{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}.e{border:2px solid #F3C7C1;background:#FFF8F6;border-radius:12px;padding:10px 14px;font-size:17px;line-height:1.4}.e b{color:#C0392B}.e u{text-decoration:none;font-weight:600;color:#14274E}
+.ev{border:2.5px solid #2FA84F;background:#F2FBF5;border-radius:14px;padding:16px 20px;font-size:18px;line-height:1.5}.ev li{margin:0 0 8px 20px}
+svg{position:absolute;left:0;top:0;pointer-events:none}
+</style></head><body><div id="wrap"><h1>Funding Pulse · Digest &amp; Dashboard — Components Map</h1><div class="scope"><div class="card"><h3>The problem</h3>Aarav, a venture scout at Cloudburst Ventures (a Bengaluru family office), has no quick, trustworthy weekly view of Indian startup funding, or of how it touches the companies the fund backs and watches.</div><div class="card"><h3>What Funding Pulse does</h3>Collects the week's funding news, pulls out each deal, matches it to the fund's 156 Portfolio and 25 On Radar companies, works out every number in code, explains the numbers with source links, and emails a short digest every Monday at 06:00 IST. A public dashboard (Brief, Market, Actions) lets Aarav dig in, ask questions and send drafts.</div><div class="card out"><h3>Boundaries</h3>The AI never does the maths · every claim links to a source · nothing is invented · no social media or LinkedIn scraping · nothing goes to a founder unless Aarav confirms · no login to read</div></div><div id="grid">
+<div class="hdr"><div>Actor</div><div>Trigger</div><div>Input</div><div>Context</div><div>Processing</div><div>AI</div><div>Output</div></div>
+<div id="rows"></div><svg id="svg" width="2560" height="3600"></svg></div>
+<div class="key"><span><i style="background:#E6E4FF;border-color:#4B3FD6"></i>Trigger</span><span><i style="background:#E2EDFF;border-color:#2C6BE0"></i>Input</span><span><i style="background:#E0F6E6;border-color:#2FA84F"></i>Context</span><span><i style="background:#FFF0C9;border-color:#F0A500"></i>Processing</span><span><i style="background:#FFE0F0;border-color:#DF2F98"></i>AI</span><span><i style="background:#FFE2DD;border-color:#E5483A"></i>Output</span></div><div class="key" style="padding-top:10px"><b>Row colours:</b><span>blue = Aarav</span><span>yellow = system code, scheduler and sources</span><span>lilac = database</span><span>green = AI model</span><span>pink = email service</span></div><div class="panels"><div><h2>Edge cases handled (red tags on the map)</h2><div class="edge"><div class="e"><b>E1</b> <u>News, last 7 days</u><br><i>What can go wrong:</i> A news source cannot be read (for example 6 of 13 on a recent run), or a search provider runs out<br><i>What happens:</i> The outlet is searched instead through a chain of four providers (24-hour cache, 30 searches a run). The data strip names the sources that were unreachable.</div><div class="e"><b>E2</b> <u>Collect and clean</u><br><i>What can go wrong:</i> An article contains instructions meant for the AI, or is a social post<br><i>What happens:</i> Article text is treated as untrusted data and never followed. Social posts are dropped. Long articles are cut at 6,000 characters.</div><div class="e"><b>E3</b> <u>Collect and clean</u><br><i>What can go wrong:</i> The same deal appears in several outlets, amounts disagree, or no stage is stated<br><i>What happens:</i> Duplicates are merged only when amount, investor and name agree. Disagreeing amounts use the middle value, marked low confidence. A missing stage shows "Stage not reported", never a guess.</div><div class="e"><b>E4</b> <u>Extract</u><br><i>What can go wrong:</i> The AI call fails, hits a quota, or the run is cut short<br><i>What happens:</i> Retries with a backup key. Anything unread is kept and the page says "some articles are still waiting"; pressing Refresh continues.</div><div class="e"><b>E5</b> <u>Match and compute</u><br><i>What can go wrong:</i> A company name nearly matches a Portfolio name, an amount is undisclosed, or history is too thin<br><i>What happens:</i> Near-misses go to a Needs review list and are not counted. Undisclosed amounts are counted separately, never added. "New investor" claims are suppressed without enough history.</div><div class="e"><b>E6</b> <u>Checks</u><br><i>What can go wrong:</i> The AI writes a number that is not in the data, is too long, or cites no source<br><i>What happens:</i> The text is rejected and retried once, then replaced by a template written from the numbers. A banner says which was used.</div><div class="e"><b>E7</b> <u>Scheduled or on demand</u><br><i>What can go wrong:</i> Refresh is pressed twice, or a run is too long for the 5-minute limit<br><i>What happens:</i> One run at a time and a 30-minute cooldown. Each step saves its progress, so a long run can resume.</div><div class="e"><b>E8</b> <u>Monday digest email</u><br><i>What can go wrong:</i> The scheduler fires twice, or nobody is listed as a recipient<br><i>What happens:</i> The email is claimed once per week, so it cannot repeat. With no recipients it is skipped and logged. Refresh never sends it.</div><div class="e"><b>E9</b> <u>Sends a draft / Ask and rewrites</u><br><i>What can go wrong:</i> A rewrite changes a figure or link, a demo contact is used, or too many sends<br><i>What happens:</i> The rewrite is rejected. Demo contacts cannot be emailed. Sending needs a confirm step, an hourly and daily limit, and every send is logged.</div><div class="e"><b>E10</b> <u>Stored digest</u><br><i>What can go wrong:</i> A name the fund does not want shown appears, or a week has barely started<br><i>What happens:</i> One shared filter hides the name everywhere, including what is sent to the AI. A week gets no digest until it is the current digest week.</div><div class="e"><b>E11</b> <u>Builds action drafts</u><br><i>What can go wrong:</i> A founder contact or LinkedIn page cannot be found<br><i>What happens:</i> It says "Not found" and shows only what a public page or search result states, with its source. LinkedIn is a search link only.</div></div></div><div><h2>How it is shown to work</h2><div class="ev"><ul><li><b>169 automated tests</b> pass; the result is recorded and shown on the Method page.</li><li><b>Method page</b> shows live examples of each edge case, the run log of every refresh, and this map.</li><li><b>Numbers are computed in code</b> and were cross-checked against separate database sums during testing.</li><li><b>Every claim links to its source</b> and is labelled Reported or Possible.</li><li><b>Data-quality strip</b> on the dashboard: sources reached, articles read, deals found, undisclosed, needs review, last updated.</li><li><b>Tested end to end in a real browser</b> on the live site, on desktop and phone, in light and dark themes.</li><li><b>Scheduled Monday run</b> tested through cron-job.org.</li></ul></div><h2 style="margin-top:22px">Where it runs</h2><div class="ev" style="border-color:#2C6BE0;background:#F2F7FF"><ul><li>Website and functions: Vercel</li><li>Database: Neon Postgres</li><li>AI: Gemini Flash only</li><li>News search: Tavily, Exa, Serper</li><li>Email: Resend</li><li>Scheduler: cron-job.org</li></ul></div></div></div><div class="legend"><b>Numbers 1 to 11</b> follow the weekly build, top to bottom. <b>Letters a to c</b> follow what Aarav does on the dashboard (purple arrows). Dashed arrows show where information moves.</div></div>
+<script>
+const COLW=393.3, ACT=200, BW=330, PAD=30;
+const rows=[
+ ['Aarav','starts a run or asks','k-u'],
+ ['Scheduler and sources','cron-job.org, 13 news feeds, search providers','k-s'],
+ ['System','reads and cleans (app code)','k-s'],
+ ['AI Model','Gemini Flash: extracts deals','k-a'],
+ ['Database','Neon: My Coverage lists','k-d'],
+ ['System','matches and computes (code and SQL)','k-s'],
+ ['System','builds the action drafts (code templates)','k-s'],
+ ['AI Model','Gemini Flash: writes the analysis','k-a'],
+ ['System','checks the AI\'s text (code)','k-s'],
+ ['Database','Neon: stored digest','k-d'],
+ ['AI Model','Gemini Flash: Ask and rewrites','k-a'],
+ ['Aarav','reads the result and acts','k-u'],
+ ['Email Service','Resend','k-e'],
+];
+const boxes=[ // id,row,col,cls,badge,html
+ ['a1',0,0,'t','','<b>Presses Refresh now</b>or simply opens the dashboard (a public page, no login)'],
+ ['a2',0,1,'i','a','<b>Aarav\'s input</b>A question for Ask · a pasted LinkedIn post · edits to My Coverage lists'],
+ ['s1',1,0,'t','1','<b>Scheduled or on demand</b>Monday 06:00 IST: cron-job.org calls the secured digest address. Refresh now runs the same steps: one run at a time, 30-minute cooldown'],
+ ['s2',1,1,'i','2','<b>News, last 7 days</b>13 sources (feeds and outlet pages). Outlets that cannot be read are searched instead: Tavily, then Exa, Serper, Gemini search (max 30 searches a run, 24-hour cache). No social posts, no LinkedIn scraping'],
+ ['s4',2,3,'p','3','<b>Collect and clean (code)</b>Reads up to 40 new articles (6,000 characters each, treated as untrusted text). Merges the same deal from several outlets, sets sector and amount in code. A stage is kept only if a source states it'],
+ ['g1',3,4,'a','4','<b>Extract</b>Reads articles in batches of 5 (3 batches at once) and returns each deal as structured data: company, amount, stage, investors, date, source'],
+ ['s3',4,2,'c','','<b>My Coverage</b>Portfolio 156 · On Radar 25 · watched investors · mandate (sectors, stages, ticket size) · sector keywords · settings. Plus 8 weeks of stored deals as the "usual week" baseline'],
+ ['s5',5,3,'p','5','<b>Match and compute</b>Matches names to Portfolio and On Radar (near-misses go to Needs review). Works out deals, capital by sector, speeding up or slowing vs the 4-week average, new investors, focus deals, raises within 10 days of a Portfolio company. Ranks highlights by a score'],
+ ['s8',6,3,'p','6','<b>Builds action drafts (templates)</b>Founders to meet, Portfolio check-ins and the LP note, in Aarav\'s voice, from the matched data only. Amounts come from computed figures; the LP note has one link. Founder names, LinkedIn links and emails come only from public pages or search results, each with its source'],
+ ['g2',7,4,'a','7','<b>Analyse</b>Writes the one-line week summary, short bullets and the three explanations, using only the computed numbers and citing source numbers'],
+ ['s7',8,3,'p','8','<b>Checks (code)</b>Every number in AI text must exist in the computed data, text must be short, every claim needs a source link. If a check fails, a template written from the numbers is used instead'],
+ ['s6',9,5,'o','9','<b>Stored digest</b>Digest, short text, drafts and run log saved. Names the fund does not want shown are hidden by one shared filter before anything is displayed or sent to the AI'],
+ ['g3',10,4,'a','a','<b>Ask and drafting help</b>Answers from stored data first (a labelled web search only if nothing is stored). Improve, Rewrite warmer and Shorter on drafts; any change to a number or link is rejected'],
+ ['a4',11,1,'i','b','<b>Reviews a draft</b>Edits it, can ask for a warmer or shorter version, then confirms Send'],
+ ['a3',11,5,'o','10','<b>Dashboard and outputs</b>Brief, Market and Actions tabs · answers from Ask · drafts ready to send · PDF report · Method page with tests and run log'],
+ ['e2',12,3,'p','c','<b>Sends a draft</b>Only after Aarav confirms Send. Limits: 5 an hour outside the address book, 20 a day. Every send is logged'],
+ ['e1',12,5,'o','11','<b>Monday digest email</b>Sent once per week for the week that just ended, to the listed recipients. Refresh now never sends it'],
+];
+const host=document.getElementById('rows'); const rowEls=[];
+rows.forEach(([a,b,k])=>{const d=document.createElement('div');d.className='row '+k;d.innerHTML='<div class="act"><b>'+a+'</b><span>'+b+'</span></div>'+'<div class="cell"></div>'.repeat(6);host.appendChild(d);rowEls.push(d);});
+for(const [id,row,col,cls,n,html] of boxes){const d=document.createElement('div');d.className='box '+cls;d.id=id;d.innerHTML=(n?'<span class="badge">'+n+'</span>':'')+html;d.style.left=(ACT+col*COLW+(COLW-BW)/2)+'px';d.style.top=PAD+'px';rowEls[row].appendChild(d);}
+const EB={"s1": "E7", "s2": "E1", "s4": "E2 · E3", "g1": "E4", "s5": "E5", "s7": "E6", "s8": "E11", "s6": "E10", "e1": "E8", "e2": "E9", "g3": "E9"};
+for(const [id,t] of Object.entries(EB)){const b=document.getElementById(id);const e=document.createElement('span');e.className='eb';e.textContent=t;b.appendChild(e);}
+rowEls.forEach((el,i)=>{const h=Math.max(150,...boxes.filter(b=>b[1]===i).map(b=>document.getElementById(b[0]).offsetHeight))+PAD*2;el.style.height=h+'px';});
+const g=document.getElementById('grid').getBoundingClientRect();
+const rect=id=>{const e=document.getElementById(id).getBoundingClientRect();return{l:e.left-g.left,r:e.right-g.left,t:e.top-g.top,b:e.bottom-g.top,cx:(e.left+e.right)/2-g.left,cy:(e.top+e.bottom)/2-g.top}};
+const gap=c=>ACT+c*COLW;
+const svg=document.getElementById('svg');
+svg.setAttribute('height',Math.ceil(g.height));
+svg.innerHTML='<defs><marker id="ar" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#14274E"/></marker><marker id="ap" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#5B3FD6"/></marker></defs>';
+function path(pts,purple){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d','M'+pts.map(q=>q.join(',')).join(' L'));p.setAttribute('fill','none');p.setAttribute('stroke',purple?'#5B3FD6':'#14274E');p.setAttribute('stroke-width','2.6');p.setAttribute('stroke-dasharray','8 6');p.setAttribute('marker-end',purple?'url(#ap)':'url(#ar)');svg.appendChild(p);}
+const r=Object.fromEntries(boxes.map(b=>[b[0],rect(b[0])]));
+// weekly build
+path([[r.a1.cx,r.a1.b],[r.a1.cx,r.s1.t]],true);
+path([[r.s1.r,r.s1.cy],[r.s2.l,r.s1.cy]]);
+path([[r.s2.cx,r.s2.b],[r.s2.cx,r.s4.cy],[r.s4.l,r.s4.cy]]);                       // news -> collect
+path([[r.s4.cx-70,r.s4.b],[r.s4.cx-70,r.g1.cy-20],[r.g1.l,r.g1.cy-20]]);            // collect -> extract
+path([[r.g1.l,r.g1.cy+25],[r.s5.cx+70,r.g1.cy+25],[r.s5.cx+70,r.s5.t]]);            // extract -> match
+path([[r.s3.r,r.s3.cy],[r.s5.cx-70,r.s3.cy],[r.s5.cx-70,r.s5.t]]);                  // coverage -> match
+path([[r.s5.cx-70,r.s5.b],[r.s5.cx-70,r.s8.t]]);                                    // match -> drafts
+path([[r.s5.r,r.s5.cy],[r.g2.cx,r.s5.cy],[r.g2.cx,r.g2.t]]);                        // match -> analyse
+path([[r.g2.l,r.g2.cy],[r.s7.cx+70,r.g2.cy],[r.s7.cx+70,r.s7.t]]);                         // analyse -> checks
+path([[r.s7.cx-70,r.s7.b],[r.s7.cx-70,r.s6.cy+25],[r.s6.l,r.s6.cy+25]]);            // checks -> store
+path([[r.s8.r,r.s8.cy],[gap(5)-14,r.s8.cy],[gap(5)-14,r.s6.cy-25],[r.s6.l,r.s6.cy-25]]); // drafts -> store
+path([[r.s6.cx-60,r.s6.b],[r.s6.cx-60,r.a3.t]]);                                    // store -> dashboard
+path([[r.s6.r,r.s6.cy],[gap(6)-12,r.s6.cy],[gap(6)-12,r.e1.cy],[r.e1.r,r.e1.cy]]);   // store -> Monday email
+// Aarav
+path([[r.a2.r,r.a2.cy-25],[r.s3.cx,r.a2.cy-25],[r.s3.cx,r.s3.t]],true);              // edits -> coverage
+path([[r.a2.r,r.a2.cy+25],[gap(2)-14,r.a2.cy+25],[gap(2)-14,r.g3.cy],[r.g3.l,r.g3.cy]],true); // question -> ask
+path([[r.g3.r,r.g3.cy],[r.a3.cx+60,r.g3.cy],[r.a3.cx+60,r.a3.t]],true);              // answer -> dashboard
+path([[r.a3.l,r.a3.cy],[r.a4.r,r.a3.cy]],true);                                       // drafts -> review
+path([[r.a4.cx,r.a4.b],[r.a4.cx,r.e2.cy],[r.e2.l,r.e2.cy]],true);                    // review -> send
+</script></body></html>
