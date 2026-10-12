@@ -56,7 +56,7 @@ export function MandateTab({ config, onChanged }: { config: ConfigResponse; onCh
         <p className="text-xs text-muted-foreground">
           &ldquo;In focus&rdquo; stages are the ones the family office writes first cheques in. &ldquo;Follow-on only&rdquo; stages count only for companies already in Portfolio or On Radar.
         </p>
-        <ul className="grid gap-1.5">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
           {m.stages.map((s) => (
             <li key={s.name} className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-lg border px-2.5 py-2 text-sm">
               <span className="font-medium">{s.name}</span>

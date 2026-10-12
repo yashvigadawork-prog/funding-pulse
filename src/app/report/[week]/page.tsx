@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PrintTrigger } from "@/components/report-bits";
-import { CapitalChart, MomentumChart, NewInvestorChart, StaticCharts } from "@/components/dashboard/charts";
+import { FacesChart, HeatChart, MoneyChart, StaticCharts } from "@/components/dashboard/charts";
 import { Amount, SourceLinks } from "@/components/dashboard/deal-bits";
 import { loadDigestView } from "@/lib/digest-view";
 import { describeGroup } from "@/lib/pipeline/adjacency";
@@ -108,9 +108,9 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
         <section className="print-page grid content-start gap-6 pb-10">
           <h2 className="text-xl font-semibold">The three questions</h2>
           {[
-            { title: "Which sectors are attracting capital?", block: d.analysis.capital, chart: <CapitalChart capital={c.capital} /> },
-            { title: "Is activity speeding up or slowing in your spaces?", block: d.analysis.momentum, chart: <MomentumChart trends={c.trends} /> },
-            { title: "Has a new investor started moving in our target sectors?", block: d.analysis.new_investors, chart: <NewInvestorChart entries={c.newInvestors} /> },
+            { title: "Which sectors are attracting capital?", block: d.analysis.capital, chart: <MoneyChart capital={c.capital} undisclosedCount={c.kpis.undisclosedCount} /> },
+            { title: "Is activity speeding up or slowing in your spaces?", block: d.analysis.momentum, chart: <HeatChart trends={c.trends} /> },
+            { title: "Has a new investor started moving in our target sectors?", block: d.analysis.new_investors, chart: <FacesChart entries={c.newInvestors} sectors={c.trends.filter((t) => t.isFocus).map((t) => t.sector)} /> },
           ].map((p) => (
             <article key={p.title} className="print-avoid-break">
               <h3 className="font-semibold">{p.title}</h3>

@@ -39,6 +39,8 @@ export interface QualityView {
   needsReview: number;
   lastUpdatedAt: string | null;
   daysOld: number | null;
+  /** Updated within the last 24 hours. */
+  fresh: boolean;
   typicalVolume: { min: number; max: number };
   searchUnavailable: boolean;
   partialRun: boolean;

@@ -20,7 +20,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <Button variant="outline" size="icon" onClick={toggle} aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}>
+    <Button variant="outline" size="icon" className="size-9 rounded-full bg-card" onClick={toggle} aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}>
       {mounted ? dark ? <Sun /> : <Moon /> : <Sun className="opacity-0" />}
     </Button>
   );

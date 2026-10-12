@@ -180,7 +180,7 @@ export default async function MethodPage() {
                   <li key={i} className="rounded-lg border bg-card p-3 text-sm">
                     <p className="flex flex-wrap items-center gap-2 font-medium">
                       {s.step}
-                      <span className={`rounded px-1.5 py-0.5 text-xs ${s.status === "ok" ? "bg-positive/15 text-positive" : s.status === "error" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>{s.status}</span>
+                      <span className={`rounded px-1.5 py-0.5 text-xs ${s.status === "ok" ? "bg-positive/15 text-positive-ink" : s.status === "error" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning-ink"}`}>{s.status}</span>
                       <span className="text-xs font-normal text-muted-foreground">{s.seconds !== null ? `${s.seconds} s` : "running"}</span>
                     </p>
                     {s.message ? <p className="mt-1 text-muted-foreground">{s.message}</p> : null}

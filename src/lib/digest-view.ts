@@ -101,6 +101,7 @@ export async function loadQuality(week: string | null, dealsFound: number, undis
     needsReview,
     lastUpdatedAt: last ? last.toISOString() : null,
     daysOld: last ? Math.floor((Date.now() - last.getTime()) / 86_400_000) : null,
+    fresh: last ? Date.now() - last.getTime() < 24 * 3_600_000 : false,
     typicalVolume: { min: settings.typical_weekly_volume_min, max: settings.typical_weekly_volume_max },
     searchUnavailable: !!collect?.searchUnavailable,
     partialRun: !!run?.partial,

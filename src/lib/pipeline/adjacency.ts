@@ -12,6 +12,8 @@ export interface AdjacencyDeal {
   sector: string;
   stage: string | null;
   amountText: string | null;
+  amountUsd?: number | null;
+  amountInr?: number | null;
   announcedOn: string;
   summary: string | null;
   sources: { url: string; outlet: string | null }[];
@@ -36,6 +38,8 @@ export interface AdjacentItem {
   matchTag: "Portfolio" | "On Radar" | null;
   stage: string | null;
   amountText: string | null;
+  amountUsd: number | null;
+  amountInr: number | null;
   announcedOn: string;
   sharedTerms: string[];
   sources: { url: string; outlet: string | null }[];
@@ -119,6 +123,8 @@ export function computeAdjacency(p: {
         matchTag: d.matchTag,
         stage: d.stage,
         amountText: d.amountText,
+        amountUsd: d.amountUsd ?? null,
+        amountInr: d.amountInr ?? null,
         announcedOn: d.announcedOn,
         sharedTerms: shared,
         sources: d.sources,

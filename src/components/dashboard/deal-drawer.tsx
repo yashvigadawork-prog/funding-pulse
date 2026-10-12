@@ -50,7 +50,7 @@ export function DealDrawer({ deal, onClose }: { deal: DealRowView | null; onClos
                 )}
               </Row>
               <Row label="Amount">
-                <Amount deal={deal} />
+                <Amount deal={deal} withText />
               </Row>
               <Row label="Date">{deal.announcedOn ? formatDay(deal.announcedOn) : "Not reported"}</Row>
               <Row label="Lead investors">
@@ -78,7 +78,7 @@ export function DealDrawer({ deal, onClose }: { deal: DealRowView | null; onClos
               {deal.matchTag ? <Row label="Watchlist match">{deal.matchReason}</Row> : null}
               {deal.adjacentTo.length ? (
                 <Row label="Adjacent to">
-                  <ul className="grid gap-1">
+                  <ul className="grid grid-cols-[minmax(0,1fr)] gap-1">
                     {deal.adjacentTo.map((a) => (
                       <li key={a.portfolioName}>
                         <span className="font-medium">{a.portfolioName}</span>

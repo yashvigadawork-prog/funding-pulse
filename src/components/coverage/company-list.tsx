@@ -90,7 +90,7 @@ export function CompanyList({
           options={[{ value: "all", label: "All sectors" }, ...sectors.map((s) => ({ value: s, label: s }))]}
         />
       </div>
-      <ul className="grid gap-1">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1">
         {shown.map((c, i) => (
           <li
             key={c.id}

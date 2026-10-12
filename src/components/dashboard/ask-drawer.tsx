@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Globe, MessageCircleQuestion } from "lucide-react";
+import { Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Banner } from "@/components/common/states";
 import { api, ApiError } from "@/lib/client/api";
-import { SourceLinks } from "./deal-bits";
+import { SourceChips } from "./deal-bits";
 
 interface Stored {
   found: boolean;
@@ -25,8 +25,7 @@ interface Web {
 }
 
 /** Answers only from stored data. If the answer is not there, offers a clearly labelled web search. */
-export function AskDrawer() {
-  const [open, setOpen] = useState(false);
+export function AskDrawer({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const [q, setQ] = useState("");
   const [asked, setAsked] = useState("");
   const [busy, setBusy] = useState(false);
@@ -81,10 +80,7 @@ export function AskDrawer() {
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={<Button className="fixed right-4 bottom-4 z-30 shadow-lg no-print" size="lg" />}>
-        <MessageCircleQuestion data-icon="inline-start" /> Ask
-      </SheetTrigger>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="data-[side=right]:sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>Ask about the stored data</SheetTitle>
@@ -109,7 +105,7 @@ export function AskDrawer() {
               <p className="text-xs font-medium text-muted-foreground">From stored data</p>
               <p className="mt-1 text-sm">{stored.answer}</p>
               {stored.note ? <p className="mt-2 text-xs text-muted-foreground">{stored.note}</p> : null}
-              <SourceLinks sources={stored.sources} className="mt-3" />
+              <SourceChips sources={stored.sources} max={3} className="mt-3" />
             </div>
           ) : null}
           {stored && !stored.found ? (
@@ -133,7 +129,7 @@ export function AskDrawer() {
                 {pasteBusy ? "Reading…" : "Read this post"}
               </Button>
               {pasteMsg ? (
-                <p role="status" className={`text-xs font-medium ${pasteMsg.ok ? "text-positive" : "text-destructive"}`}>
+                <p role="status" className={`text-xs font-medium ${pasteMsg.ok ? "text-positive-ink" : "text-destructive"}`}>
                   {pasteMsg.text}
                 </p>
               ) : null}
@@ -141,9 +137,9 @@ export function AskDrawer() {
           </details>
           {web ? (
             <div className="rounded-xl border border-warning/40 bg-warning/5 p-4" aria-live="polite">
-              <p className="text-xs font-medium text-warning">Web search result{web.provider ? ` (via ${web.provider})` : ""}. Not from the stored data.</p>
+              <p className="text-xs font-medium text-warning-ink">Web search result{web.provider ? ` (via ${web.provider})` : ""}. Not from the stored data.</p>
               <p className="mt-1 text-sm">{web.answer || web.message}</p>
-              <SourceLinks sources={web.sources} className="mt-3" />
+              <SourceChips sources={web.sources} max={3} className="mt-3" />
             </div>
           ) : null}
         </div>

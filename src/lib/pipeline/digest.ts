@@ -104,6 +104,8 @@ export async function loadAdjacencyDeals(from: string, to: string): Promise<Adja
     sector: r.sector ?? "Other",
     stage: r.stage,
     amountText: r.amountText,
+    amountUsd: r.amountUsd,
+    amountInr: r.amountInr,
     announcedOn: r.announcedOn ?? from,
     summary: r.summary,
     sources: src.filter((s) => s.dealId === r.id && !s.url.startsWith("paste:")).map((s) => ({ url: s.url, outlet: s.outlet })),

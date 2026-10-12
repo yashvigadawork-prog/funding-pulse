@@ -184,7 +184,7 @@ export function SaveBar({
         {saving ? "Saving…" : label}
       </Button>
       {savedAt && !error ? (
-        <span className="text-xs font-medium text-positive">
+        <span className="text-xs font-medium text-positive-ink">
           Saved at {savedAt.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}. It applies from the next run.
         </span>
       ) : null}
@@ -234,7 +234,7 @@ export function TagBadge({ tag }: { tag: string }) {
     <span
       className={cn(
         "inline-flex shrink-0 items-center rounded-md px-1.5 py-0.5 text-[0.68rem] font-medium leading-none",
-        radar ? "bg-warning/15 text-warning ring-1 ring-warning/30" : "bg-primary/10 text-primary ring-1 ring-primary/25",
+        radar ? "bg-warning/15 text-warning-ink ring-1 ring-warning/30" : "bg-primary/10 text-primary ring-1 ring-primary/25",
       )}
     >
       {tag}

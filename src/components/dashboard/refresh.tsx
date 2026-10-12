@@ -145,8 +145,8 @@ export function RefreshStepper({ r }: { r: ReturnType<typeof useRefresh> }) {
 
 function StageIcon({ status }: { status: StageStatus }) {
   if (status === "running") return <Loader2 className="size-4 animate-spin text-primary" aria-hidden />;
-  if (status === "ok") return <Check className="size-4 text-positive" aria-hidden />;
-  if (status === "partial" || status === "error") return <TriangleAlert className={cn("size-4", status === "error" ? "text-destructive" : "text-warning")} aria-hidden />;
+  if (status === "ok") return <Check className="size-4 text-positive-ink" aria-hidden />;
+  if (status === "partial" || status === "error") return <TriangleAlert className={cn("size-4", status === "error" ? "text-destructive" : "text-warning-ink")} aria-hidden />;
   if (status === "skipped") return <span className="size-4 text-center text-muted-foreground" aria-hidden>–</span>;
   return <span className="size-3 rounded-full border-2 border-muted-foreground/40" aria-hidden />;
 }

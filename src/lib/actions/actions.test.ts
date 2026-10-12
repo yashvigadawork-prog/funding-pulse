@@ -26,7 +26,7 @@ describe("contacts helpers", () => {
 
 describe("LinkedIn search link", () => {
   it("builds a plain search address from the founder and company, or the company alone", async () => {
-    const { linkedinSearchUrl } = await import("@/components/dashboard/section3");
+    const { linkedinSearchUrl } = await import("@/components/actions/linkedin-link");
     expect(linkedinSearchUrl({ founder: "Riya Sharma", company: "Zomint" })).toBe("https://www.linkedin.com/search/results/people/?keywords=Riya%20Sharma%20Zomint");
     expect(linkedinSearchUrl({ founder: null, company: "Zomint" })).toBe("https://www.linkedin.com/search/results/people/?keywords=Zomint%20founder");
   });

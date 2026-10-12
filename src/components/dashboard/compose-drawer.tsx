@@ -198,7 +198,7 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
               <ul className="grid gap-1.5 text-xs">
                 {log.data.map((r) => (
                   <li key={r.id} className="rounded-lg bg-muted/50 px-2.5 py-1.5">
-                    <span className={r.status === "sent" ? "font-medium text-positive" : "font-medium text-warning"}>{r.status}</span> · {r.recipient} · {r.subject}
+                    <span className={r.status === "sent" ? "font-medium text-positive-ink" : "font-medium text-warning-ink"}>{r.status}</span> · {r.recipient} · {r.subject}
                     <span className="block text-muted-foreground">
                       {timeAgo(r.sentAt)}
                       {r.error ? ` · ${r.error}` : ""}

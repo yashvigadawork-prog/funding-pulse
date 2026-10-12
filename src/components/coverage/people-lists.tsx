@@ -26,7 +26,7 @@ export function InvestorsList({ config, onChanged }: { config: ConfigResponse; o
           <Plus data-icon="inline-start" /> Add
         </Button>
       </div>
-      <ul className="grid gap-1">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1">
         {config.investors.map((i) => (
           <li key={i.id} className="flex items-start gap-2 rounded-lg px-1.5 py-1.5 hover:bg-muted/70">
             <div className="min-w-0 flex-1">
@@ -128,7 +128,7 @@ export function StakeholdersList({ config, onChanged }: { config: ConfigResponse
           <Plus data-icon="inline-start" /> Add
         </Button>
       </div>
-      <ul className="grid gap-1">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-1">
         {config.stakeholders.map((s) => (
           <li key={s.id} className="flex items-start gap-2 rounded-lg px-1.5 py-1.5 hover:bg-muted/70">
             <div className="min-w-0 flex-1">

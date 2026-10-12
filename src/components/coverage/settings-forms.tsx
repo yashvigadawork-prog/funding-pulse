@@ -165,7 +165,7 @@ function SourcesForm({ config, onChanged }: Props) {
     setV((cur) => ({ ...cur, rss_and_sites: cur.rss_and_sites.map((x, j) => (j === i ? { ...x, ...p } : x)) }));
   return (
     <Section title="News sources">
-      <ul className="grid gap-2.5">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-2.5">
         {v.rss_and_sites.map((src, i) => (
           <li key={src.outlet} className="grid gap-1.5 rounded-lg border px-2.5 py-2">
             <label className="flex items-center justify-between gap-2 text-sm font-medium">

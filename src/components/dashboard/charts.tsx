@@ -1,137 +1,220 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { motion, type MotionProps, type TargetAndTransition, type Transition } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/client/hooks";
 import { formatUsd } from "@/lib/money";
 import { SECTOR_VAR } from "@/components/common/ui-bits";
+import { cn } from "@/lib/utils";
 import type { NewInvestorEntry, SectorCapital, SectorTrend } from "@/lib/pipeline/compute";
 
 export const shortSector = (s: string) =>
   ({ "Health & wellness": "Health", "Climate & sustainability": "Climate", "Media, deeptech & education": "Media, deeptech, edu" })[s] ?? s;
 
-const DRAW_MS = 600;
+const sectorColor = (s: string) => SECTOR_VAR[s] ?? "var(--sector-other)";
+const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-/** The print report switches chart animation off so charts are complete when the page is printed. */
+/** The print report switches animation off so charts are complete when the page is printed. */
 const StaticChartsContext = createContext(false);
-
-/** Wrap the report in this so every chart draws fully at once (no animation) before printing. */
 export function StaticCharts({ children }: { children: React.ReactNode }) {
   return <StaticChartsContext.Provider value>{children}</StaticChartsContext.Provider>;
 }
+/** True when charts should animate in (not reduced motion, not the print report). */
 function useAnimate() {
   const reduced = usePrefersReducedMotion();
   const isStatic = useContext(StaticChartsContext);
   return !reduced && !isStatic;
 }
-const tick = { fill: "var(--muted-foreground)", fontSize: 11 };
 
-function TooltipBox({ active, payload, label, render }: { active?: boolean; payload?: { payload: Record<string, unknown> }[]; label?: string; render: (row: Record<string, unknown>) => React.ReactNode }) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="rounded-lg border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
-      <p className="mb-1 font-medium">{label}</p>
-      {render(payload[0].payload)}
-    </div>
-  );
+/** Animation props that play once, when the chart scrolls into view. */
+function inView(animate: boolean, from: TargetAndTransition, to: TargetAndTransition, transition: Transition): MotionProps {
+  return animate
+    ? { initial: from, whileInView: to, viewport: { once: true, margin: "0px 0px -8% 0px" }, transition }
+    : { initial: false, animate: to };
 }
 
-/** Disclosed capital per sector this week, with the baseline weekly average beside it. */
-export function CapitalChart({ capital, compact }: { capital: SectorCapital[]; compact?: boolean }) {
+/* ------------------------------------------------------------------ */
+/* Where the money went                                                */
+/* ------------------------------------------------------------------ */
+
+/** Disclosed capital per sector this week, with a thin tick for the sector's usual weekly amount. */
+export function MoneyChart({ capital, undisclosedCount }: { capital: SectorCapital[]; undisclosedCount?: number }) {
   const animate = useAnimate();
-  const rows = capital.filter((c) => c.deals > 0 || c.baselineAvgUsd > 0).map((c) => ({ label: shortSector(c.sector), sector: c.sector, usd: c.disclosedUsd, baseline: c.baselineAvgUsd, deals: c.deals, undisclosed: c.undisclosed.length }));
+  const rows = capital
+    .filter((c) => c.deals > 0 || c.baselineAvgUsd > 0)
+    .map((c) => ({ sector: c.sector, usd: c.disclosedUsd, base: c.baselineAvgUsd, deals: c.deals, undisclosed: c.undisclosed.length }))
+    .sort((a, b) => b.usd - a.usd);
+  const max = Math.max(1, ...rows.map((r) => Math.max(r.usd, r.base)));
   const summary = rows.length
-    ? `Disclosed capital this week by sector: ${rows.map((r) => `${r.sector} ${r.usd ? formatUsd(r.usd) : "none disclosed"} across ${r.deals} deals`).join("; ")}.`
+    ? `Disclosed capital this week by sector: ${rows.map((r) => `${r.sector} ${r.usd ? formatUsd(r.usd) : "none disclosed"} across ${r.deals} deals, against a usual week of ${formatUsd(r.base)}`).join("; ")}.`
     : "No deals this week.";
-  if (!rows.length) return <p className="py-6 text-center text-xs text-muted-foreground">No deals this week.</p>;
+  if (!rows.length) return <p className="py-6 text-center text-sm text-muted-foreground">No deals this week.</p>;
   return (
     <figure aria-label="Disclosed capital by sector" className="m-0">
       <p className="sr-only">{summary}</p>
-      <div aria-hidden style={{ height: compact ? 120 : 40 + rows.length * (compact ? 24 : 46) }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} layout="vertical" margin={{ left: 0, right: 12, top: 4, bottom: 0 }}>
-            {!compact ? <CartesianGrid horizontal={false} stroke="var(--border)" /> : null}
-            <XAxis type="number" hide={compact} tick={tick} tickFormatter={(v) => formatUsd(v)} axisLine={false} tickLine={false} />
-            <YAxis type="category" dataKey="label" width={compact ? 62 : 110} tick={tick} axisLine={false} tickLine={false} />
-            <Tooltip cursor={{ fill: "var(--muted)", opacity: 0.4 }} content={<TooltipBox render={(r) => (
-              <div className="grid gap-0.5">
-                <span>This week: {Number(r.usd) ? formatUsd(Number(r.usd)) : "none disclosed"}</span>
-                <span>Deals: {String(r.deals)}{Number(r.undisclosed) ? ` (${r.undisclosed} undisclosed)` : ""}</span>
-                <span className="text-muted-foreground">Weekly baseline: {formatUsd(Number(r.baseline))}</span>
+      <ul aria-hidden className="grid gap-3">
+        {rows.map((r, i) => {
+          const w = (r.usd / max) * 100;
+          const t = (r.base / max) * 100;
+          return (
+            <li key={r.sector} className="grid grid-cols-[6.75rem_1fr] items-center gap-3 md:grid-cols-[8.5rem_1fr]">
+              <span className="flex items-center gap-1.5 text-[13px]">
+                <span className="size-2 shrink-0 rounded-full" style={{ background: sectorColor(r.sector) }} />
+                <span className="truncate">{shortSector(r.sector)}</span>
+              </span>
+              <div className="flex items-center gap-2.5">
+                <div className="relative h-5 flex-1 rounded-md bg-muted/70">
+                  <motion.div
+                    className="absolute inset-y-0 left-0 rounded-md"
+                    style={{ background: sectorColor(r.sector) }}
+                    {...inView(animate, { width: 0 }, { width: `${w}%` }, { duration: 0.7, delay: i * 0.06, ease: EASE_OUT })}
+                  />
+                  {r.base > 0 ? (
+                    <motion.span
+                      className="absolute -top-1 -bottom-1 w-0.5 rounded-full bg-foreground"
+                      style={{ left: `${t}%` }}
+                      {...inView(animate, { opacity: 0, y: -10 }, { opacity: 1, y: 0 }, { type: "spring", stiffness: 380, damping: 18, delay: 0.5 + rows.length * 0.06 })}
+                    />
+                  ) : null}
+                </div>
+                <motion.span
+                  className="fig w-[8.5rem] shrink-0 text-right text-xs"
+                  {...inView(animate, { opacity: 0 }, { opacity: 1 }, { duration: 0.4, delay: 0.4 + i * 0.06 })}
+                >
+                  <span className="font-medium">{r.usd ? formatUsd(r.usd) : "none"}</span>
+                  <span className="text-muted-foreground"> · {r.deals} {r.deals === 1 ? "deal" : "deals"}</span>
+                </motion.span>
               </div>
-            )} />} />
-            {!compact ? <Bar dataKey="baseline" fill="var(--muted-foreground)" fillOpacity={0.35} radius={3} barSize={9} isAnimationActive={animate} animationDuration={DRAW_MS} /> : null}
-            <Bar dataKey="usd" radius={3} barSize={compact ? 12 : 14} isAnimationActive={animate} animationDuration={DRAW_MS}>
-              {rows.map((r) => (
-                <Cell key={r.sector} fill={SECTOR_VAR[r.sector] ?? "var(--sector-other)"} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+            </li>
+          );
+        })}
+      </ul>
+      <figcaption className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="h-3 w-0.5 rounded-full bg-foreground" /> tick = usual week
+        </span>
+        {undisclosedCount ? <span>{undisclosedCount} deals with an undisclosed amount are not counted.</span> : null}
+      </figcaption>
     </figure>
   );
 }
 
-/** Deal counts this week against the baseline weekly average for each sector. */
-export function MomentumChart({ trends, compact }: { trends: SectorTrend[]; compact?: boolean }) {
+/* ------------------------------------------------------------------ */
+/* Who's heating up                                                    */
+/* ------------------------------------------------------------------ */
+
+const STATUS_WORD: Record<string, string> = { accelerating: "speeding up", slowing: "slowing", steady: "steady", not_enough_history: "too few deals to call" };
+
+/** A dumbbell per sector: hollow dot = the four-week average, filled dot = this week, joined by a line. */
+export function HeatChart({ trends, onlyFocus = true }: { trends: SectorTrend[]; onlyFocus?: boolean }) {
   const animate = useAnimate();
-  const rows = trends.filter((t) => (compact ? t.isFocus : t.isFocus || t.thisWeek > 0 || t.baselineTotal > 0)).map((t) => ({ label: shortSector(t.sector), sector: t.sector, now: t.thisWeek, avg: Math.round(t.baselineAvg * 10) / 10, status: t.status }));
-  const label = (s: string) => (s === "not_enough_history" ? "not enough history" : s);
-  const summary = `Deals this week against the baseline average: ${rows.map((r) => `${r.sector} ${r.now} against ${r.avg} (${label(r.status)})`).join("; ")}.`;
-  if (!rows.length) return <p className="py-6 text-center text-xs text-muted-foreground">No history yet.</p>;
+  const rows = trends.filter((t) => (onlyFocus ? t.isFocus : t.isFocus || t.thisWeek > 0 || t.baselineTotal > 0));
+  const max = Math.max(1, ...rows.map((t) => Math.max(t.thisWeek, t.baselineAvg))) * 1.08;
+  const summary = `Deals this week against the four-week average: ${rows.map((t) => `${t.sector} ${t.thisWeek} against ${Math.round(t.baselineAvg * 10) / 10}, ${STATUS_WORD[t.status]}`).join("; ")}.`;
+  if (!rows.length) return <p className="py-6 text-center text-sm text-muted-foreground">No history yet.</p>;
   return (
-    <figure aria-label="Deal counts against baseline" className="m-0">
+    <figure aria-label="Deal counts against the four-week average" className="m-0">
       <p className="sr-only">{summary}</p>
-      <div aria-hidden style={{ height: compact ? 120 : 220 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ left: -18, right: 4, top: 4, bottom: 0 }}>
-            {!compact ? <CartesianGrid vertical={false} stroke="var(--border)" /> : null}
-            <XAxis dataKey="label" tick={tick} axisLine={false} tickLine={false} interval={0} hide={compact} />
-            <YAxis tick={tick} axisLine={false} tickLine={false} allowDecimals={false} hide={compact} />
-            <Tooltip cursor={{ fill: "var(--muted)", opacity: 0.4 }} content={<TooltipBox render={(r) => (
-              <div className="grid gap-0.5">
-                <span>This week: {String(r.now)} deals</span>
-                <span>Baseline average: {String(r.avg)}</span>
-                <span className="text-muted-foreground">{label(String(r.status))}</span>
+      <ul aria-hidden className="grid gap-4">
+        {rows.map((t, i) => {
+          const a = (t.baselineAvg / max) * 100;
+          const n = (t.thisWeek / max) * 100;
+          const lo = Math.min(a, n);
+          const hi = Math.max(a, n);
+          const color = sectorColor(t.sector);
+          const ratio = t.baselineAvg > 0 ? t.thisWeek / t.baselineAvg : null;
+          const delay = i * 0.1;
+          const chip =
+            t.status === "not_enough_history"
+              ? { text: "too few deals to call", tone: "grey" as const }
+              : t.status === "accelerating"
+                ? { text: `▲ ${ratio ? `${ratio.toFixed(1)}×` : "up"} · ${t.thisWeek} vs ${t.baselineAvg.toFixed(1)}`, tone: "amber" as const }
+                : t.status === "slowing"
+                  ? { text: `▼ ${ratio !== null ? `${ratio.toFixed(1)}×` : "down"} · ${t.thisWeek} vs ${t.baselineAvg.toFixed(1)}`, tone: "grey" as const }
+                  : { text: `${t.thisWeek} vs ${t.baselineAvg.toFixed(1)}`, tone: "grey" as const };
+          return (
+            <li key={t.sector} className="grid gap-1.5 md:grid-cols-[8.5rem_1fr_auto] md:items-center md:gap-3">
+              <span className="flex items-center gap-1.5 text-[13px]">
+                <span className="size-2 shrink-0 rounded-full" style={{ background: color }} />
+                <span className="truncate">{shortSector(t.sector)}</span>
+              </span>
+              <div className="relative h-6">
+                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border" />
+                {/* the line draws from the average toward this week */}
+                <motion.div
+                  className="absolute top-1/2 h-0.5 -translate-y-1/2 rounded-full"
+                  style={{ left: `${lo}%`, width: `${hi - lo}%`, background: color, opacity: 0.55, transformOrigin: a <= n ? "left" : "right" }}
+                  {...inView(animate, { scaleX: 0 }, { scaleX: 1 }, { duration: 0.5, delay: 0.25 + delay, ease: EASE_OUT })}
+                />
+                <motion.span
+                  className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-card"
+                  style={{ left: `${a}%`, borderColor: color }}
+                  {...inView(animate, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1 }, { type: "spring", stiffness: 400, damping: 22, delay })}
+                />
+                <motion.span
+                  className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{ background: color }}
+                  {...inView(animate, { left: `${a}%`, opacity: 0 }, { left: `${n}%`, opacity: 1 }, { type: "spring", stiffness: 140, damping: 16, delay: 0.5 + delay })}
+                />
               </div>
-            )} />} />
-            <Bar dataKey="avg" fill="var(--muted-foreground)" fillOpacity={0.35} radius={3} isAnimationActive={animate} animationDuration={DRAW_MS} />
-            <Bar dataKey="now" radius={3} isAnimationActive={animate} animationDuration={DRAW_MS}>
-              {rows.map((r) => (
-                <Cell key={r.sector} fill={SECTOR_VAR[r.sector] ?? "var(--sector-other)"} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+              <motion.span
+                className={cn("fig w-fit rounded-md px-2 py-0.5 text-[11px] font-medium whitespace-nowrap", chip.tone === "amber" ? "bg-warning-soft text-warning-ink" : "bg-secondary text-ink-2")}
+                {...inView(animate, { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1 }, { type: "spring", stiffness: 420, damping: 18, delay: 0.95 + delay })}
+              >
+                {chip.text}
+              </motion.span>
+            </li>
+          );
+        })}
+      </ul>
+      <figcaption className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="size-2.5 rounded-full border-2 border-muted-foreground" /> four-week average
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="size-2.5 rounded-full bg-muted-foreground" /> this week
+        </span>
+        {rows.some((t) => t.status === "not_enough_history") ? <span>&ldquo;Too few deals to call&rdquo; means the earlier weeks have too few deals to judge a trend.</span> : null}
+      </figcaption>
     </figure>
   );
 }
 
-/** How many investors are new in our records, per sector. */
-export function NewInvestorChart({ entries, compact }: { entries: NewInvestorEntry[]; compact?: boolean }) {
+/* ------------------------------------------------------------------ */
+/* New faces at the table                                              */
+/* ------------------------------------------------------------------ */
+
+/** New investors (new in our records) per sector, as bars that rise from the bottom. */
+export function FacesChart({ entries, sectors }: { entries: NewInvestorEntry[]; sectors: string[] }) {
   const animate = useAnimate();
-  const bySector = new Map<string, number>();
-  for (const e of entries) bySector.set(e.sector, (bySector.get(e.sector) ?? 0) + 1);
-  const rows = [...bySector.entries()].map(([sector, n]) => ({ sector, label: shortSector(sector), n }));
-  if (!rows.length) return <p className="py-6 text-center text-xs text-muted-foreground">No new investors in our records this week.</p>;
+  const counts = new Map<string, Set<string>>();
+  for (const e of entries) counts.set(e.sector, (counts.get(e.sector) ?? new Set()).add(e.investor.toLowerCase()));
+  const rows = [...new Set([...sectors, ...counts.keys()])].map((s) => ({ sector: s, n: counts.get(s)?.size ?? 0 })).filter((r) => r.n > 0 || sectors.includes(r.sector));
+  const max = Math.max(1, ...rows.map((r) => r.n));
+  if (!entries.length) return <p className="py-6 text-center text-sm text-muted-foreground">No new investors in our records this week.</p>;
   return (
     <figure aria-label="New investors by sector" className="m-0">
       <p className="sr-only">New investors in our records by sector: {rows.map((r) => `${r.sector} ${r.n}`).join("; ")}.</p>
-      <div aria-hidden style={{ height: compact ? 120 : 180 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ left: -18, right: 4, top: 4, bottom: 0 }}>
-            <XAxis dataKey="label" tick={tick} axisLine={false} tickLine={false} interval={0} hide={compact} />
-            <YAxis tick={tick} axisLine={false} tickLine={false} allowDecimals={false} hide={compact} />
-            <Tooltip cursor={{ fill: "var(--muted)", opacity: 0.4 }} content={<TooltipBox render={(r) => <span>{String(r.n)} new investor{r.n === 1 ? "" : "s"}</span>} />} />
-            <Bar dataKey="n" radius={3} isAnimationActive={animate} animationDuration={DRAW_MS}>
-              {rows.map((r) => (
-                <Cell key={r.sector} fill={SECTOR_VAR[r.sector] ?? "var(--sector-other)"} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      <div aria-hidden className="flex h-36 items-end gap-3 border-b px-1">
+        {rows.map((r, i) => (
+          <div key={r.sector} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+            <motion.span className="fig text-xs font-medium" {...inView(animate, { opacity: 0 }, { opacity: 1 }, { delay: 0.4 + i * 0.07 })}>
+              {r.n}
+            </motion.span>
+            <motion.div
+              className="w-full max-w-12 rounded-t-md"
+              style={{ background: sectorColor(r.sector), opacity: r.n ? 1 : 0.25, minHeight: 3 }}
+              {...inView(animate, { height: 0 }, { height: `${Math.max(3, (r.n / max) * 100 - 14)}%` }, { type: "spring", stiffness: 130, damping: 14, delay: i * 0.07 })}
+            />
+          </div>
+        ))}
+      </div>
+      <div aria-hidden className="mt-1.5 flex gap-3 px-1">
+        {rows.map((r) => (
+          <span key={r.sector} className="flex-1 text-center text-[11px] leading-tight text-muted-foreground">
+            {shortSector(r.sector)}
+          </span>
+        ))}
       </div>
     </figure>
   );

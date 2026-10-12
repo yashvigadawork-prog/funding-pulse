@@ -1,10 +1,16 @@
 {
-  "recordedAt": "2026-10-12T12:46:43.673Z",
-  "commit": "a163378",
-  "total": 145,
-  "passed": 145,
+  "recordedAt": "2026-10-12T13:08:00.203Z",
+  "commit": "f1d3f20",
+  "total": 150,
+  "passed": 150,
   "failed": 0,
   "files": [
+    {
+      "file": "src/components/brief/derive.test.ts",
+      "total": 5,
+      "passed": 5,
+      "failed": 0
+    },
     {
       "file": "src/components/common/states.test.tsx",
       "total": 6,

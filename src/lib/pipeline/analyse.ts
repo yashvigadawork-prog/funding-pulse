@@ -46,8 +46,15 @@ export interface AnalysisPoint {
   sources: { url: string; outlet: string | null }[];
 }
 export interface AnalysisBlock {
+  /** The longer explanation (shown behind "Read the analysis"). */
   summary: string;
   points: AnalysisPoint[];
+  /** Short form: one plain headline and two or three short bullets. Absent on digests written before the redesign. */
+  headline?: string;
+  bullets?: AnalysisPoint[];
+}
+export interface WeekBullet {
+  text: string;
 }
 export interface Analysis {
   source: "gemini" | "template";
@@ -56,6 +63,9 @@ export interface Analysis {
   note?: string;
   /** For template text: "history" (loaded from past data, no AI by design) or "ai_unavailable" (the AI failed or its answer was rejected). */
   reason?: "history" | "ai_unavailable";
+  /** The hero: one sentence and three short bullets for the whole week. */
+  weekLine?: string;
+  weekBullets?: WeekBullet[];
   capital: AnalysisBlock;
   momentum: AnalysisBlock;
   new_investors: AnalysisBlock;

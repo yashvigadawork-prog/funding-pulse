@@ -32,7 +32,7 @@ export function Banner({
         tone === "error" && "border-destructive/40 bg-destructive/10",
       )}
     >
-      <Icon className={cn("mt-0.5 size-4 shrink-0", tone === "info" && "text-primary", tone === "warn" && "text-warning", tone === "error" && "text-destructive")} aria-hidden />
+      <Icon className={cn("mt-0.5 size-4 shrink-0", tone === "info" && "text-primary", tone === "warn" && "text-warning-ink", tone === "error" && "text-destructive")} aria-hidden />
       <div className="min-w-0 flex-1">
         {title ? <p className="font-medium">{title}</p> : null}
         {children ? <div className={title ? "mt-0.5 text-muted-foreground" : ""}>{children}</div> : null}

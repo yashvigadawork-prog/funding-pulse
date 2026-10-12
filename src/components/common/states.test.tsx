@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Banner, EmptyState, ErrorRetry } from "./states";
-import { StatusBanners } from "@/components/dashboard/kpis";
+import { StatusBanners } from "@/components/dashboard/banners";
 import type { DigestView } from "@/lib/view-types";
 
 const base = { sources: { total: 13, reachable: 5, unreachable: ["A"], searchedInstead: [] as string[] }, articlesRead: 5, dealsFound: 5, undisclosed: 0, needsReview: 0, lastUpdatedAt: new Date().toISOString(), daysOld: 1, typicalVolume: { min: 40, max: 60 }, searchUnavailable: false, partialRun: false };
