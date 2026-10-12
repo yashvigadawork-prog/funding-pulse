@@ -58,7 +58,8 @@ const STOPWORDS = new Set(
     "also over such only both each other which what when where while who whom how about after before between during through under again further once " +
     "not but nor yet per via use used uses using new one two get gets got make makes made help helps helping enable enables enabling offer offers " +
     "startup startups platform company companies india indian technology tech based provides provide providing solutions solution services service app apps digital " +
-    "raises raised raise raising funding round rounds led lead leads million crore seed series pre lakh billion"
+    "raises raised raise raising funding round rounds led lead leads million crore seed series pre lakh billion " +
+    "product products work working works business businesses customer customers user users market markets data tool tools system online service firm firms player players people team teams sector industry global"
   ).split(" "),
 );
 // Words in the sector's own name are too broad to mean anything.

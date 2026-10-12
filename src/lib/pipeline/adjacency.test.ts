@@ -28,7 +28,7 @@ describe("meaningfulTerms", () => {
     expect([...t].sort()).toEqual(["lending", "manager", "wealth"]);
   });
   it("shares terms case-insensitively", () => {
-    expect(sharedTerms("Wealth Managers tools", "tools for wealth manager firms")).toEqual(["manager", "tool", "wealth"]);
+    expect(sharedTerms("Wealth Managers advisory", "advisory for wealth manager groups")).toEqual(["advisory", "manager", "wealth"]);
   });
 });
 

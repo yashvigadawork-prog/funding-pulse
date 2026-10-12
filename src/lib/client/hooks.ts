@@ -28,7 +28,12 @@ export function useCountUp(value: number, durationMs = 600): number {
     }
     done.current = true;
     const controls = animate(0, value, { duration: durationMs / 1000, ease: "easeOut", onUpdate: (v) => setShown(v) });
-    return () => controls.stop();
+    // Safety net: a tab that is not drawing frames must still end on the true number.
+    const settle = window.setTimeout(() => setShown(value), durationMs + 250);
+    return () => {
+      controls.stop();
+      window.clearTimeout(settle);
+    };
   }, [value, reduced, durationMs]);
   return shown;
 }
