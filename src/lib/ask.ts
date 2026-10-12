@@ -5,6 +5,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { articles, dealInvestors, dealSources, deals, digests, investors } from "@/db/schema";
 import { getBlocks, getSettings } from "@/lib/config/store";
+import { amountLabel } from "@/lib/money";
 import { escapeForTag, geminiConfigured, geminiJson, UNTRUSTED_NOTICE } from "@/lib/gemini";
 import { containsForbidden, scrubDeep } from "@/lib/forbidden";
 import { numbersAreGrounded } from "@/lib/pipeline/analyse";
@@ -36,6 +37,8 @@ async function loadAskDeals(): Promise<AskDeal[]> {
     sector: r.sector ?? "Other",
     stage: r.stage,
     amountText: r.amountText,
+    amountUsd: r.amountUsd,
+    amountInr: r.amountInr,
     date: r.announcedOn,
     tag: r.matchTag,
     summary: r.summary,
@@ -58,14 +61,14 @@ async function askStoredRaw(question: string): Promise<AskAnswer> {
     found: true,
     mode: "keyword",
     note,
-    answer: `Closest stored deals: ${top.slice(0, 6).map((d) => `${d.company} (${stageLabel(d.stage)}, ${d.amountText ?? "Undisclosed"}, ${d.date ?? "date not reported"})`).join("; ")}.`,
+    answer: `Closest stored deals: ${top.slice(0, 6).map((d) => `${d.company} (${stageLabel(d.stage)}, ${amountLabel({ amountUsd: d.amountUsd ?? null, amountInr: d.amountInr ?? null })}, ${d.date ?? "date not reported"})`).join("; ")}.`,
     sources: toSources(top.slice(0, 6)).slice(0, 8),
   });
   if (!geminiConfigured()) return keyword("The AI service is not available, so this is a plain keyword match of stored deals.");
 
   const latest = await db.select().from(digests).orderBy(desc(digests.weekStart)).limit(4);
   const notes = latest.map((d) => ({ week_start: d.weekStart, capital: (d.analysis as Analysis).capital.summary, momentum: (d.analysis as Analysis).momentum.summary, new_investors: (d.analysis as Analysis).new_investors.summary }));
-  const data = scrubDeep({ digest_notes: notes, deals: top.map((d) => ({ id: d.id, company: d.company, sector: d.sector, stage: d.stage, amount_as_reported: d.amountText ?? "Undisclosed", date: d.date, watchlist: d.tag, investors: d.investors, summary: d.summary, source_ids: d.sources.map((s) => s.n) })) });
+  const data = scrubDeep({ digest_notes: notes, deals: top.map((d) => ({ id: d.id, company: d.company, sector: d.sector, stage: d.stage, amount: amountLabel({ amountUsd: d.amountUsd ?? null, amountInr: d.amountInr ?? null }), date: d.date, watchlist: d.tag, investors: d.investors, summary: d.summary, source_ids: d.sources.map((s) => s.n) })) });
   const dataJson = JSON.stringify(data);
   try {
     const a = await geminiJson({

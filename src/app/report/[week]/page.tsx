@@ -8,7 +8,7 @@ import { FacesChart, HeatChart, MoneyChart, StaticCharts } from "@/components/da
 import { Amount, SourceLinks } from "@/components/dashboard/deal-bits";
 import { loadDigestView } from "@/lib/digest-view";
 import { describeGroup } from "@/lib/pipeline/adjacency";
-import { formatInr, formatUsd } from "@/lib/money";
+import { amountLabel, formatInr, formatUsd } from "@/lib/money";
 import { formatDateTimeIST, formatWeekRange, isValidDay } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -93,7 +93,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
                 <ul className="mt-1 grid gap-1 pl-4">
                   {g.items.map((i) => (
                     <li key={i.dealId}>
-                      {i.companyName} · {stageLabel(i.stage)} · {i.amountText ?? "Undisclosed"} · {i.announcedOn}
+                      {i.companyName} · {stageLabel(i.stage)} · {i.amountUsd != null ? amountLabel(i) : (i.amountText ?? "Undisclosed").split(" / ")[0]} · {i.announcedOn}
                       <SourceLinks sources={i.sources} className="mt-0.5" />
                     </li>
                   ))}
@@ -173,7 +173,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/r
                   <td className="py-1 pr-2 font-medium">{x.companyName}</td>
                   <td className="pr-2">{x.sector}</td>
                   <td className="pr-2">{stageLabel(x.stage)}</td>
-                  <td className="pr-2">{x.amountText ?? "Undisclosed"}</td>
+                  <td className="fig pr-2">{amountLabel(x)}</td>
                   <td>
                     <SourceLinks sources={x.sources} />
                   </td>

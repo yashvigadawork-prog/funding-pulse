@@ -5,6 +5,8 @@ export interface AskDeal {
   sector: string;
   stage: string | null;
   amountText: string | null;
+  amountUsd?: number | null;
+  amountInr?: number | null;
   date: string | null;
   tag: string | null;
   summary: string | null;

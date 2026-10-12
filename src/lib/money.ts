@@ -89,3 +89,32 @@ export function formatMoneyPair(usd: number | null | undefined, inr: number | nu
   if (usd === null || usd === undefined) return "Undisclosed";
   return `${formatInr(inr)} (${formatUsd(usd)})`;
 }
+
+interface AmountLike {
+  amountUsd: number | null;
+  amountInr: number | null;
+  amountMinUsd?: number | null;
+  amountMaxUsd?: number | null;
+}
+
+/** One clean amount for screens: rupees first, dollars second ("₹86.13 Cr · $9M"), a range when outlets disagree, or Undisclosed. */
+export function amountLabel(d: AmountLike): string {
+  if (d.amountUsd === null || d.amountUsd === undefined) return "Undisclosed";
+  if (d.amountMinUsd != null && d.amountMaxUsd != null) return `${formatUsd(d.amountMinUsd)} to ${formatUsd(d.amountMaxUsd)}`;
+  return `${formatInr(d.amountInr)} · ${formatUsd(d.amountUsd)}`;
+}
+
+function words(n: number, unit: string) {
+  const r = Math.round(n * 10) / 10;
+  return `${r.toLocaleString("en-IN", { maximumFractionDigits: 1 })} ${unit}`;
+}
+
+/** An amount as a person would say it in an email: "$3.7 million (about ₹36 crore)". Null when undisclosed. */
+export function amountSpoken(d: Pick<AmountLike, "amountUsd" | "amountInr">): string | null {
+  if (d.amountUsd === null || d.amountUsd === undefined) return null;
+  const usd = d.amountUsd >= 1e9 ? `$${words(d.amountUsd / 1e9, "billion")}` : d.amountUsd >= 1e6 ? `$${words(d.amountUsd / 1e6, "million")}` : d.amountUsd >= 1e3 ? `$${words(d.amountUsd / 1e3, "thousand")}` : `$${Math.round(d.amountUsd)}`;
+  const inr = d.amountInr ?? null;
+  if (inr === null) return usd;
+  const r = inr >= 1e7 ? `₹${words(inr / 1e7, "crore")}` : inr >= 1e5 ? `₹${words(inr / 1e5, "lakh")}` : `₹${Math.round(inr)}`;
+  return `${usd} (about ${r})`;
+}

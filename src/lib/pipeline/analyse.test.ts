@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { numbersAreGrounded, scoreDeal, selectCandidates, templateAnalysis, type DealView } from "./analyse";
+import { brevityProblem, numbersAreGrounded, scoreDeal, selectCandidates, templateAnalysis, wordCount, type DealView } from "./analyse";
 import { computeWeek } from "./compute";
 import type { Mandate } from "@/lib/config/schema";
 
@@ -74,5 +74,26 @@ describe("templateAnalysis", () => {
     expect(a.capital.summary).toContain("Fintech");
     expect(a.capital.points.every((p) => p.sources.length > 0)).toBe(true);
     expect(a.momentum.summary.length).toBeGreaterThan(0);
+  });
+});
+
+describe("short forms stay short", () => {
+  const blk = (headline: string, bullet: string) => ({ headline, bullets: [{ label: "Reported" as const, text: bullet, source_ids: [1] }], detail: "x", points: [] });
+  const ok = { week_line: "Deeptech led a busy week with the biggest cheques.", week_bullets: ["Fintech is busy again."], capital: blk("Deeptech led the week.", "Fintech raised the most."), momentum: blk("Fintech is speeding up.", "Seven deals against one usual."), new_investors: blk("Three new names.", "A new fund backed Fintech.") };
+  it("counts words", () => expect(wordCount("  one two   three ")).toBe(3));
+  it("accepts short text", () => expect(brevityProblem(ok)).toBeNull());
+  it("rejects a long week line", () => expect(brevityProblem({ ...ok, week_line: "word ".repeat(30) })).toMatch(/week_line/));
+  it("rejects a long headline or bullet", () => {
+    expect(brevityProblem({ ...ok, capital: blk("word ".repeat(25), "short") })).toMatch(/capital headline/);
+    expect(brevityProblem({ ...ok, momentum: blk("short", "word ".repeat(25)) })).toMatch(/momentum bullet/);
+  });
+  it("the template fallback also fills the short forms with cited bullets", () => {
+    const deals = [mk(1), mk(2)];
+    const compute = computeWeek({ week: "2026-10-05", deals, sectors: ["Fintech"], settings, mandate, watchInvestors: [] });
+    const a = templateAnalysis({ week: "2026-10-05", compute, deals, candidates: [], mandate });
+    expect(a.weekLine).toBeTruthy();
+    expect(a.weekBullets).toHaveLength(3);
+    expect(a.capital.headline).toBeTruthy();
+    expect(a.capital.bullets?.every((b) => b.sources.length > 0)).toBe(true);
   });
 });

@@ -132,8 +132,15 @@ const pointSchema = z.object({
   text: z.string().trim().min(5).max(500),
   source_ids: z.array(z.coerce.number().int()).default([]),
 });
-const blockSchema = z.object({ summary: z.string().trim().min(5).max(500), points: z.array(pointSchema).max(6).default([]) });
+const blockSchema = z.object({
+  headline: z.string().trim().min(5).max(220),
+  bullets: z.array(pointSchema).min(1).max(4),
+  detail: z.string().trim().min(5).max(700),
+  points: z.array(pointSchema).max(6).default([]),
+});
 const geminiAnswerSchema = z.object({
+  week_line: z.string().trim().min(5).max(260),
+  week_bullets: z.array(z.string().trim().min(3).max(200)).min(2).max(4),
   highlights: z.array(z.object({ deal_id: z.coerce.number().int(), why: z.string().trim().min(3).max(300) })),
   capital: blockSchema,
   momentum: blockSchema,
@@ -141,28 +148,30 @@ const geminiAnswerSchema = z.object({
 });
 type GeminiAnswer = z.infer<typeof geminiAnswerSchema>;
 
+const pointJson = {
+  type: "object",
+  properties: {
+    label: { type: "string", enum: ["Reported", "Possible"] },
+    text: { type: "string" },
+    source_ids: { type: "array", items: { type: "integer" } },
+  },
+  required: ["label", "text", "source_ids"],
+};
 const blockJson = {
   type: "object",
   properties: {
-    summary: { type: "string", description: "One or two plain sentences answering the question, using only the supplied numbers" },
-    points: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          label: { type: "string", enum: ["Reported", "Possible"] },
-          text: { type: "string" },
-          source_ids: { type: "array", items: { type: "integer" } },
-        },
-        required: ["label", "text", "source_ids"],
-      },
-    },
+    headline: { type: "string", description: "One plain sentence of at most 14 words answering the question" },
+    bullets: { type: "array", items: pointJson, description: "Two or three short supporting bullets, each at most 12 words" },
+    detail: { type: "string", description: "Two to four sentences with more detail, using only the supplied numbers" },
+    points: { type: "array", items: pointJson, description: "Longer cited statements, at most four" },
   },
-  required: ["summary", "points"],
+  required: ["headline", "bullets", "detail", "points"],
 };
 const answerJsonSchema = {
   type: "object",
   properties: {
+    week_line: { type: "string", description: "One sentence of at most 16 words that sums up the whole week" },
+    week_bullets: { type: "array", items: { type: "string" }, description: "Exactly three bullets, each at most 12 words" },
     highlights: {
       type: "array",
       items: { type: "object", properties: { deal_id: { type: "integer" }, why: { type: "string" } }, required: ["deal_id", "why"] },
@@ -171,7 +180,7 @@ const answerJsonSchema = {
     momentum: blockJson,
     new_investors: blockJson,
   },
-  required: ["highlights", "capital", "momentum", "new_investors"],
+  required: ["week_line", "week_bullets", "highlights", "capital", "momentum", "new_investors"],
 };
 
 const numTokens = (s: string) => (s.match(/\d[\d,]*(?:\.\d+)?/g) ?? []).map((t) => t.replace(/,/g, "").replace(/\.0+$/, ""));
@@ -235,8 +244,7 @@ export function buildAnalysisPayload(input: AnalysisInput) {
       company: d.companyName,
       sector: d.sector,
       stage: d.stage,
-      amount_as_reported: d.amountText ?? "Undisclosed",
-      amount_normalised: d.amountUsd === null ? "Undisclosed" : `${fmtUsd(d.amountUsd)} (${fmtInr(d.amountInr)})`,
+      amount: d.amountUsd === null ? "Undisclosed" : `${fmtInr(d.amountInr)} (${fmtUsd(d.amountUsd)})`,
       watchlist: d.matchTag,
       investors: d.investors.map((i) => `${i.name}${i.role === "lead" ? " (lead)" : ""}`),
       summary: d.summary,
@@ -266,7 +274,8 @@ export async function geminiAnalyse(input: AnalysisInput): Promise<{ analysis: A
     "- Write for three questions: (capital) which sectors are attracting capital; (momentum) is deal activity speeding up or slowing in the family office's focus sectors; (new_investors) has a new investor started moving in the target sectors. Describe new investors only as 'new in our records', never 'new to the market'.",
     "- Each point has a label. Use 'Reported' only when the supplied summary or <source> text directly says it. Use 'Possible' for your own inference or interpretation.",
     "- Every point must cite one or more source_ids taken from the deals you used. Do not cite ids that are not in the JSON.",
-    "- Keep each point to one or two short sentences. At most four points per question. Plain English, no hype.",
+    "- Each of the three questions has: a headline (one sentence, at most 14 words); two or three bullets (each at most 12 words, each labelled Reported or Possible and citing source_ids; a bullet must add something the headline does not say); a detail paragraph (two to four sentences); and up to four longer cited points. Plain English, no hype, no jargon.",
+    "- week_line is one sentence of at most 16 words. Lead with what stood out most this week (the sector that led on capital or sped up the most, or a cluster of deals near the portfolio), not just the total. week_bullets are exactly three different bullets of at most 12 words that add detail the week_line does not give. Use only the supplied numbers, copied exactly.",
     "- highlights: return ALL deals marked highlight_candidate, best first, ranked by relevance to the family office's mandate, size, watchlist involvement, new-investor entry and novelty. 'why' is one short sentence using only supplied facts.",
     `- Mandate: focus sectors ${input.mandate.focus_sectors.join(", ")}; focus stages ${input.mandate.stages.filter((s) => s.focus).map((s) => s.name).join(", ")}.`,
   ].join("\n");
@@ -296,16 +305,33 @@ export async function geminiAnalyse(input: AnalysisInput): Promise<{ analysis: A
   throw new Error(`Gemini analysis failed validation: ${lastProblem}`);
 }
 
+export const wordCount = (t: string) => t.trim().split(/\s+/).filter(Boolean).length;
+
+/** The short forms must stay short. Limits are the requested size plus a little slack. */
+export function brevityProblem(a: Pick<GeminiAnswer, "week_line" | "week_bullets" | "capital" | "momentum" | "new_investors">): string | null {
+  if (wordCount(a.week_line) > 22) return `week_line is ${wordCount(a.week_line)} words; it must be at most 16`;
+  for (const t of a.week_bullets) if (wordCount(t) > 18) return `a week bullet is ${wordCount(t)} words; each must be at most 12`;
+  for (const k of ["capital", "momentum", "new_investors"] as const) {
+    const blk = a[k];
+    if (wordCount(blk.headline) > 20) return `${k} headline is ${wordCount(blk.headline)} words; it must be at most 14`;
+    for (const bl of blk.bullets) if (wordCount(bl.text) > 18) return `a ${k} bullet is ${wordCount(bl.text)} words; each must be at most 12`;
+  }
+  return null;
+}
+
 function validateAnswer(a: GeminiAnswer, payload: ReturnType<typeof buildAnalysisPayload>, dataJson: string, input: AnalysisInput): string | { analysis: Analysis; highlights: Highlight[] } {
-  // 1. numbers must come from our data
-  const allText = [...["capital", "momentum", "new_investors"].flatMap((k) => [a[k as keyof GeminiAnswer] as unknown as z.infer<typeof blockSchema>].flatMap((b) => [b.summary, ...b.points.map((p) => p.text)])), ...a.highlights.map((h) => h.why)].join(" \n ");
+  // 0. short forms must be short
+  const long = brevityProblem(a);
+  if (long) return long;
+  // 1. numbers must come from our data (every written field, short and long)
+  const blocks = (["capital", "momentum", "new_investors"] as const).map((k) => a[k]);
+  const allText = [a.week_line, ...a.week_bullets, ...blocks.flatMap((b) => [b.headline, b.detail, ...b.bullets.map((p) => p.text), ...b.points.map((p) => p.text)]), ...a.highlights.map((h) => h.why)].join(" \n ");
   const grounded = numbersAreGrounded(allText, dataJson);
   if (!grounded.ok) return `these numbers are not in the data: ${grounded.bad.slice(0, 5).join(", ")}`;
 
   // 2. map source numbers to real URLs, drop points without a valid source
-  const toBlock = (b: z.infer<typeof blockSchema>): AnalysisBlock => ({
-    summary: b.summary,
-    points: b.points
+  const withSources = (list: z.infer<typeof pointSchema>[]): AnalysisPoint[] =>
+    list
       .map((p) => ({
         label: p.label,
         text: p.text,
@@ -314,8 +340,9 @@ function validateAnswer(a: GeminiAnswer, payload: ReturnType<typeof buildAnalysi
           .filter((s): s is SourceRef => !!s)
           .map((s) => ({ url: s.url, outlet: s.outlet })),
       }))
-      .filter((p) => p.sources.length > 0),
-  });
+      .filter((p) => p.sources.length > 0);
+  const toBlock = (b: z.infer<typeof blockSchema>): AnalysisBlock => ({ headline: b.headline, bullets: withSources(b.bullets), summary: b.detail, points: withSources(b.points) });
+  if (blocks.some((b) => withSources(b.bullets).length === 0)) return "each question needs at least one bullet that cites a valid source id";
 
   // 3. highlights: keep only known candidates, in Gemini's order, then append any missing ones in code order
   const candidateIds = new Set(input.candidates.map((c) => c.dealId));
@@ -332,7 +359,16 @@ function validateAnswer(a: GeminiAnswer, payload: ReturnType<typeof buildAnalysi
   ranked.forEach((h, i) => (h.rank = i + 1));
 
   return {
-    analysis: { source: "gemini", model: geminiModel(), generatedAt: new Date().toISOString(), capital: toBlock(a.capital), momentum: toBlock(a.momentum), new_investors: toBlock(a.new_investors) },
+    analysis: {
+      source: "gemini",
+      model: geminiModel(),
+      generatedAt: new Date().toISOString(),
+      weekLine: a.week_line,
+      weekBullets: a.week_bullets.slice(0, 3).map((text) => ({ text })),
+      capital: toBlock(a.capital),
+      momentum: toBlock(a.momentum),
+      new_investors: toBlock(a.new_investors),
+    },
     highlights: ranked,
   };
 }
@@ -389,14 +425,51 @@ export function templateAnalysis(input: AnalysisInput, note?: string, reason: "h
   })).filter((p) => p.sources.length);
   const niSummary = compute.newInvestors.length ? `${compute.newInvestors.length} investor${compute.newInvestors.length === 1 ? " is" : "s are"} new in our records for their sector.` : compute.sectorsWithoutHistory.length ? "Not enough history yet to say who is new." : "No new investors in our records this week.";
 
+  // Short forms: built from the same numbers, never by the AI.
+  const shortSector = (x: string) => ({ "Health & wellness": "Health", "Climate & sustainability": "Climate", "Media, deeptech & education": "Media and deeptech" })[x] ?? x;
+  const capBullets: AnalysisPoint[] = compute.capital
+    .filter((c) => c.deals > 0)
+    .slice(0, 3)
+    .map((c) => ({
+      label: "Reported" as const,
+      text: `${shortSector(c.sector)}: ${c.disclosedCount ? `${fmtUsd(c.disclosedUsd)} across ${c.deals} deals` : `${c.deals} deals, no amounts disclosed`}.`,
+      sources: srcFor(dealIdsIn(c.sector)),
+    }))
+    .filter((p) => p.sources.length);
+  const momBullets: AnalysisPoint[] = compute.trends
+    .filter((t) => t.isFocus && t.thisWeek > 0)
+    .slice(0, 3)
+    .map((t) => ({
+      label: "Reported" as const,
+      text:
+        t.status === "not_enough_history"
+          ? `${shortSector(t.sector)}: too few earlier deals to call a trend.`
+          : `${shortSector(t.sector)}: ${t.thisWeek} deals against a usual ${Math.round(t.baselineAvg * 10) / 10}, ${t.status === "accelerating" ? "speeding up" : t.status === "slowing" ? "slowing" : "steady"}.`,
+      sources: srcFor(dealIdsIn(t.sector)),
+    }))
+    .filter((p) => p.sources.length);
+  const niBullets: AnalysisPoint[] = compute.newInvestors.slice(0, 3).map((n) => ({
+    label: "Reported" as const,
+    text: `${n.investor} is new in ${shortSector(n.sector)} in our records.`,
+    sources: srcFor(n.dealIds),
+  })).filter((p) => p.sources.length);
+  const weekLine = compute.kpis.deals ? capSummary : "No deals were recorded this week.";
+  const weekBullets = [
+    { text: momSummary },
+    { text: niSummary },
+    { text: `${compute.kpis.deals} deals tracked${compute.kpis.undisclosedCount ? `; ${compute.kpis.undisclosedCount} did not disclose an amount` : ""}.` },
+  ];
+
   return {
     source: "template",
     model: null,
     generatedAt: new Date().toISOString(),
     reason,
     note: note ?? "Plain summary written from the numbers by a fixed template (no AI used for this week).",
-    capital: { summary: capSummary, points: capPoints },
-    momentum: { summary: momSummary, points: trendPoints },
-    new_investors: { summary: niSummary, points: niPoints },
+    weekLine,
+    weekBullets,
+    capital: { headline: capSummary, bullets: capBullets, summary: capSummary, points: capPoints },
+    momentum: { headline: momSummary, bullets: momBullets, summary: momSummary, points: trendPoints },
+    new_investors: { headline: niSummary, bullets: niBullets, summary: niSummary, points: niPoints },
   };
 }

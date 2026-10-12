@@ -6,7 +6,7 @@ import { founderLeads } from "@/db/schema";
 import { getBlocks, listCompanies, listStakeholders } from "@/lib/config/store";
 import { normalizeName } from "@/lib/matching";
 import { scrubDeep } from "@/lib/forbidden";
-import { formatInr, formatUsd } from "@/lib/money";
+import { amountLabel, formatInr, formatUsd } from "@/lib/money";
 import type { PreparedDigest } from "@/lib/pipeline/digest";
 import { SearchBudget } from "@/lib/search";
 import { formatWeekRange } from "@/lib/time";
@@ -145,7 +145,7 @@ export async function buildActions(prep: PreparedDigest, deadline: number = Date
       company: co.name,
       domain: co.domain,
       reason: "named",
-      headline: `${co.name} was named in the news: ${stageLabel(v.stage)}, ${v.amountText ?? "amount undisclosed"}`,
+      headline: `${co.name} was named in the news: ${stageLabel(v.stage)}, ${v.amountUsd !== null ? amountLabel(v) : "amount undisclosed"}`,
       stakeholder: st ? { name: st.name, role: st.role, email: st.email, type: st.type, demo: st.demo } : null,
       draft: portfolioFollowUpDraft({ kind: "named", company: co.name, recipientName: st?.name ?? null, named: [{ stage: v.stage, amountText: v.amountText, sourceUrl: v.sources[0]?.url ?? null }], adjacent: [], windowDays: settings.adjacency_window_days }, sender),
       sources: v.sources.map((s) => ({ url: s.url, outlet: s.outlet })),
