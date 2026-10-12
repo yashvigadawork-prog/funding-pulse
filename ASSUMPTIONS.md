@@ -2,7 +2,7 @@
 
 One line each. These are choices made where the brief was silent or inconsistent.
 
-- Digest time: the brief says both 06:00 and 07:00 IST; the seed says 07:00, so 07:00 is used for display and in the cron-job.org steps.
+- Digest time: the brief said both 06:00 and 07:00 IST; the owner chose 06:00, so the seed, the displayed time and the cron-job.org schedule all use 06:00 IST every Monday.
 - The experimental "Cache Components" setting that the starter project enabled was switched off, because the dashboard reads live data on every request.
 - The scaffold imported a third-party `cn` package for class names; it was replaced with the standard `clsx` plus `tailwind-merge` helper.
 - Gemini model: `gemini-3.8-flash`, the current stable Flash model on Google's models page on 12 Oct 2026. It is read from `GEMINI_MODEL`.

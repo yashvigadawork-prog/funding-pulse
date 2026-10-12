@@ -84,7 +84,7 @@ This finds weekly funding roundups, reads them with Gemini, and gives the trend 
 1. Go to cron-job.org and create a free account.
 2. Click **Create cronjob**.
 3. **URL:** your public address followed by `/api/cron/digest`.
-4. **Schedule:** every Monday at 07:00, and set the time zone to **Asia/Kolkata**.
+4. **Schedule:** every Monday at 06:00, and set the time zone to **Asia/Kolkata**.
 5. Open **Advanced** and add a header named `Authorization` with the value `Bearer ` followed by your `CRON_SECRET` (the secret you added in Vercel; make up a long random one).
 6. Save. Use **Test run**: a correct secret returns a short "started" message; a missing or wrong secret returns "Unauthorized".
 
