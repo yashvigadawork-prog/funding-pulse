@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ArrowRight, ExternalLink, Handshake, Link2, Loader2, Mail, Send, Sparkles, UsersRound, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,9 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { EmptyState } from "@/components/common/states";
 import { BentoCard, Chip, InitialsAvatar } from "@/components/brief/bento";
 import { linkedinSearchUrl } from "@/components/actions/linkedin-link";
-import { api, ApiError } from "@/lib/client/api";
+import { api, ApiError, useConfig } from "@/lib/client/api";
+import { buildLpEmail } from "@/lib/deck/email";
+import { DEFAULT_DECK_SECTIONS } from "@/lib/deck/sections";
 import { streamText } from "@/lib/client/stream";
 import { hostOf } from "@/lib/format";
 import { SourceChips, SourceLinks } from "@/components/dashboard/deal-bits";
@@ -143,26 +145,36 @@ function CheckInRow({ f, onCompose }: { f: FollowUp; onCompose: (r: ComposeReque
   );
 }
 
-function lpCompose(subject: string, body: string): ComposeRequest {
-  // The first paragraphs become the intro; the key points, the near-portfolio note and the link can be switched on or off.
-  const parts = body.split("\n\n");
-  const keyIdx = parts.findIndex((p) => p.startsWith("Three things stood out") || p.startsWith("Key points:"));
-  const nearIdx = parts.findIndex((p) => p.startsWith("Near our portfolio:") || p.startsWith("Closer to home"));
-  const linkIdx = parts.findIndex((p) => /full (brief|report)/i.test(p));
-  const sections = [
-    { id: "points", label: "Key points", text: keyIdx >= 0 ? parts[keyIdx] : "", on: true },
-    { id: "adjacent", label: "Near our portfolio", text: nearIdx >= 0 ? parts[nearIdx] : "", on: nearIdx >= 0 },
-    { id: "link", label: "Link to the full brief", text: linkIdx >= 0 ? parts[linkIdx] : "", on: true },
-  ].filter((s) => s.text);
-  if (!sections.length) return { kind: "lp_brief", title: "LP brief", to: "", subject, intro: "", outro: "", sections: [], body };
-  return { kind: "lp_brief", title: "LP brief", to: "", subject, intro: parts.slice(0, Math.max(0, keyIdx >= 0 ? keyIdx : 2)).join("\n\n"), outro: parts[parts.length - 1], sections };
-}
+/** The draft without its old dashboard link, for the moment before the sender profile has loaded. */
+const withoutLink = (body: string) => body.split("\n\n").filter((p) => !/full (brief|report)/i.test(p)).join("\n\n");
 
-function LpCard({ lp, onCompose }: { lp: NonNullable<ActionsBlock["lpBrief"]>; onCompose: (r: ComposeRequest) => void }) {
-  const [subject, setSubject] = useState(lp.draft.subject);
-  const [body, setBody] = useState(lp.draft.body);
+function LpCard({ lp, view, onCompose }: { lp: NonNullable<ActionsBlock["lpBrief"]>; view: DigestView; onCompose: (r: ComposeRequest) => void }) {
+  const { data: cfg } = useConfig();
+  const recipientName = cfg?.stakeholders.find((x) => x.type === "LP" && !x.demo)?.name ?? null;
+  const built = useMemo(() => (cfg ? buildLpEmail({ view, sections: DEFAULT_DECK_SECTIONS, attach: true, sender: cfg.sender_profile, recipientName }) : null), [cfg, view, recipientName]);
+  const [subjectEdit, setSubject] = useState<string | null>(null);
+  const [bodyEdit, setBody] = useState<string | null>(null);
+  const subject = subjectEdit ?? built?.subject ?? lp.draft.subject;
+  const body = bodyEdit ?? built?.body ?? withoutLink(lp.draft.body);
   const [busy, setBusy] = useState<"warmer" | "shorter" | null>(null);
   const stop = useRef<() => void>(() => {});
+  /** Opens the drawer where sections are ticked and the deck is attached. Text already rewritten here is kept. */
+  const review = () => {
+    if (!cfg || !view.week) return;
+    const sender = cfg.sender_profile;
+    onCompose({
+      kind: "lp_brief",
+      title: "LP brief",
+      to: "",
+      subject,
+      intro: "",
+      outro: "",
+      sections: [],
+      deck: { week: view.week },
+      build: ({ sections, attach }) => buildLpEmail({ view, sections, attach, sender, recipientName }).body,
+      initialText: bodyEdit ?? undefined,
+    });
+  };
   async function rewrite(kind: "warmer" | "shorter") {
     setBusy(kind);
     stop.current();
@@ -185,14 +197,14 @@ function LpCard({ lp, onCompose }: { lp: NonNullable<ActionsBlock["lpBrief"]>; o
   }
   return (
     <BentoCard id="lp-note" icon={Send} tone="teal" title="Note to LPs" index={2}>
-      <p className="text-sm text-muted-foreground">A draft email with key points and a link to the brief.</p>
+      <p className="text-sm text-muted-foreground">A short note with up to three points. When you review it you can tick which sections to include and attach the summary deck as a PDF.</p>
       <div className="mt-3 rounded-xl border bg-background/60 p-4">
         <p className="text-xs font-medium text-muted-foreground">Subject</p>
         <p className="text-sm font-semibold">{subject}</p>
         <pre className="mt-3 max-h-80 overflow-y-auto font-sans text-[13.5px] leading-relaxed whitespace-pre-wrap text-ink-2" aria-live="polite">{body}</pre>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button onClick={() => onCompose(lpCompose(subject, body))}>
+        <Button onClick={review} disabled={!cfg}>
           <Send data-icon="inline-start" /> Review and send
         </Button>
         <Button variant="outline" disabled={!!busy} onClick={() => rewrite("warmer")}>
@@ -244,7 +256,7 @@ export function ActionsTab({ view, onCompose }: { view: DigestView; onCompose: (
           {a.portfolioFollowUp?.length ? <ul className="grid grid-cols-[minmax(0,1fr)] gap-2.5">{a.portfolioFollowUp.map((f) => <CheckInRow key={f.companyId} f={f} onCompose={onCompose} />)}</ul> : <p className="rounded-xl border border-dashed px-4 py-5 text-center text-sm text-muted-foreground">Nothing to follow up this week. No Portfolio company was named, and nothing raised next to one.</p>}
         </BentoCard>
       </div>
-      <div className="grid gap-4">{a.lpBrief ? <LpCard lp={a.lpBrief} onCompose={onCompose} /> : null}</div>
+      <div className="grid gap-4">{a.lpBrief ? <LpCard lp={a.lpBrief} view={view} onCompose={onCompose} /> : null}</div>
       <FounderDrawer lead={lead} onClose={() => setLead(null)} onCompose={onCompose} />
     </div>
   );

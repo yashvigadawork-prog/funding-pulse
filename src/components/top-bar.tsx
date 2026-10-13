@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { BookOpenText, FileDown, PanelRightOpen, Share2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -10,6 +11,7 @@ import { useShell } from "@/components/app-shell";
 import { NativeSelect } from "@/components/common/ui-bits";
 import { RefreshButton, type useRefresh } from "@/components/dashboard/refresh";
 import { TABS, useNav } from "@/components/dashboard/nav";
+import { DeckDialog } from "@/components/deck/deck-dialog";
 import { useConfig } from "@/lib/client/api";
 import { formatWeekRange } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -40,6 +42,7 @@ export function TopBar({
   const { data } = useConfig();
   const { openCoverage } = useShell();
   const nav = useNav();
+  const [deckOpen, setDeckOpen] = useState(false);
 
   async function share() {
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -129,7 +132,7 @@ export function TopBar({
               <Share2 />
             </Button>
             {week ? (
-              <Button variant="outline" size="icon" className="size-9 rounded-full bg-card" aria-label="Download PDF" nativeButton={false} render={<a href={`/report/${week}?print=1`} target="_blank" rel="noopener noreferrer" />}>
+              <Button variant="outline" size="icon" className="size-9 rounded-full bg-card" aria-label="Download PDF" onClick={() => setDeckOpen(true)}>
                 <FileDown />
               </Button>
             ) : null}
@@ -144,7 +147,7 @@ export function TopBar({
           <Share2 />
         </Button>
         {week ? (
-          <Button variant="outline" size="icon" className="size-9 rounded-full bg-card sm:hidden" aria-label="Download PDF" nativeButton={false} render={<a href={`/report/${week}?print=1`} target="_blank" rel="noopener noreferrer" />}>
+          <Button variant="outline" size="icon" className="size-9 rounded-full bg-card sm:hidden" aria-label="Download PDF" onClick={() => setDeckOpen(true)}>
             <FileDown />
           </Button>
         ) : null}
@@ -152,6 +155,7 @@ export function TopBar({
           <BookOpenText data-icon="inline-start" /> Method
         </Button>
       </div>
+      {week ? <DeckDialog week={week} open={deckOpen} onOpenChange={setDeckOpen} /> : null}
     </div>
   );
 }

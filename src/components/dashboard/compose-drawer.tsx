@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Copy, Loader2, Send, Sparkles } from "lucide-react";
+import { Copy, Eye, Loader2, Paperclip, Send, Sparkles } from "lucide-react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,10 @@ import { Banner } from "@/components/common/states";
 import { ConfirmDialog, Field } from "@/components/common/ui-bits";
 import { api, ApiError, fetcher, useConfig } from "@/lib/client/api";
 import { streamText } from "@/lib/client/stream";
+import { SectionPicker, loadSavedSections, saveSections } from "@/components/deck/section-picker";
+import { deckUrl } from "@/lib/deck/url";
+import { formatWeekRange } from "@/lib/time";
+import type { DeckSectionId } from "@/lib/deck/sections";
 import { timeAgo } from "@/lib/format";
 
 export interface ComposeSection {
@@ -33,6 +37,14 @@ export interface ComposeRequest {
   sections: ComposeSection[];
   /** Used when there are no sections: the whole draft. */
   body?: string;
+  /**
+   * The LP note only. The summary deck the email can carry, and how to rebuild the text from the ticked sections.
+   * When present, the section ticks (and the attach option) replace the simple "Include" list.
+   */
+  deck?: { week: string };
+  build?: (o: { sections: DeckSectionId[]; attach: boolean }) => string;
+  /** Text the user has already edited elsewhere (for example after Rewrite warmer). Used as the starting draft. */
+  initialText?: string;
 }
 
 interface LogRow {
@@ -68,8 +80,10 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
   const [on, setOn] = useState<Record<string, boolean>>(() => Object.fromEntries(request.sections.map((s) => [s.id, s.on])));
   const [to, setTo] = useState(request.to);
   const [subject, setSubject] = useState(request.subject);
-  const [text, setText] = useState(() => build(request, Object.fromEntries(request.sections.map((s) => [s.id, s.on]))));
-  const [edited, setEdited] = useState(false);
+  const [deckSections, setDeckSections] = useState<DeckSectionId[]>(() => (request.deck ? loadSavedSections() : []));
+  const [attach, setAttach] = useState(!!request.deck);
+  const [text, setText] = useState(() => request.initialText ?? (request.build ? request.build({ sections: request.deck ? loadSavedSections() : [], attach: !!request.deck }) : build(request, Object.fromEntries(request.sections.map((s) => [s.id, s.on])))));
+  const [edited, setEdited] = useState(!!request.initialText);
   const [confirm, setConfirm] = useState(false);
   const [sending, setSending] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -81,6 +95,13 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
   const rebuild = (next: Record<string, boolean>) => {
     setOn(next);
     if (!edited) setText(build(request, next));
+  };
+  /** LP note: ticking a section or the attach option rewrites the draft, unless the text has been edited by hand. */
+  const rebuildDeck = (nextSections: DeckSectionId[], nextAttach: boolean) => {
+    setDeckSections(nextSections);
+    setAttach(nextAttach);
+    saveSections(nextSections);
+    if (!edited && request.build) setText(request.build({ sections: nextSections, attach: nextAttach }));
   };
 
   async function copy() {
@@ -122,7 +143,7 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
     setProblem(null);
     try {
       const type = request.kind === "linkedin" ? "other" : request.kind;
-      await api.post("/api/compose/send", { to, subject, text, type, confirm: true });
+      await api.post("/api/compose/send", { to, subject, text, type, confirm: true, ...(request.deck && attach ? { attachDeck: { week: request.deck.week, sections: deckSections } } : {}) });
       toast.success(`Email sent to ${to}`);
       setConfirm(false);
       await log.mutate();
@@ -142,6 +163,29 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
         <SheetDescription>{isLinkedIn ? "A short note to paste into LinkedIn. Nothing is sent from here." : "Edit the draft, then confirm to send. Nothing is sent until you confirm."}</SheetDescription>
       </SheetHeader>
       <div className="grid flex-1 content-start gap-4 overflow-y-auto px-4 pb-4">
+        {request.deck ? (
+          <div className="grid gap-3">
+            <SectionPicker value={deckSections} onChange={(v) => rebuildDeck(v, attach && v.length > 0)} showEmailHint compact />
+            <p className="text-xs text-muted-foreground">The email names up to three points from the sections you tick. The deck carries everything you tick.</p>
+            <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-sm has-[[aria-checked=true]]:border-primary/40 has-[[aria-checked=true]]:bg-accent/40">
+              <Checkbox className="mt-0.5" checked={attach} disabled={!deckSections.length} onCheckedChange={(v) => rebuildDeck(deckSections, v === true)} />
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Paperclip className="size-3.5" aria-hidden /> Attach the summary deck (PDF)
+                </span>
+                <span className="block text-xs text-muted-foreground">Week of {formatWeekRange(request.deck.week)}. Built from the sections above when you press Send.</span>
+              </span>
+              <Button type="button" variant="outline" size="xs" disabled={!deckSections.length} nativeButton={false} render={<a href={deckUrl(request.deck.week, deckSections, { preview: true })} target="_blank" rel="noopener noreferrer" />}>
+                <Eye data-icon="inline-start" /> Preview
+              </Button>
+            </label>
+            {edited && request.build ? (
+              <Button variant="outline" size="xs" className="w-fit" type="button" onClick={() => { setText(request.build!({ sections: deckSections, attach })); setEdited(false); }}>
+                Rebuild draft from these choices
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
         {request.sections.length ? (
           <fieldset className="grid gap-1.5">
             <legend className="mb-1 text-sm font-medium">Include</legend>

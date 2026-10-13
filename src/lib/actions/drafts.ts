@@ -27,10 +27,10 @@ export interface RoundFacts {
 }
 
 const known = (v: string | null | undefined) => (v && v.toLowerCase() !== "unknown" && v.trim() ? v.trim() : null);
-const firstName = (n: string | null | undefined) => (n && n.trim() ? n.trim().split(/\s+/)[0] : null);
+export const firstName = (n: string | null | undefined) => (n && n.trim() ? n.trim().split(/\s+/)[0] : null);
 const sentence = (t: string) => (/[.!?]$/.test(t.trim()) ? t.trim() : `${t.trim()}.`);
 
-const signature = (s: SenderProfile) => `Warm regards,\n${s.name}\n${[s.title, s.organisation].filter(Boolean).join(", ")}`;
+export const signature = (s: SenderProfile) => `Warm regards,\n${s.name}\n${[s.title, s.organisation].filter(Boolean).join(", ")}`;
 
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const numberWord = (n: number) => (Number.isInteger(n) && n >= 0 && n <= 10 ? NUMBER_WORDS[n] : String(n));
@@ -136,27 +136,41 @@ export interface LpFacts {
 
 const times = (r: number) => `roughly ${numberWord(Math.round(r))} times a usual week`;
 
-/** At most three plain bullets, each built only from computed figures. */
-export function lpBullets(capital: SectorCapital[], trends: SectorTrend[]): { bullets: string[]; leadSectors: string[] } {
+/** The plain lines the LP note can use, each built only from computed figures. */
+export function lpLines(capital: SectorCapital[], trends: SectorTrend[]): { lead?: string; second?: string; busy?: string; leadSectors: string[] } {
   const byCapital = capital.filter((c) => c.disclosedUsd > 0 && c.sector !== "Other").sort((a, b) => b.disclosedUsd - a.disclosedUsd);
-  const bullets: string[] = [];
+  const out: { lead?: string; second?: string; busy?: string; leadSectors: string[] } = { leadSectors: byCapital.slice(0, 2).map((c) => sectorWord(c.sector)) };
   const lead = byCapital[0];
   if (lead) {
     const ratio = lead.baselineAvgUsd > 0 ? lead.disclosedUsd / lead.baselineAvgUsd : null;
-    bullets.push(`${cap(sectorWord(lead.sector))} led the week: ${formatUsd(lead.disclosedUsd)} disclosed across ${lead.deals} round${lead.deals === 1 ? "" : "s"}${ratio !== null && ratio >= 2 ? `, ${times(ratio)}` : ""}.`);
+    out.lead = `${cap(sectorWord(lead.sector))} led the week: ${formatUsd(lead.disclosedUsd)} disclosed across ${lead.deals} round${lead.deals === 1 ? "" : "s"}${ratio !== null && ratio >= 2 ? `, ${times(ratio)}` : ""}.`;
   }
   const second = byCapital[1];
-  if (second) bullets.push(`${cap(sectorWord(second.sector))} followed with ${formatUsd(second.disclosedUsd)} across ${second.deals} round${second.deals === 1 ? "" : "s"}.`);
+  if (second) out.second = `${cap(sectorWord(second.sector))} followed with ${formatUsd(second.disclosedUsd)} across ${second.deals} round${second.deals === 1 ? "" : "s"}.`;
   const busy = trends.filter((t) => t.status === "accelerating" && t.sector !== "Other" && t.sector !== lead?.sector && t.sector !== second?.sector).sort((a, b) => b.extra - a.extra)[0];
   if (busy) {
     const usual = Math.round(busy.baselineAvg);
-    bullets.push(`${cap(sectorWord(busy.sector))} is busy again: ${busy.thisWeek} round${busy.thisWeek === 1 ? "" : "s"} against ${usual >= 1 ? `a usual ${usual}` : "almost none in a usual week"}.`);
+    out.busy = `${cap(sectorWord(busy.sector))} is busy again: ${busy.thisWeek} round${busy.thisWeek === 1 ? "" : "s"} against ${usual >= 1 ? `a usual ${usual}` : "almost none in a usual week"}.`;
   }
-  return { bullets: bullets.slice(0, 3), leadSectors: byCapital.slice(0, 2).map((c) => sectorWord(c.sector)) };
+  return out;
 }
 
+/** At most three plain bullets, each built only from computed figures. */
+export function lpBullets(capital: SectorCapital[], trends: SectorTrend[]): { bullets: string[]; leadSectors: string[] } {
+  const l = lpLines(capital, trends);
+  return { bullets: [l.lead, l.second, l.busy].filter((x): x is string => !!x).slice(0, 3), leadSectors: l.leadSectors };
+}
+
+/** The subject line: the week and what stood out. */
+export function lpSubject(weekStartLabel: string, leadSectors: string[]): string {
+  const headline = leadSectors.length >= 2 ? `${leadSectors[0]} and ${leadSectors[1]} pull in the big cheques` : leadSectors.length === 1 ? `${leadSectors[0]} leads the way` : "a quiet one";
+  return `Week of ${weekStartLabel}: ${headline}`;
+}
+
+/** Spelled-out small numbers, for sentences like "within ten days". */
+export { numberWord };
+
 export function lpBriefDraft(f: LpFacts, sender: SenderProfile): Draft {
-  const headline = f.leadSectors.length >= 2 ? `${f.leadSectors[0]} and ${f.leadSectors[1]} pull in the big cheques` : f.leadSectors.length === 1 ? `${f.leadSectors[0]} leads the way` : "a quiet one";
   const near = f.nearby;
   const nearLine = near
     ? `Closer to home, ${near.companies > 1 ? `${numberWord(near.companies)} ${sectorWord(near.sector)} companies raised within ${numberWord(near.windowDays)} days of each other` : `a ${sectorWord(near.sector)} company raised recently`}, right next to ${near.portfolioName}. I'll check in with the team this week and share what I hear.`
@@ -170,5 +184,5 @@ export function lpBriefDraft(f: LpFacts, sender: SenderProfile): Draft {
     "Happy to walk you through any of it on a call.",
     signature(sender),
   ].filter(Boolean);
-  return { subject: `Week of ${f.weekStartLabel}: ${headline}`, body: parts.join("\n\n") };
+  return { subject: lpSubject(f.weekStartLabel, f.leadSectors), body: parts.join("\n\n") };
 }

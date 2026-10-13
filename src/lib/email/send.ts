@@ -21,6 +21,11 @@ export interface SendRequest {
   html?: string;
   /** Anonymised caller id, for the per-visitor hourly limit on addresses that are not in the address book. */
   callerId?: string;
+  /**
+   * Files to attach. It is a function so a heavy attachment (the summary deck) is built only after the
+   * recipient and the sending limits have been checked.
+   */
+  attachments?: () => Promise<{ filename: string; content: Buffer }[]>;
 }
 
 export interface SendResult {
@@ -67,17 +72,27 @@ export async function sendEmail(req: SendRequest): Promise<SendResult> {
     await log(check.email, req.type, req.subject, "failed", message);
     return { ok: false, message, status: "failed" };
   }
+  let files: { filename: string; content: Buffer }[] = [];
+  if (req.attachments) {
+    try {
+      files = await req.attachments();
+    } catch {
+      const message = "The summary deck could not be built just now, so nothing was sent. Please try again in a minute.";
+      await log(check.email, req.type, req.subject, "failed", message);
+      return { ok: false, message, status: "failed" };
+    }
+  }
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const html = req.html ?? (await render(React.createElement(MessageEmail, { body: req.text })));
-    const { error } = await resend.emails.send({ from: process.env.RESEND_FROM!, to: [check.email], subject: req.subject, html, text: req.text });
+    const { error } = await resend.emails.send({ from: process.env.RESEND_FROM!, to: [check.email], subject: req.subject, html, text: req.text, ...(files.length ? { attachments: files } : {}) });
     if (error) {
       const message = friendlyResendError((error as { message?: string }).message, (error as { statusCode?: number }).statusCode);
       await log(check.email, req.type, req.subject, "failed", message);
       return { ok: false, message, status: "failed" };
     }
     await log(check.email, req.type, req.subject, "sent");
-    return { ok: true, message: `Sent to ${check.email}.`, status: "sent" };
+    return { ok: true, message: `Sent to ${check.email}${files.length ? " with the summary deck attached" : ""}.`, status: "sent" };
   } catch (e) {
     const message = friendlyResendError(e instanceof Error ? e.message : undefined);
     await log(check.email, req.type, req.subject, "failed", message);
