@@ -93,7 +93,8 @@ table.t td.r,table.t th.r{text-align:right}
 .cover .meta{position:absolute;left:80px;right:80px;bottom:56px;display:flex;justify-content:space-between;font-size:15px;color:#9AA0B4;border-top:1px solid #2C3140;padding-top:16px}
 .empty{font-size:20px;color:#6B7080;padding:30px 0}
 @media screen{body{background:#E9E8E3}.slide{margin:24px auto;box-shadow:0 8px 30px rgba(20,22,28,.12);zoom:var(--z,1)}}
-@media print{.slide{margin:0;box-shadow:none}}
+@media print{.slide{margin:0;box-shadow:none}.noprint{display:none!important}}
+.noprint{position:fixed;top:14px;right:18px;z-index:9;background:#3B4BDB;color:#fff;border:0;border-radius:999px;padding:10px 18px;font:600 14px Geist,sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(59,75,219,.35)}
 `;
 
 export function deckCss(): string {

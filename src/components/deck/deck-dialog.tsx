@@ -32,7 +32,7 @@ export function DeckDialog({ week, open, onOpenChange }: { week: string; open: b
       const res = await fetch(deckUrl(week, sections, { download: true }));
       if (!res.ok) {
         const j = (await res.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(j?.error ?? "The deck could not be built just now.");
+        throw new Error(j?.error ?? "The deck could not be built just now. Press Preview, then Save as PDF, to get it another way.");
       }
       const name = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") ?? "")?.[1] ?? "Funding-Pulse.pdf";
       const url = URL.createObjectURL(await res.blob());

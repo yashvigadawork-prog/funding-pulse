@@ -416,8 +416,9 @@ function Deck({ view, slides }: { view: DigestView; slides: Slide[] }) {
 export function renderDeckHtml(view: DigestView, sections: DeckSectionId[], opts: { preview?: boolean } = {}): string {
   const slides = buildSlides(view, sections);
   const body = render(<Deck view={view} slides={slides} />);
+  const printBtn = opts.preview ? `<button class="noprint" onclick="window.print()">Save as PDF</button>` : "";
   const script = opts.preview ? `<script>(function(){function f(){document.documentElement.style.setProperty('--z',Math.min(1,(innerWidth-24)/1280))}f();addEventListener('resize',f)})()</script>` : "";
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Funding Pulse summary deck</title><style>${deckCss()}</style></head><body>${body}${script}</body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Funding Pulse summary deck</title><style>${deckCss()}</style></head><body>${printBtn}${body}${script}</body></html>`;
 }
 
 export const deckSlideCount = (view: DigestView, sections: DeckSectionId[]) => buildSlides(view, sections).length + 1;
