@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { extractEmails, isLinkedInProfile, isPublicHostname, nameAppears } from "./contacts";
-import { founderEmailDraft, linkedinNoteDraft, lpBriefDraft, lpBullets, portfolioFollowUpDraft } from "./drafts";
+import { founderEmailDraft, linkedinNoteDraft, lpBriefDraft, lpBullets, portfolioFollowUpDraft, sourceLinesBlock } from "./drafts";
 
 const sender = { name: "Aarav", title: "Venture Scout", organisation: "Cloudburst Ventures", intro_line: "I'm a venture scout at Cloudburst Ventures, a Bengaluru-based family office backing early-stage Indian startups.", outreach_tone: "warm" };
 
@@ -83,6 +83,25 @@ describe("drafts", () => {
     const d = portfolioFollowUpDraft({ kind: "named", company: "Wealthify", recipientName: null, named: [{ stage: "Seed", amountText: null, amountUsd: 3_000_000, amountInr: null, sourceUrl: "https://ex.com/1" }], adjacent: [], windowDays: 10 }, sender);
     expect(d.body).toContain("Wealthify raised $3 million in a Seed round");
     expect(noRawLinks(d.body)).toBe(0);
+  });
+});
+
+describe("source links for a check-in", () => {
+  it("names one source on one line", () => {
+    expect(sourceLinesBlock([{ url: "https://ex.com/a", outlet: "Inc42" }])).toBe("Source (Inc42): https://ex.com/a");
+  });
+  it("lists several, at most three, without repeats", () => {
+    const b = sourceLinesBlock([
+      { url: "https://ex.com/a", outlet: "Inc42" },
+      { url: "https://ex.com/a", outlet: "Inc42" },
+      { url: "https://www.ex2.com/b", outlet: null },
+      { url: "https://ex3.com/c", outlet: "Entrackr" },
+      { url: "https://ex4.com/d", outlet: "Mint" },
+    ]);
+    expect(b).toBe("Sources:\n• Inc42: https://ex.com/a\n• ex2.com: https://www.ex2.com/b\n• Entrackr: https://ex3.com/c");
+  });
+  it("is empty when there is no source", () => {
+    expect(sourceLinesBlock([])).toBe("");
   });
 });
 

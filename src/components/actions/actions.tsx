@@ -10,6 +10,8 @@ import { BentoCard, Chip, InitialsAvatar } from "@/components/brief/bento";
 import { linkedinSearchUrl } from "@/components/actions/linkedin-link";
 import { api, ApiError, useConfig } from "@/lib/client/api";
 import { buildLpEmail } from "@/lib/deck/email";
+import { sourceLinesBlock } from "@/lib/actions/drafts";
+import { splitDraft } from "@/lib/actions/rewrite";
 import { DEFAULT_DECK_SECTIONS } from "@/lib/deck/sections";
 import { streamText } from "@/lib/client/stream";
 import { hostOf } from "@/lib/format";
@@ -115,6 +117,20 @@ function FounderRow({ lead, onOpen }: { lead: FounderLead; onOpen: (l: FounderLe
   );
 }
 
+/** The check-in note, with an optional "link to the source" that can be ticked on or off before sending. */
+function followUpRequest(f: FollowUp): ComposeRequest {
+  const base = { kind: "portfolio_followup" as const, title: `Follow-up on ${f.company}`, to: f.stakeholder?.email ?? "", subject: f.draft.subject };
+  const block = sourceLinesBlock(f.sources);
+  if (!block) return { ...base, intro: "", outro: "", sections: [], body: f.draft.body };
+  const { greeting, middle, signoff } = splitDraft(f.draft.body);
+  return {
+    ...base,
+    intro: [greeting, middle].filter(Boolean).join("\n\n"),
+    outro: signoff,
+    sections: [{ id: "source", label: f.sources.length > 1 ? "Include links to the sources" : "Include a link to the source", text: block, on: false }],
+  };
+}
+
 function CheckInRow({ f, onCompose }: { f: FollowUp; onCompose: (r: ComposeRequest) => void }) {
   return (
     <li className="rounded-xl border bg-background/50 p-3">
@@ -137,7 +153,7 @@ function CheckInRow({ f, onCompose }: { f: FollowUp; onCompose: (r: ComposeReque
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <SourceChips sources={f.sources} />
-        <Button size="sm" className="ml-auto" onClick={() => onCompose({ kind: "portfolio_followup", title: `Follow-up on ${f.company}`, to: f.stakeholder?.email ?? "", subject: f.draft.subject, intro: "", outro: "", sections: [], body: f.draft.body })}>
+        <Button size="sm" className="ml-auto" onClick={() => onCompose(followUpRequest(f))}>
           <Mail data-icon="inline-start" /> Open draft
         </Button>
       </div>

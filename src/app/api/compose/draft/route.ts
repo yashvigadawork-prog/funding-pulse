@@ -46,7 +46,7 @@ export const POST = handle(async (req: Request) => {
       system: [
         `You rewrite short messages for ${sender.name}, ${sender.title} at ${sender.organisation}. Tone: ${sender.outreach_tone}`,
         UNTRUSTED_NOTICE,
-        "Voice: first person, written as the sender; warm, personal, brief and polished. Plain words only. Never use internal labels such as On Radar, investor of interest, focus deal or portfolio tags. At most three bullets.",
+        "Voice: first person, written as the sender; warm, personal, brief and polished. Plain words only. Never use internal labels such as On Radar, investor of interest, focus deal or portfolio tags. Keep every bullet point the draft already has (you may tighten its wording) and never add new bullets.",
         "Rules: keep every fact, number, name and web address exactly as given. Add no new facts, claims, promises, investment commitments or numbers. Do not add a greeting or a sign-off. Keep paragraph breaks as blank lines, keep bullet lines starting with •, and keep any web address on its own line exactly as written.",
         b.kind === "linkedin" ? "This is a LinkedIn connection note: at most 300 characters." : "This is an email.",
         STYLE[b.mode],

@@ -1,17 +1,15 @@
 /**
- * The tailored LP note. The sections the user ticks decide which lines appear (at most three points),
+ * The tailored LP note. Every section the user ticks adds its own point,
  * and an attached summary deck replaces the old link. Pure code: every figure comes from the stored digest.
  */
 import type { SenderProfile } from "@/lib/config/schema";
 import { stageLabel } from "@/lib/format";
-import { amountSpoken, formatUsd } from "@/lib/money";
+import { formatUsd } from "@/lib/money";
 import { formatWeekStart } from "@/lib/time";
 import type { Draft } from "@/lib/actions/types";
 import { firstName, lpLines, lpSubject, numberWord, sectorWord, signature } from "@/lib/actions/drafts";
 import type { DigestView } from "@/lib/view-types";
 import type { DeckSectionId } from "./sections";
-
-export const MAX_EMAIL_POINTS = 3;
 
 export interface LpEmailInput {
   view: DigestView;
@@ -45,7 +43,7 @@ export function lpSectionLines(view: DigestView): Partial<Record<DeckSectionId |
   const focus = c.focusDealIds.length;
   if (top && focus) {
     const stage = top.stage && stageLabel(top.stage) !== "Stage not reported" ? stageLabel(top.stage) : null;
-    const amount = amountSpoken({ amountUsd: top.amountUsd, amountInr: top.amountInr });
+    const amount = top.amountUsd !== null ? formatUsd(top.amountUsd) : null;
     const detail = [stage, amount].filter(Boolean).join(", ");
     out.fit = `${focus} deal${focus === 1 ? " fits" : "s fit"} what we back, led by ${top.companyName}${detail ? ` (${detail})` : ""}.`;
   }
@@ -73,12 +71,12 @@ export function buildLpEmail(input: LpEmailInput): Draft {
   const bullets = order
     .filter((id) => (id === "money2" ? want.has("money") : want.has(id)))
     .map((id) => lines[id])
-    .filter((x): x is string => !!x)
-    .slice(0, MAX_EMAIL_POINTS);
+    .filter((x): x is string => !!x);
   const nearby = want.has("nearby") ? lines.nearby : undefined;
 
   const count = bullets.length;
-  const intro = count ? `${count === 3 ? "Three things" : count === 2 ? "Two things" : "One thing"} stood out:\n${bullets.map((b) => `• ${b}`).join("\n")}` : "";
+  const heading = count === 1 ? "One thing stood out" : `${numberWord(count).replace(/^./, (c) => c.toUpperCase())} things stood out`;
+  const intro = count ? `${heading}:\n${bullets.map((b) => `• ${b}`).join("\n")}` : "";
   const attachLine = attach ? (count || nearby ? "I've attached a short deck with the detail behind each of these." : "I've attached a short deck with the detail from last week.") : "";
   const fallback = !count && !nearby && !attach ? "Here is a short summary of last week." : "";
 

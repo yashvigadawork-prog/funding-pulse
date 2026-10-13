@@ -166,7 +166,7 @@ function ComposeBody({ request, onClose }: { request: ComposeRequest; onClose: (
         {request.deck ? (
           <div className="grid gap-3">
             <SectionPicker value={deckSections} onChange={(v) => rebuildDeck(v, attach && v.length > 0)} showEmailHint compact />
-            <p className="text-xs text-muted-foreground">The email names up to three points from the sections you tick. The deck carries everything you tick.</p>
+            <p className="text-xs text-muted-foreground">Each section you tick adds a point to the email. The deck carries everything you tick.</p>
             <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-sm has-[[aria-checked=true]]:border-primary/40 has-[[aria-checked=true]]:bg-accent/40">
               <Checkbox className="mt-0.5" checked={attach} disabled={!deckSections.length} onCheckedChange={(v) => rebuildDeck(deckSections, v === true)} />
               <span className="min-w-0 flex-1">

@@ -186,3 +186,13 @@ export function lpBriefDraft(f: LpFacts, sender: SenderProfile): Draft {
   ].filter(Boolean);
   return { subject: lpSubject(f.weekStartLabel, f.leadSectors), body: parts.join("\n\n") };
 }
+
+/** The sources behind a note, written out for an email: one line for one source, a short list for several (at most three). */
+export function sourceLinesBlock(sources: { url: string; outlet: string | null }[]): string {
+  const seen = new Set<string>();
+  const unique = sources.filter((s) => (seen.has(s.url) ? false : (seen.add(s.url), true))).slice(0, 3);
+  if (!unique.length) return "";
+  const name = (s: { url: string; outlet: string | null }) => s.outlet?.trim() || (() => { try { return new URL(s.url).hostname.replace(/^www\./, ""); } catch { return "Source"; } })();
+  if (unique.length === 1) return `Source (${name(unique[0])}): ${unique[0].url}`;
+  return `Sources:\n${unique.map((s) => `• ${name(s)}: ${s.url}`).join("\n")}`;
+}

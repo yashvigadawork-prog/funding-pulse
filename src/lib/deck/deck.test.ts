@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { buildLpEmail, MAX_EMAIL_POINTS } from "./email";
+import { buildLpEmail } from "./email";
 import { DEFAULT_DECK_SECTIONS, parseSections } from "./sections";
 import { fixtureView } from "./fixture";
 import { jsx, render } from "./jsx/jsx-runtime";
@@ -49,11 +49,19 @@ describe("deck pages", () => {
 });
 
 describe("tailored LP email", () => {
-  it("never shows more than three points, however many sections are ticked", () => {
+  it("adds a point for every ticked section, with no cap", () => {
     const e = email(["glance", "money", "momentum", "investors", "fit", "names", "nearby"]);
-    expect(MAX_EMAIL_POINTS).toBe(3);
-    expect(bulletCount(e.body)).toBe(3);
-    expect(e.body).toContain("Three things stood out:");
+    // glance, money (two lines), momentum, investors, fit, names
+    expect(bulletCount(e.body)).toBe(7);
+    expect(e.body).toContain("Seven things stood out:");
+    expect(e.body).toContain("Closer to home");
+    expect(email(["glance", "money", "momentum", "investors"]).body).toContain("Five things stood out:");
+  });
+  it("keeps every ticked section: ticking more never drops a line that fewer ticks showed", () => {
+    const few = email(["money", "fit"], false).body.split("\n").filter((l) => l.startsWith("•"));
+    const more = email(["money", "fit", "names", "investors"], false).body.split("\n").filter((l) => l.startsWith("•"));
+    for (const line of few) expect(more).toContain(line);
+    expect(more.length).toBeGreaterThan(few.length);
   });
   it("follows the ticks: only the chosen sections write a line", () => {
     const one = email(["investors"], false);
@@ -63,7 +71,7 @@ describe("tailored LP email", () => {
     expect(one.body).toContain("1 of them ones we watch closely");
     const two = email(["fit", "names"], false);
     expect(bulletCount(two.body)).toBe(2);
-    expect(two.body).toContain("led by Zomint");
+    expect(two.body).toContain("led by Zomint (Seed, $3.7M).");
     expect(two.body).toContain("1 company we back or follow was in the news, including Zomint");
   });
   it("adds the nearby paragraph only when ticked", () => {
