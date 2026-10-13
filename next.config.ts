@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   // The deck embeds its own fonts, read from disk when it is built.
   outputFileTracingIncludes: {
-    "/api/deck/*": ["./src/lib/deck/fonts/**/*"],
-    "/api/compose/send": ["./src/lib/deck/fonts/**/*"],
+    "/api/deck/*": ["./src/lib/deck/fonts/**/*", "./node_modules/@sparticuz/chromium/bin/**/*"],
+    "/api/compose/send": ["./src/lib/deck/fonts/**/*", "./node_modules/@sparticuz/chromium/bin/**/*"],
   },
   turbopack: {
     rules: {
